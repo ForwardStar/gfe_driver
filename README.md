@@ -1,13 +1,12 @@
 ---
-GFE Driver
+GFE Driver for Forward*
 ---
 
-The GFE (Graph Framework Evaluation) Driver is the program used to run the experiments in "Spruce: a Fast yet Space-saving Structure for Dynamic Graph Storage", measuring the throughput of updates in libraries supporting structural dynamic graphs and the completion times of the [Graphalytics kernels](https://github.com/ldbc/ldbc_graphalytics). 
-The driver supports the following structures: Spruce, [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
+<!-- The GFE (Graph Framework Evaluation) Driver is the program used to run the experiments in "Spruce: a Fast yet Space-saving Structure for Dynamic Graph Storage", measuring the throughput of updates in libraries supporting structural dynamic graphs and the completion times of the [Graphalytics kernels](https://github.com/ldbc/ldbc_graphalytics).  -->
+The driver supports the following structures: Forward*, Spruce, [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
 [Stinger](http://stingergraph.com/) and [LiveGraph](https://github.com/thu-pacman/LiveGraph-Binary). 
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
-execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC) and community detection through label propagation (CDLP). 
-The core codes of Spruce could be found at [Spruce](https://github.com/Stardust-SJF/Spruce). 
+execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC) and community detection through label propagation (CDLP).
 
 ### Build 
 
@@ -24,21 +23,27 @@ The core codes of Spruce could be found at [Spruce](https://github.com/Stardust-
 
 #### Configure
 
-Initialise the sources and the configure script by:
+After cloning this repository, initialise the sources and the configure script by:
 
 ```
-git clone https://github.com/Stardust-SJF/gfe_driver/
-cd gfe_driver
 git submodule update --init
 mkdir build && cd build
 autoreconf -iv ..
 ```
-
+<!-- 
 The driver needs to be linked with the system to evaluate, which has to be built ahead. 
 We do not recommend linking the driver with multiple systems at once, 
 due to the usage of global variables in some systems and other naming clashes. 
-Instead, it is safer to reconfigure and rebuild the driver each time for a single specific system.
+Instead, it is safer to reconfigure and rebuild the driver each time for a single specific system. -->
 
+##### Forward*
+
+We have placed the library in this repository as `libFSTAR.a`. You can configure the driver with:
+
+````````shell
+cd build
+../configure --enable-optimize --disable-debug --with-fstar=../
+````````
 
 ##### Stinger
 Use the branch `feature/gfe `, it contains additional patches w.r.t. 
@@ -62,7 +67,6 @@ cd build
 ```
 
 It is noted that you can build stinger in any directory, and only need to set the corresponding build directory when cofiguring gfe_driver.
-
 
 ##### GraphOne
 
@@ -132,7 +136,7 @@ cd build
 
 ##### Spruce
 
-Use the library in our [GitHub Release Page](https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0). We note that the BVGT is the initial name of Spruce (BitVector-based-Graph-Tree), and we have not changed it in gfe_driver.
+Download the library from the [GitHub Release Page](https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0) and rename it as `libBVGT.a`. We note that the BVGT is the initial name of Spruce (BitVector-based-Graph-Tree), and we have not changed it in gfe_driver.
 
 Then configure the driver with:
 
@@ -141,21 +145,11 @@ cd build
 ../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
 ````````
 
-
-##### ForwardStar
-
-We have placed the library in this repository as `libFSTAR.a`. You can configure the driver with:
-
-````````shell
-cd build
-../configure --enable-optimize --disable-debug --with-fstar=../
-````````
-
 #### Compile
 
 Once configured, run `make clean && make -j`. There is no `install` target, the final artifact is the executable `gfe_driver`.
 
-If in the mood of running the testsuite, type `make check -j`.
+<!-- If in the mood of running the testsuite, type `make check -j`.
 
 If you meet errors like:
 ```shell
@@ -164,9 +158,7 @@ If you meet errors like:
       |                ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 cc1plus: all warnings being treated as errors
 ```
-,you can try to run "make -j CXX_FLAGS="-Wno-error", or replace `fclose(fp)` with `pclose(fp)` in `gfe_driver/build/third-party/libcommon/src/system_introspection.cpp`. 
-
-
+,you can try to run "make -j CXX_FLAGS="-Wno-error", or replace `fclose(fp)` with `pclose(fp)` in `gfe_driver/build/third-party/libcommon/src/system_introspection.cpp`. -->
 
 ### Datasets
 
@@ -191,7 +183,6 @@ GFE driver supports two types of graph formats:
    - `graph.e`: A list of edges from the graph, with each line representing a edge in the format `from_node_id to_node_id`.
 
 ### Executing the driver
-
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We note that 256GB of memory is needed to run all the experiments due to the large sizes of some graphs (e.g., uniform-26, and Friendster).
 There are three kinds of experiments that can be executed:
@@ -265,6 +256,7 @@ These are the full commands to repeat the experiments in the paper:
 ./gfe_driver -u -G /path/to/input/graph.properties -l teseo.13 -w 56
 ./gfe_driver -u -G /path/to/input/graph.properties -l sortledton.4 -w 56
 ./gfe_driver -u -G /path/to/input/graph.properties -l bvgt -w 56
+./gfe_driver -u -G /path/to/input/graph.properties -l forward_star -w 56
 ```
 
 ##### Sequential Insertions
@@ -276,6 +268,7 @@ These are the full commands to repeat the experiments in the paper:
 ./gfe_driver -u -G /path/to/input/graph -l teseo.13 -w 56 --is_timestamped true
 ./gfe_driver -u -G /path/to/input/graph -l sortledton.4 -w 56 --is_timestamped true
 ./gfe_driver -u -G /path/to/input/graph -l bvgt -w 56 --is_timestamped true
+./gfe_driver -u -G /path/to/input/graph -l forward_star -w 56 --is_timestamped true
 ```
 
 ##### Deletions
@@ -295,6 +288,7 @@ make -j
 ./gfe_driver -u -G /path/to/input/graph.properties -l teseo.13 -w 56 >> result.txt
 ./gfe_driver -u -G /path/to/input/graph.properties -l sortledton.4 -w 56  >> result.txt
 ./gfe_driver -u -G /path/to/input/graph.properties -l bvgt -w 56  >> result.txt
+./gfe_driver -u -G /path/to/input/graph.properties -l forward_star -w 56  >> result.txt
 ```
 
 ##### Graph Analytics
@@ -308,9 +302,10 @@ make -j
 ./gfe_driver  -G /path/to/input/graph.properties -u -l teseo.13 -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
 ./gfe_driver  -G /path/to/input/graph.properties -u -l sortledton.4 -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
 ./gfe_driver  -G /path/to/input/graph.properties -u -l bvgt -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
+./gfe_driver  -G /path/to/input/graph.properties -u -l forward_star -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
 ```
 
-##### Scalability 
+<!-- ##### Scalability 
 
 For `graph500-24` and p in {1,2,4,8,14,28,42,56} and 5 runs.
 
@@ -321,9 +316,10 @@ For `graph500-24` and p in {1,2,4,8,14,28,42,56} and 5 runs.
 ./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l teseo.13 -G /path/to/input/graph.properties -w p
 ./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l sortledton.4 -G /path/to/input/graph.properties -w p
 ./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l bvgt -G /path/to/input/graph.properties -w p
-```
+./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l forward_star -G /path/to/input/graph.properties -w p
+``` -->
 
-##### Mixed updates and analytics (Figure 14)
+<!-- ##### Mixed updates and analytics (Figure 14)
 
 For all combinations of reading ($r in \[1, 2, 4, 8, 16, 32\]) and writing threads ($w in \[16, 48\]).
 ```bash
@@ -331,7 +327,7 @@ For all combinations of reading ($r in \[1, 2, 4, 8, 16, 32\]) and writing threa
 ./gfe_driver  -u  -R 3 -d results.sqlite3 -l livegraph3_ro -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,pagerank,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true
 ./gfe_driver  -u  -R 3 -d results.sqlite3 -l bvgt -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,bfs,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true --block_size 512
 ./gfe_driver  -u  -R 3 -d results.sqlite3 -l livegraph3_ro -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,bfs,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true
-```
+``` -->
 
 ##### A simple example of running insertions using 56 threads with Stinger (Suppore that Stinger has already been built in the build directory):
 ```bash
