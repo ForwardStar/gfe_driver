@@ -36,6 +36,8 @@ We do not recommend linking the driver with multiple systems at once,
 due to the usage of global variables in some systems and other naming clashes. 
 Instead, it is safer to reconfigure and rebuild the driver each time for a single specific system. -->
 
+For the rest of the configuration part, note that you need to reconfigure it for each time you evaluate a different method.
+
 ##### Forward*
 
 We have placed the library in this repository as `libFSTAR.a`. You can configure the driver with:
@@ -136,7 +138,7 @@ cd build
 
 ##### Spruce
 
-Download the library from the [GitHub Release Page](https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0) and rename it as `libBVGT.a`. We note that the BVGT is the initial name of Spruce (BitVector-based-Graph-Tree), and we have not changed it in gfe_driver.
+Download the library from the [GitHub Release Page](https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0) and rename it as `libBVGT.a`.
 
 Then configure the driver with:
 
