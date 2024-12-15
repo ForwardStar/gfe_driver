@@ -69,6 +69,10 @@
 #include "bvgt/bvgt_driver.h"
 #endif
 
+#if defined(HAVE_FSTAR)
+#include "fstar/fstar_driver.h"
+#endif
+
 #if defined(HAVE_MICROBENCHMARKS)
 #include "microbenchmarks/microbenchmarks_driver.hpp"
 #endif
@@ -244,6 +248,12 @@ std::unique_ptr<Interface> generate_bvgt(bool directed_graph){
 //}
 #endif
 
+#if defined(HAVE_FSTAR)
+std::unique_ptr<Interface> generate_fstar(bool directed_graph){
+    return unique_ptr<Interface>{ new ForwardStarDriver(directed_graph) };
+}
+#endif
+
 #if defined(HAVE_SORTLEDTON)
 std::unique_ptr<Interface> generate_sortledton(bool directed_graph) {
     auto& config = configuration();
@@ -367,6 +377,10 @@ vector<ImplementationManifest> implementations() {
 //    result.emplace_back("bvgt-weighted", "BVGT for weighted graph", &generate_bvgt_weighted);
 //    result.emplace_back("bvgt-64", "BVGT for 8B edges", &generate_bvgt_64);
 //   result.emplace_back("bvgt-weighted", "BVGT for weighted graph", &generate_bvgt_weighted_64);
+#endif
+
+#if defined(HAVE_FSTAR)
+    result.emplace_back("forward_star", "Forward*", &generate_fstar);
 #endif
 
 #if defined(HAVE_SORTLEDTON)

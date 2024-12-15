@@ -141,9 +141,19 @@ cd build
 ../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
 ````````
 
+
+##### ForwardStar
+
+We have placed the library in this repository as `libFSTAR.a`. You can configure the driver with:
+
+````````shell
+cd build
+../configure --enable-optimize --disable-debug --with-fstar=../
+````````
+
 #### Compile
 
-Once configured, run `make -j`. There is no `install` target, the final artifact is the executable `gfe_driver`. 
+Once configured, run `make clean && make -j`. There is no `install` target, the final artifact is the executable `gfe_driver`.
 
 If in the mood of running the testsuite, type `make check -j`.
 
@@ -195,11 +205,11 @@ Here are some examples:
 
 If you are using a property file to indicate the input graph:
 ```
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/graph500-24.properties -l bvgt -w 28 -d extra20230224.sqlite3
+./gfe_driver -u -G ../../../../Dataset/GFEDataset/graph500-24.properties -l forward_star -w 28 -d extra20230224.sqlite3
 ```
 If you are using a plain edge list file (each line of the file contains two integers) as the input graph:
 ```
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l bvgt -w 56 --is_timestamped true -d extra20230224.sqlite3
+./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l forward_star -w 56 --is_timestamped true -d extra20230224.sqlite3
 ```
 
 

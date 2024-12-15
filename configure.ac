@@ -698,6 +698,38 @@ if ( test x"${with_bvgt}" != x"" && test x"${with_bvgt}" != "no" ); then
 fi
 
 #############################################################################
+# Support for the forward_star
+# Usage:
+# --with-fstar=/path/to/libfstar.a
+#
+
+AC_ARG_WITH([fstar], [AS_HELP_STRING([--with-fstar@<:@=ARG@:>@], [
+    Enable the support to forward_star. The argument needs to be the path where the library has been built.
+])], [])
+
+if ( test x"${with_fstar}" != x"" && test x"${with_fstar}" != "no" ); then
+    if( test x"${with_fstar}" == x"yes" ); then
+        AC_MSG_ERROR(["the full path to the forward_star build needs to be specified, e.g. --with-fstar=/path/to/libFSTAR.a"]);
+    fi
+
+    if ( test "${have_openmp}" == "no" ); then
+            AC_MSG_FAILURE([forward_star: missing prerequisite header omp.h (OpenMP runtime library)])
+        fi
+
+    MY_INTEL_TBB()
+
+    path_fstar=$(realpath "${with_fstar}")
+    path_fstar_library="${path_fstar}/libFSTAR.a"
+    AC_CHECK_FILE([${path_fstar_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_fstar_library}]) ])
+
+
+    AS_VAR_SET([LIBS], ["-L${path_fstar} -lFSTAR ${LIBS} -ljunction"])
+
+    AC_MSG_NOTICE([forward_star support enabled])
+    AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_FSTAR"])
+fi
+
+#############################################################################
 # Support for the Microbenchmarks
 # Usage:
 # --with-microbenchmarks=/path/to/microbenchmarks/build
