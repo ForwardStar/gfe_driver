@@ -187,6 +187,16 @@ GFE driver supports two types of graph formats:
 ### Executing the driver
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We note that 256GB of memory is needed to run all the experiments due to the large sizes of some graphs (e.g., uniform-26, and Friendster).
+
+For Forward*, we need to compute an optimal setting for ART, so you need to execute `optimizer.py` before running the gfe_driver:
+```
+python ../optimizer.py <dataset-name>.properties
+```
+
+Then input `d`, the depth of the ART. It would output the optimal setting to `settings`.
+
+You can also input `n`, the number of vertices and `log(u)`, the log of maximum vertex ID manually.
+
 There are three kinds of experiments that can be executed:
 
 - **Insertions only** : insert all vertices and edges from an input graph, in a random order. Use the command:
