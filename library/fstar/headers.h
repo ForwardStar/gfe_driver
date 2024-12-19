@@ -2,11 +2,11 @@
 #define HEADERS
 
 #include <iostream>
-#include <fstream>
 #include <cmath>
 #include <cassert>
 #include <random>
 #include <chrono>
+#include <fstream>
 #include <stdint.h>
 #include <map>
 #include <mutex>
@@ -16,5 +16,7 @@
 #include <stack>
 #include <thread>
 #include <tbb/concurrent_vector.h>
+
+const int max_number_of_threads = 32;
 
 #endif

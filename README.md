@@ -199,7 +199,12 @@ You can also input `n`, the number of vertices and `log(u)`, the log of maximum 
 
 There are three kinds of experiments that can be executed:
 
-- **Insertions only** : insert all vertices and edges from an input graph, in a random order. Use the command:
+- **Insertions and Deletions** : insert all vertices and edges from an input graph, in a random order, then delete all of them in random order.
+```
+./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
+```
+
+- **Insertions only** : Comment line 202-241 in `experiment/insert_only.cpp` and recompile the gfe-driver. It would insert all vertices and edges from an input graph, in a random order. Use the command:
 
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
@@ -213,14 +218,6 @@ If you are using a property file to indicate the input graph:
 If you are using a plain edge list file (each line of the file contains two integers) as the input graph:
 ```
 ./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l forward_star -w 56 --is_timestamped true -d extra20230224.sqlite3
-```
-
-
-- **Deletions** : insert all vertices and edges from an input graph, in a random order, then delete all of them in random order. 
-Comment line 198~231 in experiment/details/insert_only.cpp, then recompile the gfe-driver and use following command to evaluate deletion performance:
-
-```
-./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
 ```
 
 - **Updates**: perform all insertions and deletions from a log. Add the option --log /path/to/updates.graphlog :

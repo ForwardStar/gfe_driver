@@ -40,7 +40,7 @@ class ForwardStar {
 
         bool GetNeighbours(DummyNode* src, std::vector<WeightedEdge> &neighbours);
 
-        std::vector<uint64_t> BFS(uint64_t src);
+        std::vector<DummyNode*> BFS(uint64_t src);
 
         ForwardStar(int d, std::vector<int> _num_children);
         ~ForwardStar();
