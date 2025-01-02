@@ -2,3 +2,6 @@
 	path = third-party/libcommon
 	url = https://github.com/PerFuchs/libcommon
 	branch = master
+[submodule "library/fstar/forward_star"]
+	path = library/fstar/forward_star
+	url = https://github.com/ForwardStar/forward_star.git

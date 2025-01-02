@@ -40,7 +40,26 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### Forward*
 
-We have placed the library in this repository as `libFSTAR.a`. You can configure the driver with:
+Firstly you need to compile the codes to a library:
+```shell
+cd library/fstar/forward_star
+cmake .
+make
+```
+
+This would generate ``libFSTAR.a``. Also, compute the dynamic programming optimizer:
+```shell
+g++ optimizer_dp.cpp -o optimizer -O3
+```
+
+Then move them to the root directory:
+```shell
+mv libFSTAR.a ../../../
+mv optimizer ../../../
+cd ../../../
+```
+
+Now you can configure the driver with:
 
 ````````shell
 cd build
@@ -188,14 +207,10 @@ GFE driver supports two types of graph formats:
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We note that 256GB of memory is needed to run all the experiments due to the large sizes of some graphs (e.g., uniform-26, and Friendster).
 
-For Forward*, we need to compute an optimal setting for ART, so you need to execute `optimizer.py` before running the gfe_driver:
+For Forward*, we need to compute an optimal setting for the radix tree, so you need to execute `optimizer` before running the gfe_driver:
 ```
-python ../optimizer.py <dataset-name>.properties
+../optimizer <dataset-name>.v <#layers> > settings
 ```
-
-Then input `d`, the depth of the ART. It would output the optimal setting to `settings`.
-
-You can also input `n`, the number of vertices and `log(u)`, the log of maximum vertex ID manually.
 
 There are three kinds of experiments that can be executed:
 
