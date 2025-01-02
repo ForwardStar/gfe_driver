@@ -9,8 +9,8 @@
 #include <utility>
 #include <vector>
 #include "library/interface.hpp"
-#include "forward_star.h"
-#include "headers.h"
+#include "forward_star/src/forward_star.h"
+#include "forward_star/src/headers.h"
 // #include "./third_party/gapbs/src/pr_spmv.h"
 // #include "./third_party/gapbs/src/bfs.h"
 // #include "./third_party/gapbs/src/tc.h"
