@@ -11,11 +11,6 @@
 #include "library/interface.hpp"
 #include "forward_star/src/forward_star.h"
 #include "forward_star/src/headers.h"
-// #include "./third_party/gapbs/src/pr_spmv.h"
-// #include "./third_party/gapbs/src/bfs.h"
-// #include "./third_party/gapbs/src/tc.h"
-// #include "./third_party/gapbs/src/sssp.h"
-// #include "./third_party/gapbs/src/cc_sv.h"
 
 namespace gfe::library {
 
@@ -29,8 +24,8 @@ namespace gfe::library {
         std::atomic<uint32_t> edge_num;
         ForwardStar* G = nullptr;
         // Helper, save the content of the vector to the given output file
-//        template<typename T, bool negative_scores = true>
-//    void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
+        template<typename T, bool negative_scores = true>
+        void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
     public:
         /**
          * Create an instance of Spruce

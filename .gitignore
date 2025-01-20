@@ -12,8 +12,35 @@ _Deparsed_XSubs.pm
 # Autoconf
 /autom4te.cache/
 /configure
+configure~
 
 # Build directories
 /build/
 /Debug/
 /Release/
+
+# Datasets
+*.e
+*.v
+*.properties
+*.ez
+*.vz
+datasets.tar.gz
+
+# Algo results
+*-BFS
+*-CDLP
+*-PR
+*-WCC
+*-LCC
+*-SSSP
+
+# VSCode project files
+.vscode
+
+# Optimized Trie setting
+setting
+
+# Lib and optimizer
+libFSTAR.a
+optimizer
