@@ -43,13 +43,14 @@ For the rest of the configuration part, note that you need to reconfigure it for
 Firstly you need to compile the codes to a library:
 ```shell
 cd library/fstar/forward_star
+git submodule update --init --recursive
 cmake .
 make
 ```
 
 This would generate ``libFSTAR.a``. Also, compute the dynamic programming optimizer:
 ```shell
-g++ optimizer_dp.cpp -o optimizer -O3
+/path/to/compiler optimizer.cpp -o optimizer -O3
 ```
 
 Then move them to the root directory:
