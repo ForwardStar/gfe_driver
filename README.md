@@ -20,6 +20,7 @@ execute the updates specified by a [graphlog file](https://github.com/whatsthecr
 - Intel Threading Building Blocks 2 (version 2020.1-2)
 - jemalloc 5.2.1+
 - Disable NUMA balancing feature to avoid the Linux Kernel to swap pages during insertions: `echo 0 | sudo tee  /proc/sys/kernel/numa_balancing`
+- Python 3.5+ for downloading datasets (Or you can download manually)
 
 #### Configure
 
@@ -195,6 +196,11 @@ In our experiments, we used the following input graphs and data sets:
 - `livejournal`,`orkut` and `com-friendster` were taken from the [Stanford Large Network Dataset Collection](https://snap.stanford.edu/data/index.html).
 
 A complete image of all datasets used in the experiments can be downloaded here: [dota-league, graph500-SF, and uniform-SF](https://zenodo.org/record/3966439), [livejournal, orkut, and friendster](https://snap.stanford.edu/data/index.html), [graph logs](https://zenodo.org/record/3967002), and [yahoo-songs](https://zenodo.org/record/5752476).
+
+Or you can simply download all datasets by (requires some time to download and extract the datasets):
+```sh
+python3 downloader.py
+```
 
 #### About dataset format:
 GFE driver supports two types of graph formats: 

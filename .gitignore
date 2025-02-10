@@ -44,3 +44,6 @@ setting
 # Lib and optimizer
 libFSTAR.a
 optimizer
+
+# Datasets
+datasets
