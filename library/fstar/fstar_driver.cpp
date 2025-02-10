@@ -131,13 +131,6 @@ namespace gfe::library {
      *  Helpers                                                                  *
      *                                                                           *
      *****************************************************************************/
-    // Translate the logical into real vertices IDs. Materialization step at the end of a Graphalytics algorithm
-    template<typename T, bool negative_scores = true>
-    void ForwardStarDriver::save_results(std::vector<std::pair<uint64_t, T>> &result, const char* dump2file) {
-        // Not implemented
-        // Note: we have an inherent map from actual vertex ID to logical vertex ID,
-        // which means the result format would be different from normal practice.
-    }
 
     /*****************************************************************************
      *                                                                           *
@@ -166,8 +159,7 @@ namespace gfe::library {
         November 2012.
     */
     void ForwardStarDriver::bfs(uint64_t source_vertex_id, const char* dump2file) {
-        auto res = G->BFS(source_vertex_id);
-        save_results(res, dump2file);
+        auto p = DOBFS(G, source_vertex_id, vertex_num, edge_num, -1);
     }
 
     /*****************************************************************************
@@ -218,7 +210,7 @@ namespace gfe::library {
     updates in the pull direction to remove the need for atomics.
     */
     void ForwardStarDriver::pagerank(uint64_t num_iterations, double damping_factor, const char* dump2file) {
-        // PageRankPull((SpruceTransVer::TopBlock*)top_block, num_iterations, vertex_num);
+        PageRankPull(G, num_iterations, vertex_num);
     }
 
     /*****************************************************************************
@@ -285,7 +277,7 @@ namespace gfe::library {
     // direction, so we use a min-max swap such that lower component IDs propagate
     // independent of the edge's direction.
     void ForwardStarDriver::wcc(const char* dump2file) {
-        // ShiloachVishkin((SpruceTransVer::TopBlock*)top_block, vertex_num);
+        ShiloachVishkin(G, vertex_num);
     }
 
     /*****************************************************************************
@@ -311,7 +303,7 @@ namespace gfe::library {
     #endif
     // loosely based on the impl~ made for Stinger
     void ForwardStarDriver::lcc(const char* dump2file) {
-        // OrderedCount((SpruceTransVer::TopBlock*)top_block, vertex_num);
+        OrderedCount(G, vertex_num);
     }
 
     /*****************************************************************************
@@ -348,6 +340,6 @@ namespace gfe::library {
     // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     void ForwardStarDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
-        // DeltaStep((SpruceTransVer::TopBlock*)top_block, source_vertex_id, 2.0, vertex_num, edge_num);
+        DeltaStep(G, source_vertex_id, 2.0, vertex_num, edge_num);
     }
 }

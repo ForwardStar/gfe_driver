@@ -11,6 +11,11 @@
 #include "library/interface.hpp"
 #include "forward_star/src/forward_star.h"
 #include "forward_star/src/headers.h"
+#include "forward_star/src/GAPBS/bfs.h"
+#include "forward_star/src/GAPBS/pr_spmv.h"
+#include "forward_star/src/GAPBS/cc_sv.h"
+#include "forward_star/src/GAPBS/sssp.h"
+#include "forward_star/src/GAPBS/tc.h"
 
 namespace gfe::library {
 
