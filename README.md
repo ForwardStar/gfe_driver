@@ -1,9 +1,9 @@
 ---
-GFE Driver for Forward*
+GFE Driver for RadixGraph
 ---
 
 <!-- The GFE (Graph Framework Evaluation) Driver is the program used to run the experiments in "Spruce: a Fast yet Space-saving Structure for Dynamic Graph Storage", measuring the throughput of updates in libraries supporting structural dynamic graphs and the completion times of the [Graphalytics kernels](https://github.com/ldbc/ldbc_graphalytics).  -->
-The driver supports the following structures: Forward*, Spruce, [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
+The driver supports the following structures: RadixGraph, Spruce, [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
 [Stinger](http://stingergraph.com/) and [LiveGraph](https://github.com/thu-pacman/LiveGraph-Binary). 
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
 execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC) and community detection through label propagation (CDLP).
@@ -38,7 +38,7 @@ Instead, it is safer to reconfigure and rebuild the driver each time for a singl
 
 For the rest of the configuration part, note that you need to reconfigure it for each time you evaluate a different method.
 
-##### Forward*
+##### RadixGraph
 
 Firstly you need to compile the codes to a library:
 ```shell
@@ -207,7 +207,7 @@ GFE driver supports two types of graph formats:
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We note that 256GB of memory is needed to run all the experiments due to the large sizes of some graphs (e.g., uniform-26, and Friendster).
 
-For Forward*, we need to compute an optimal setting for the radix tree, so you need to execute `optimizer` before running the gfe_driver:
+For `RadixGraph`, we need to compute an optimal setting for the radix tree, so you need to execute `optimizer` before running the gfe_driver:
 ```
 ../optimizer <dataset-name>.v <#layers> > settings
 ```
