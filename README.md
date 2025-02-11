@@ -216,7 +216,7 @@ The driver takes as input a list of options together with a graph, and emits the
 
 For `RadixGraph`, we need to compute an optimal setting for the radix tree, so you need to execute `optimizer` before running the gfe_driver:
 ```
-../optimizer <dataset-name>.v <#layers> > settings
+./optimizer <dataset-path>.<v/el/txt> <#layers> > settings
 ```
 
 There are three kinds of experiments that can be executed:
@@ -280,14 +280,9 @@ These are the full commands to repeat the experiments in the paper:
 
 ##### Random Insertions
 
-```bash
-./gfe_driver -u -G /path/to/input/graph.properties -l stinger7-ref -w 56
-./gfe_driver -u -G /path/to/input/graph.properties -l g1_v6-ref-ignore-build -w 56
-./gfe_driver -u -G /path/to/input/graph.properties -l livegraph3_ro -w 56
-./gfe_driver -u -G /path/to/input/graph.properties -l teseo.13 -w 56
-./gfe_driver -u -G /path/to/input/graph.properties -l sortledton.4 -w 56
-./gfe_driver -u -G /path/to/input/graph.properties -l bvgt -w 56
-./gfe_driver -u -G /path/to/input/graph.properties -l forward_star -w 56
+After you compile ``gfe_driver`` with the corresponding graph system, run the corresponding scripts. For ``RadixGraph``, simply run:
+```sh
+sh run_RadixGraph_random.sh forward_star
 ```
 
 ##### Sequential Insertions
