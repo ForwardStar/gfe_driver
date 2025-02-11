@@ -186,9 +186,13 @@ Or you can simply download all datasets by (requires some time to download and e
 python3 downloader.py
 ```
 
-For `livejournal`, `orkut` and `com-friendster`, you need to remove the comment lines before running:
+For `livejournal`, `orkut` and `com-friendster`, you need to remove the comment lines and reformat them before running:
 ```sh
 sed -i '/^#/d' datasets/*.txt
+sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+mv datasets/com-friendster.ungraph.txt datasets/com-friendster.ungraph.el
+mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
+mv datasets/com-orkut.ungraph.txt datasets/com-orkut.ungraph.el
 ```
 
 #### About dataset format:
@@ -269,7 +273,7 @@ These are the full commands to repeat the experiments in the paper:
 
 If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_random.sh forward_star
+sh run_random.sh forward_star [threads]
 ```
 
 Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
@@ -287,12 +291,12 @@ Then repeat the above process.
 
 If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_analytics.sh forward_star
+sh run_analytics.sh forward_star [threads]
 ```
 
 Repeat the process by replacing ``forward_star`` to ``csr3``, ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
 
-### If you installed multiple versions of gcc
+### If you installed multiple versions of GCC
 You may get linking errors if you installed multiple versions of GCC. We recommend you to use ``GCC 10.5.0``. After configuring the corresponding graph systems (i.e., before executing ``make clean && make -j``), we recommend you to configure ``LDFLAGS`` in the Makefile manually.
 
 If you get errors like ``undefined reference to std::__throw_bad_array_new_length()``, try linking the standard C++ library with:
