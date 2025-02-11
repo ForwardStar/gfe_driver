@@ -243,15 +243,13 @@ Following parameters can be used to record memory footprint during the update pr
 -aging_memfp --aging_memfp_physical --aging_memfp_threshold 500G --aging_release_memory=false
 ```
 
-
-
 The option `--aging_timeout` serves to limit the total time to execute the experiment.
 The option `--aging_memfp` records the memory footprint as the experiment proceeds.
 The option `--aging_memfp_physical` records the physical memory (RSS) of the process rather than the virtual memory of the glibc allocator. 
 The option`--aging_memfp_threshold 500G` terminates the experiment if the memory footprint measured is greater than 330 GB .
 The option `--aging_release_memory=false` avoids releasing the memory used in the driver to load the graph from the file, as it may (or may not) recycled by the libraries. 
 
-- **Graphalytics**: execute the six kernels from the Graphalytics suite. Add the option `-R <N>` to repeat `N` times the execution of all Graphalytics kernels, one after the other. E.g., to run the kernels five times, after all vertices and edges have been inserted, use:
+- **Graph anlytics**: execute the six kernels from the Graphalytics suite. Add the option `-R <N>` to repeat `N` times the execution of all Graphalytics kernels, one after the other. E.g., to run the kernels five times, after all vertices and edges have been inserted, use:
 
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -R 5 -d output_results.sqlite3
@@ -287,35 +285,14 @@ Then repeat the above process.
 
 ##### Graph Analytics
 
-```shell
-./gfe_driver  -G /path/to/input/graph.properties -u -l csr3 --load -r 56 -R 5 --blacklist lcc,cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l csr3-lcc --load -r 56 -R 5 --blacklist cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l stinger7-ref -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l g1_v6-ref-ignore-build -w 56 -r 56 -R 5 --blacklist cdlp -d results_orkut.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l livegraph3_ro -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l teseo.13 -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l sortledton.4 -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l bvgt -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
-./gfe_driver  -G /path/to/input/graph.properties -u -l forward_star -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
+If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
+```sh
+sh run_analytics.sh forward_star
 ```
 
-##### A simple example of running insertions using 56 threads with Stinger (Suppore that Stinger has already been built in the build directory):
-```bash
-cd build 
-make clean
-../configure --enable-optimize --enable-mem-analysis --disable-debug --with-stinger=../../../stinger-gfe/stinger/build
-make -j
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/graph500-24.properties -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/uniform-24.properties -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l stinger7-ref -w 56 --is_timestamped true -d result.sqlite3 >>ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/dota-league.properties -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/Friendster/com-friendster.ungraph.el -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/Orkut/com-orkut.ungraph.el -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-./gfe_driver -u -G ../../../../Dataset/LiveJournal/com-lj.ungraph.el -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
-```
+Repeat the process by replacing ``forward_star`` to ``csr3``, ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
 
-#### If you installed multiple versions of gcc
+### If you installed multiple versions of gcc
 You may get linking errors if you installed multiple versions of GCC. We recommend you to use ``GCC 10.5.0``. After configuring the corresponding graph systems (i.e., before executing ``make clean && make -j``), we recommend you to configure ``LDFLAGS`` in the Makefile manually.
 
 If you get errors like ``undefined reference to std::__throw_bad_array_new_length()``, try linking the standard C++ library with:
