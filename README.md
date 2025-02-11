@@ -31,11 +31,6 @@ git submodule update --init
 mkdir build && cd build
 autoreconf -iv ..
 ```
-<!-- 
-The driver needs to be linked with the system to evaluate, which has to be built ahead. 
-We do not recommend linking the driver with multiple systems at once, 
-due to the usage of global variables in some systems and other naming clashes. 
-Instead, it is safer to reconfigure and rebuild the driver each time for a single specific system. -->
 
 For the rest of the configuration part, note that you need to reconfigure it for each time you evaluate a different method.
 
@@ -172,17 +167,6 @@ cd build
 
 Once configured, run `make clean && make -j`. There is no `install` target, the final artifact is the executable `gfe_driver`.
 
-<!-- If in the mood of running the testsuite, type `make check -j`.
-
-If you meet errors like:
-```shell
-/home/ubuntu/gfe_driver/third-party/libcommon/src/system_introspection.cpp:110:21: note: returned from ‘FILE* popen(const char*, const char*)’
-  110 |     FILE* fp = popen("git log -1 | awk 'NR == 1 && $1 == \"commit\" {print $2}'", "r");
-      |                ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cc1plus: all warnings being treated as errors
-```
-,you can try to run "make -j CXX_FLAGS="-Wno-error", or replace `fclose(fp)` with `pclose(fp)` in `gfe_driver/build/third-party/libcommon/src/system_introspection.cpp`. -->
-
 ### Datasets
 
 In our experiments, we used the following input graphs and data sets:
@@ -200,6 +184,11 @@ A complete image of all datasets used in the experiments can be downloaded here:
 Or you can simply download all datasets by (requires some time to download and extract the datasets):
 ```sh
 python3 downloader.py
+```
+
+For `livejournal`, `orkut` and `com-friendster`, you need to remove the comment lines before running:
+```sh
+sed -i '/^#/d' datasets/*.txt
 ```
 
 #### About dataset format:
@@ -278,44 +267,23 @@ The database `output_results.sqlite3` will contain the final results.
 
 These are the full commands to repeat the experiments in the paper:
 
-##### Random Insertions
+##### Random Insertions and Deletions
 
-After you compile ``gfe_driver`` with the corresponding graph system, run the corresponding scripts. For ``RadixGraph``, simply run:
+If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_RadixGraph_random.sh forward_star
+sh run_random.sh forward_star
 ```
 
-##### Sequential Insertions
-
-```bash
-./gfe_driver -u -G /path/to/input/graph -l stinger7-ref -w 56 --is_timestamped true
-./gfe_driver -u -G /path/to/input/graph -l g1_v6-ref-ignore-build -w 56 --is_timestamped true
-./gfe_driver -u -G /path/to/input/graph -l livegraph3_ro -w 56 --is_timestamped true
-./gfe_driver -u -G /path/to/input/graph -l teseo.13 -w 56 --is_timestamped true
-./gfe_driver -u -G /path/to/input/graph -l sortledton.4 -w 56 --is_timestamped true
-./gfe_driver -u -G /path/to/input/graph -l bvgt -w 56 --is_timestamped true
-./gfe_driver -u -G /path/to/input/graph -l forward_star -w 56 --is_timestamped true
-```
-
-##### Deletions
-Comment line 198~231 in experiment/details/insert_only.cpp, then recompile the gfe-driver. The commands to evaluate are the same as above.
+Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
 
 ##### Memory Consumption
 
-Comment line 95~102 in experiment/insert_only.cpp, then recompile the gfe-driver and use the following command to evaluate deletion performance. The memory consumption during the loading process will be printed in the console.
-
-```shell
-mkdir build && cd build
-../configure --enable-optimize --enable-mem-analysis --disable-debug --with-bvgt=/path/to/spruce/build/
-make -j
-./gfe_driver -u -G /path/to/input/graph.properties -l stinger7-ref -w 56 >> result.txt
-./gfe_driver -u -G /path/to/input/graph.properties -l g1_v6-ref-ignore-build -w 56  >> result.txt
-./gfe_driver -u -G /path/to/input/graph.properties -l livegraph3_ro -w 56  >> result.txt
-./gfe_driver -u -G /path/to/input/graph.properties -l teseo.13 -w 56 >> result.txt
-./gfe_driver -u -G /path/to/input/graph.properties -l sortledton.4 -w 56  >> result.txt
-./gfe_driver -u -G /path/to/input/graph.properties -l bvgt -w 56  >> result.txt
-./gfe_driver -u -G /path/to/input/graph.properties -l forward_star -w 56  >> result.txt
+Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example:
+```sh
+../configure --enable-optimize --enable-mem-analysis --disable-debug --with-fstar=../
 ```
+
+Then repeat the above process.
 
 ##### Graph Analytics
 
@@ -330,30 +298,6 @@ make -j
 ./gfe_driver  -G /path/to/input/graph.properties -u -l bvgt -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
 ./gfe_driver  -G /path/to/input/graph.properties -u -l forward_star -w 56 -r 56 -R 5 --blacklist cdlp -d result.sqlite3
 ```
-
-<!-- ##### Scalability 
-
-For `graph500-24` and p in {1,2,4,8,14,28,42,56} and 5 runs.
-
-```bash
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l stinger7-ref -G /path/to/input/graph.properties -w p
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l g1_v6-ref-ignore-build -G /path/to/input/graph.properties -w p
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l livegraph3_ro -G /path/to/input/graph.properties -w p
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l teseo.13 -G /path/to/input/graph.properties -w p
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l sortledton.4 -G /path/to/input/graph.properties -w p
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l bvgt -G /path/to/input/graph.properties -w p
-./gfe_driver  -u  -R 0 -d ./result.sqlite3 -l forward_star -G /path/to/input/graph.properties -w p
-``` -->
-
-<!-- ##### Mixed updates and analytics (Figure 14)
-
-For all combinations of reading ($r in \[1, 2, 4, 8, 16, 32\]) and writing threads ($w in \[16, 48\]).
-```bash
-./gfe_driver  -u  -R 3 -d results.sqlite3 -l bvgt -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,pagerank,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true --block_size 512
-./gfe_driver  -u  -R 3 -d results.sqlite3 -l livegraph3_ro -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,pagerank,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true
-./gfe_driver  -u  -R 3 -d results.sqlite3 -l bvgt -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,bfs,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true --block_size 512
-./gfe_driver  -u  -R 3 -d results.sqlite3 -l livegraph3_ro -G /path/to/graph500-24.properties -w $w -r $r --blacklist sssp,cdlp,bfs,wcc,lcc --log /path/to/graph500-24-1.0.graphlog --aging_timeout 2h --mixed_workload true
-``` -->
 
 ##### A simple example of running insertions using 56 threads with Stinger (Suppore that Stinger has already been built in the build directory):
 ```bash
@@ -370,3 +314,26 @@ make -j
 ./gfe_driver -u -G ../../../../Dataset/Orkut/com-orkut.ungraph.el -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
 ./gfe_driver -u -G ../../../../Dataset/LiveJournal/com-lj.ungraph.el -l stinger7-ref -w 56 -d result.sqlite3 >> ExSpruceAllInsertMem0708.txt
 ```
+
+#### If you installed multiple versions of gcc
+You may get linking errors if you installed multiple versions of GCC. We recommend you to use ``GCC 10.5.0``. After configuring the corresponding graph systems (i.e., before executing ``make clean && make -j``), we recommend you to configure ``LDFLAGS`` in the Makefile manually.
+
+If you get errors like ``undefined reference to std::__throw_bad_array_new_length()``, try linking the standard C++ library with:
+```sh
+LDFLAGS += -L{LIBCPP_PATH} -lstdc++
+```
+
+where ``LIBCPP_PATH`` is the path of ``libstdc++.so`` of GCC 10.5.0. Generally, it would be included in ``gcc/lib64`` of your manually installed GCC compiler.
+
+If you get errors about ``tbb``, try installing the correct version of the TBB and linking the TBB library with:
+```sh
+LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
+```
+
+Also, remember to add these libraries to your ``LD_LIBRARY_PATH``:
+```sh
+export LD_LIBRARY_PATH=${TBB_PATH}/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
+```
+
+We understand that the driver is difficult to configure and you may encounter some issues. In fact, we have tried to simplify the process of executing the driver compared with the original repo. Feel free to ask us for help and provide suggestions.
