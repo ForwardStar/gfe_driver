@@ -162,7 +162,7 @@ chrono::microseconds InsertOnly::execute() {
 //    if(report_memfp){ LOG("Memory footprint after " << DurationQuantity( tick ) << ": " << ComputerQuantity(memfp_process - memfp_driver, true)); }
 
     auto before = common::get_memory_footprint();
-    LOG("Memory before: " <<  before);
+    LOG("Memory before: " <<  before << "MB");
     // Execute the insertions
     m_interface->on_main_init(m_num_threads /* build thread */ +1);
     m_interface->updates_start();
@@ -173,7 +173,7 @@ chrono::microseconds InsertOnly::execute() {
     build_service.stop();
     timer.stop();
     auto after = common::get_memory_footprint();
-    LOG("Memory consumption: " << after - before);
+    LOG("Memory consumption: " << after - before << "MB");
     m_interface->updates_stop();
     LOG("Insertions performed with " << m_num_threads << " threads in " << timer);
     m_time_insert = timer.microseconds();
