@@ -157,7 +157,7 @@ cd build
 Use the branch `main` from `https://github.com/Stardust-SJF/Spruce`.
 For the paper, we evaluated commit "adb715bd5503d9d6be3bdef98ea2415797f7d268".
 ```shell
-cd library/bvgt/Spruce
+cd library/bvgt
 git clone https://github.com/Stardust-SJF/Spruce.git
 cd ..
 cmake -S . -DCMAKE_BUILD_TYPE=Release
