@@ -50,3 +50,9 @@ datasets
 
 # Results
 results
+
+# Baselines
+stinger
+GraphOne
+teseo
+sortledton
