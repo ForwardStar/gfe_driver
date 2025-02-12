@@ -154,10 +154,11 @@ cd build
 
 ##### Spruce
 
-We added Git submodule of Spruce in ``library/bvgt``. You will need to fetch from [upstream](https://github.com/Stardust-SJF/Spruce) and compile the codes to a library. For the paper, we evaluated commit "adb715bd5503d9d6be3bdef98ea2415797f7d268".
+Use the branch `main` from `https://github.com/Stardust-SJF/Spruce`.
+For the paper, we evaluated commit "adb715bd5503d9d6be3bdef98ea2415797f7d268".
 ```shell
 cd library/bvgt/Spruce
-git submodule update --init --recursive
+git clone https://github.com/Stardust-SJF/Spruce.git
 cd ..
 cmake -S . -DCMAKE_BUILD_TYPE=Release
 make
