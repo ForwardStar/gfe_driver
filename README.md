@@ -36,11 +36,11 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-Firstly you need to compile the codes to a library:
+We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "7839a43c1c771cbee7ed44f925efc0ae4d29d507".
 ```shell
 cd library/fstar/forward_star
 git submodule update --init --recursive
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
@@ -154,13 +154,26 @@ cd build
 
 ##### Spruce
 
-Download the library from the [GitHub Release Page](https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0) and rename it as `libBVGT.a`.
+We added Git submodule of Spruce in ``library/bvgt``. You will need to fetch from [upstream](https://github.com/Stardust-SJF/Spruce) and compile the codes to a library. For the paper, we evaluated commit "adb715bd5503d9d6be3bdef98ea2415797f7d268".
+```shell
+cd library/bvgt/Spruce
+git submodule update --init --recursive
+cd ..
+cmake -S . -DCMAKE_BUILD_TYPE=Release
+make
+```
 
-Then configure the driver with:
+This would generate ``libBVGT.a``. Then move them to the root directory:
+```shell
+mv libBVGT.a ../../
+cd ../../
+```
+
+Now you can configure the driver with:
 
 ````````shell
 cd build
-../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
+../configure --enable-optimize --disable-debug --with-bvgt=../
 ````````
 
 #### Compile

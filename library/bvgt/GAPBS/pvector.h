@@ -4,9 +4,6 @@
 #ifndef PVECTOR_H_
 #define PVECTOR_H_
 
-#include <algorithm>
-
-
 /*
 GAP Benchmark Suite
 Class:  pvector

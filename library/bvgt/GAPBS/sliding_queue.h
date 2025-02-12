@@ -4,8 +4,6 @@
 #ifndef SLIDING_QUEUE_H_
 #define SLIDING_QUEUE_H_
 
-#include <algorithm>
-
 #include "platform_atomics.h"
 
 

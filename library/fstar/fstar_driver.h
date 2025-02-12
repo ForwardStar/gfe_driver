@@ -1,7 +1,3 @@
-//
-// Created by sjf on 9/15/2022.
-//
-
 #ifndef GRAPHINDEX_FORWARD_STAR_DRIVER_H
 #define GRAPHINDEX_FORWARD_STAR_DRIVER_H
 
@@ -22,7 +18,6 @@ namespace gfe::library {
     class ForwardStarDriver : public virtual UpdateInterface, public virtual GraphalyticsInterface {
 
     protected:
-        void* top_block; // pointer to the library
         const bool m_is_directed; // whether the underlying graph is directed or undirected
         std::chrono::seconds m_timeout{0}; // the budget to complete each of the algorithms in the Graphalytics suite
         std::atomic<uint32_t> vertex_num;

@@ -5,23 +5,15 @@
 #ifndef GRAPHINDEX_SSSP_H
 #define GRAPHINDEX_SSSP_H
 
-#include <cinttypes>
-#include <limits>
-#include <iostream>
-#include <queue>
-#include <vector>
-
 #include "benchmark.h"
-#include "builder.h"
-#include "command_line.h"
-#include "graph.h"
 #include "platform_atomics.h"
 #include "pvector.h"
 #include "timer.h"
-#include "../../../spruce_transaction.h"
+#include "../Spruce/src/index_algorithms.h"
+#include "../Spruce/src/spruce_transaction.h"
 
 inline
-void RelaxEdges(SpruceTransVer::TopBlock* g, NodeID u, WeightT delta,
+void RelaxEdges(SpruceTransVer& g, NodeID u, WeightT delta,
                 pvector<WeightT> &dist, std::vector <std::vector<NodeID>> &local_bins) {
     std::vector<SpruceTransVer::WeightedOutEdgeSimple> neighbours;
     SpruceTransVer::get_neighbours(g, u, neighbours);
@@ -41,11 +33,6 @@ void RelaxEdges(SpruceTransVer::TopBlock* g, NodeID u, WeightT delta,
     }
 }
 
-pvector<WeightT> DeltaStep(SpruceTransVer::TopBlock *g, NodeID source, WeightT delta, uint32_t num_nodes, long num_edges);
-
-void PrintSSSPStats(const WGraph &g, const pvector<WeightT> &dist);
-
-bool SSSPVerifier(const WGraph &g, NodeID source,
-                  const pvector<WeightT> &dist_to_test);
+pvector<WeightT> DeltaStep(SpruceTransVer& g, NodeID source, WeightT delta, uint32_t num_nodes, long num_edges);
 
 #endif //GRAPHINDEX_SSSP_H

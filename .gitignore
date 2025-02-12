@@ -52,6 +52,7 @@ datasets
 results
 
 # Baselines
+libBVGT.a
 stinger
 GraphOne
 teseo
