@@ -92,7 +92,6 @@ namespace gfe::library {
     }
 
     bool BVGTDriver::update_edge(gfe::graph::WeightedEdge e) {
-        SpruceTransVer::UpdateEdge(G, SpruceTransVer::WeightedEdge{e.m_destination, e.m_source, e.m_weight});
         return SpruceTransVer::UpdateEdge(G, SpruceTransVer::WeightedEdge{e.m_source, e.m_destination, e.m_weight});
     }
 
