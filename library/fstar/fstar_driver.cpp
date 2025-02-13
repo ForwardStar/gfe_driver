@@ -17,7 +17,9 @@ namespace gfe::library {
         fin >> d;
         std::vector<int> a(d);
         for (auto& i : a) fin >> i;
-        G = new ForwardStar(d, a);
+        bool enable_query = 0;
+        fin >> enable_query;
+        G = new ForwardStar(d, a, enable_query);
     }
 
     ForwardStarDriver::~ForwardStarDriver() {
