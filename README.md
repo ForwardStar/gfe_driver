@@ -287,6 +287,12 @@ sh run_random.sh forward_star [threads]
 
 Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
 
+##### Sequential Insertions and Deletions
+Repeat the same procedure with ``run_sequential.sh``:
+```sh
+sh run_sequential.sh forward_star [threads]
+```
+
 ##### Memory Consumption
 
 Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example:
@@ -294,7 +300,7 @@ Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example
 ../configure --enable-optimize --enable-mem-analysis --disable-debug --with-fstar=../
 ```
 
-Then repeat the above process.
+Then run ``run_random.sh`` with the same procedure.
 
 ##### Graph Analytics
 
@@ -303,7 +309,12 @@ If you have downloaded the data via the ``downloader.py``, after you compile ``g
 sh run_analytics.sh forward_star [threads]
 ```
 
-Repeat the process by replacing ``forward_star`` to ``csr3``, ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
+Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
+
+Also, run the baseline by:
+```sh
+sh run_analytics_csr.sh [threads]
+```
 
 ### If you installed multiple versions of GCC
 You may get linking errors if you installed multiple versions of GCC. We recommend you to use ``GCC 10.5.0``. After configuring the corresponding graph systems (i.e., before executing ``make clean && make -j``), we recommend you to configure ``LDFLAGS`` in the Makefile manually.
