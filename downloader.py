@@ -99,8 +99,7 @@ if __name__ == "__main__":
     DATASETS_URL = ["https://zenodo.org/records/3966439/files/datasets.tar.gz",
                     "https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz",
                     "https://snap.stanford.edu/data/bigdata/communities/com-orkut.ungraph.txt.gz",
-                    "https://snap.stanford.edu/data/bigdata/communities/com-friendster.ungraph.txt.gz",
-                    "https://zenodo.org/records/5752476/files/yahoo-song.el"]
+                    "https://snap.stanford.edu/data/bigdata/communities/com-friendster.ungraph.txt.gz"]
     if os.path.isdir("datasets") is False or len(os.listdir("datasets")) < len(DATASETS_URL):
         print("Downloading datasets...")
         if os.path.isdir("datasets") is False:

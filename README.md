@@ -186,13 +186,9 @@ In our experiments, we used the following input graphs and data sets:
 
 - `dota-league` and `graph500-SF`, with `SF` in {24 26} , were taken from the [official Graphalytics collection](https://www.graphalytics.org/datasets).
 - `uniform-SF`, with `SF` in {24, 26} were generated with an [ad-hoc tool](https://github.com/whatsthecraic/uniform_graph_generator). These are synthetic graphs having the same number of vertices and edges of `graph500-SF`, but a uniform node degree distribution.
-- The logs for the experiments with updates, i.e. with both insertions and deletions,
-  were generated with another [ad-hoc tool](https://github.com/whatsthecraic/graphlog). 
-- `yahoo-songs` was taken from the [Konect webpage](http://konect.cc/networks/) they were prepared 
-  for our experiments by sorting them by timestamp and removing duplicates.  
 - `livejournal`,`orkut` and `com-friendster` were taken from the [Stanford Large Network Dataset Collection](https://snap.stanford.edu/data/index.html).
 
-A complete image of all datasets used in the experiments can be downloaded here: [dota-league, graph500-SF, and uniform-SF](https://zenodo.org/record/3966439), [livejournal, orkut, and friendster](https://snap.stanford.edu/data/index.html), [graph logs](https://zenodo.org/record/3967002), and [yahoo-songs](https://zenodo.org/record/5752476).
+A complete image of all datasets used in the experiments can be downloaded here: [dota-league, graph500-SF, and uniform-SF](https://zenodo.org/record/3966439), [livejournal, orkut, and friendster](https://snap.stanford.edu/data/index.html).
 
 Or you can simply download all datasets by (requires some time to download and extract the datasets):
 ```sh

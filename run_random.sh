@@ -32,11 +32,6 @@ if [ -n "$1" ]; then
         fi
         ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $2 > results/$1/dota-league-random-$1
         if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/yahoo-song.el 8 > settings
-            echo "0" >> settings
-        fi
-        ./build/gfe_driver -G datasets/yahoo-song.el -u -l $1 -w $2 > results/$1/yahoo-song-random-$1
-        if [ "$1" = "forward_star" ]; then
             ./optimizer datasets/com-friendster.ungraph.el 8 > settings
             echo "0" >> settings
         fi
@@ -77,11 +72,6 @@ if [ -n "$1" ]; then
             echo "0" >> settings
         fi
         ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $(nproc) > results/$1/dota-league-random-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/yahoo-song.el 8 > settings
-            echo "0" >> settings
-        fi
-        ./build/gfe_driver -G datasets/yahoo-song.el -u -l $1 -w $(nproc) > results/$1/yahoo-song-random-$1
         if [ "$1" = "forward_star" ]; then
             ./optimizer datasets/com-friendster.ungraph.el 8 > settings
             echo "0" >> settings
