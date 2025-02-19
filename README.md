@@ -36,7 +36,7 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "136b31114162e8cd704dabfc9d932dca5202836a".
+We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "92638eb8383609f44a407c9582a0702c5137e4f1".
 ```shell
 cd library/fstar/forward_star
 git submodule update --init --recursive
@@ -262,7 +262,7 @@ The option `--aging_memfp_physical` records the physical memory (RSS) of the pro
 The option`--aging_memfp_threshold 500G` terminates the experiment if the memory footprint measured is greater than 330 GB .
 The option `--aging_release_memory=false` avoids releasing the memory used in the driver to load the graph from the file, as it may (or may not) recycled by the libraries. 
 
-- **Graph anlytics**: execute the six kernels from the Graphalytics suite. Add the option `-R <N>` to repeat `N` times the execution of all Graphalytics kernels, one after the other. E.g., to run the kernels five times, after all vertices and edges have been inserted, use:
+- **Graph anlytics**: comment lines 202-241 in ``experiment/details/insert_only.cpp`` and execute the six kernels from the Graphalytics suite. Add the option `-R <N>` to repeat `N` times the execution of all Graphalytics kernels, one after the other. E.g., to run the kernels five times, after all vertices and edges have been inserted, use:
 
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -R 5 -d output_results.sqlite3
@@ -304,7 +304,7 @@ Then run ``run_random.sh`` with the same procedure.
 
 ##### Graph Analytics
 
-If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
+Firstly comment lines 202-241 in ``experiment/details/insert_only.cpp``. If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
 sh run_analytics.sh forward_star [threads]
 ```
