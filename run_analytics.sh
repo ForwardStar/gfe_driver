@@ -33,22 +33,7 @@ if [ -n "$1" ]; then
             ./optimizer datasets/dota-league.v 8 > settings
             echo "1" >> settings
         fi
-        ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $2 -r $2 -R 5 --blacklist lcc,cdlp > results/$1/analytics/dota-league-analytics-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/com-friendster.ungraph.el 8 > settings
-            echo "1" >> settings
-        fi
-        ./build/gfe_driver -G datasets/com-friendster.ungraph.el -u -l $1 -w $2 -r $2 -R 5 --blacklist lcc,cdlp > results/$1/analytics/com-friendster.ungraph-analytics-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/com-lj.ungraph.el 8 > settings
-            echo "1" >> settings
-        fi
-        ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l $1 -w $2 -r $2 -R 5 --blacklist lcc,cdlp > results/$1/analytics/com-lj.ungraph-analytics-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/com-orkut.ungraph.el 8 > settings
-            echo "1" >> settings
-        fi
-        ./build/gfe_driver -G datasets/com-orkut.ungraph.el -u -l $1 -w $2 -r $2 -R 5 --blacklist lcc,cdlp > results/$1/analytics/com-orkut.ungraph-analytics-$1
+        ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $1 -r $1 -R 5 --blacklist lcc,cdlp > results/$1/analytics/dota-league-analytics-$1
     else
         if [ "$1" = "forward_star" ]; then
             ./optimizer datasets/graph500-24.v 8 > settings
@@ -75,21 +60,6 @@ if [ -n "$1" ]; then
             echo "1" >> settings
         fi
         ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $(nproc) -r $(nproc) -R 5 --blacklist lcc,cdlp > results/$1/analytics/dota-league-analytics-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/com-friendster.ungraph.el 8 > settings
-            echo "1" >> settings
-        fi
-        ./build/gfe_driver -G datasets/com-friendster.ungraph.el -u -l $1 -w $(nproc) -r $(nproc) -R 5 --blacklist lcc,cdlp > results/$1/analytics/com-friendster.ungraph-analytics-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/com-lj.ungraph.el 8 > settings
-            echo "1" >> settings
-        fi
-        ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l $1 -w $(nproc) -r $(nproc) -R 5 --blacklist lcc,cdlp > results/$1/analytics/com-lj.ungraph-analytics-$1
-        if [ "$1" = "forward_star" ]; then
-            ./optimizer datasets/com-orkut.ungraph.el 8 > settings
-            echo "1" >> settings
-        fi
-        ./build/gfe_driver -G datasets/com-orkut.ungraph.el -u -l $1 -w $(nproc) -r $(nproc) -R 5 --blacklist lcc,cdlp > results/$1/analytics/com-orkut.ungraph-analytics-$1
     fi
     if [ "$1" = "forward_star" ]; then
         rm settings

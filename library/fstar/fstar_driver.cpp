@@ -95,7 +95,6 @@ namespace gfe::library {
     bool ForwardStarDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
-        vertex_num = G->vertex_index->cnt;
         return true;
     }
 
@@ -103,7 +102,6 @@ namespace gfe::library {
         edge_num++;
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         if (!m_is_directed) G->InsertEdge(e.m_destination, e.m_source, e.m_weight);
-        vertex_num = G->vertex_index->cnt;
         return true;
     }
 
@@ -161,6 +159,7 @@ namespace gfe::library {
         November 2012.
     */
     void ForwardStarDriver::bfs(uint64_t source_vertex_id, const char* dump2file) {
+        vertex_num = G->vertex_index->cnt;
         auto p = DOBFS(G, source_vertex_id, vertex_num, edge_num, -1);
     }
 
@@ -212,6 +211,7 @@ namespace gfe::library {
     updates in the pull direction to remove the need for atomics.
     */
     void ForwardStarDriver::pagerank(uint64_t num_iterations, double damping_factor, const char* dump2file) {
+        vertex_num = G->vertex_index->cnt;
         PageRankPull(G, num_iterations, vertex_num);
     }
 
@@ -279,6 +279,7 @@ namespace gfe::library {
     // direction, so we use a min-max swap such that lower component IDs propagate
     // independent of the edge's direction.
     void ForwardStarDriver::wcc(const char* dump2file) {
+        vertex_num = G->vertex_index->cnt;
         ShiloachVishkin(G, vertex_num);
     }
 
@@ -305,6 +306,7 @@ namespace gfe::library {
     #endif
     // loosely based on the impl~ made for Stinger
     void ForwardStarDriver::lcc(const char* dump2file) {
+        vertex_num = G->vertex_index->cnt;
         OrderedCount(G, vertex_num);
     }
 
@@ -342,6 +344,7 @@ namespace gfe::library {
     // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     void ForwardStarDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
+        vertex_num = G->vertex_index->cnt;
         DeltaStep(G, source_vertex_id, 2.0, vertex_num, edge_num);
     }
 }

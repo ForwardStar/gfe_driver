@@ -36,7 +36,7 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "92638eb8383609f44a407c9582a0702c5137e4f1".
+We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "5d47b70ba53888b4299103533bfebaa2cc7e8f6f".
 ```shell
 cd library/fstar/forward_star
 git submodule update --init --recursive
@@ -310,11 +310,6 @@ sh run_analytics.sh forward_star [threads]
 ```
 
 Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
-
-Also, run the baseline by:
-```sh
-sh run_analytics_csr.sh [threads]
-```
 
 ### If you installed multiple versions of GCC
 You may get linking errors if you installed multiple versions of GCC. We recommend you to use ``GCC 10.5.0``. After configuring the corresponding graph systems (i.e., before executing ``make clean && make -j``), we recommend you to configure ``LDFLAGS`` in the Makefile manually.
