@@ -154,26 +154,11 @@ cd build
 
 ##### Spruce
 
-Use the branch `main` from `https://github.com/Stardust-SJF/Spruce`.
-For the paper, we evaluated commit "adb715bd5503d9d6be3bdef98ea2415797f7d268".
-```shell
-cd library/bvgt
-git clone https://github.com/Stardust-SJF/Spruce.git
-cmake -S . -DCMAKE_BUILD_TYPE=Release
-make
-```
-
-This would generate ``libBVGT.a``. Then move them to the root directory:
-```shell
-mv libBVGT.a ../../
-cd ../../
-```
-
-Now you can configure the driver with:
+Download the library `libBVGT_stable.a` from `https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0` and rename it to `libBVGT.a`. Then you can configure the driver with:
 
 ````````shell
 cd build
-../configure --enable-optimize --disable-debug --with-bvgt=../
+../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
 ````````
 
 #### Compile

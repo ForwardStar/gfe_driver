@@ -9,22 +9,14 @@
 #include <utility>
 #include <vector>
 #include "library/interface.hpp"
-#include "Spruce/src/index_algorithms.h"
-#include "Spruce/src/graph_preprocess.h"
-#include "Spruce/src/header.h"
-#include "Spruce/src/memory_analysis.h"
-#include "Spruce/src/spruce_transaction.h"
-#include "Spruce/src/succinct_algorithms.h"
-#include "GAPBS/benchmark.h"
-#include "GAPBS/bfs.h"
-#include "GAPBS/bitmap.h"
-#include "GAPBS/cc_sv.h"
-#include "GAPBS/platform_atomics.h"
-#include "GAPBS/pr_spmv.h"
-#include "GAPBS/pvector.h"
-#include "GAPBS/sliding_queue.h"
-#include "GAPBS/sssp.h"
-#include "GAPBS/timer.h"
+#include "spruce_transaction.h"
+#include "cdlp.h"
+#include "header.h"
+#include "./third_party/gapbs/src/pr_spmv.h"
+#include "./third_party/gapbs/src/bfs.h"
+#include "./third_party/gapbs/src/tc.h"
+#include "./third_party/gapbs/src/sssp.h"
+#include "./third_party/gapbs/src/cc_sv.h"
 
 namespace gfe::library {
 
@@ -36,10 +28,9 @@ namespace gfe::library {
         std::chrono::seconds m_timeout{0}; // the budget to complete each of the algorithms in the Graphalytics suite
         std::atomic<uint32_t> vertex_num;
         std::atomic<uint32_t> edge_num;
-        SpruceTransVer G;
         // Helper, save the content of the vector to the given output file
-        template<typename T, bool negative_scores = true>
-        void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
+//        template<typename T, bool negative_scores = true>
+//    void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
     public:
         /**
          * Create an instance of Spruce
