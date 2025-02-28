@@ -36,7 +36,7 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "5d47b70ba53888b4299103533bfebaa2cc7e8f6f".
+We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "8cf05bff60acb8e38ea853cf81cfcc847fffde3e".
 ```shell
 cd library/fstar/forward_star
 git submodule update --init --recursive
