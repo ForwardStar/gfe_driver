@@ -4,6 +4,8 @@
 #include <chrono>
 #include <utility>
 #include <vector>
+#include <atomic>
+#include "library/interface.hpp"
 #include "GTX-SIGMOD2025/bind/GTX.hpp"
 
 namespace gfe::library {
@@ -15,7 +17,8 @@ namespace gfe::library {
         std::chrono::seconds m_timeout{0}; // the budget to complete each of the algorithms in the Graphalytics suite
         std::atomic<uint32_t> vertex_num;
         std::atomic<uint32_t> edge_num;
-        GTX* G = nullptr;
+        gt::Graph g;
+        gt::RWTransaction txn = g.begin_read_write_transaction();
         // Helper, save the content of the vector to the given output file
         template<typename T, bool negative_scores = true>
         void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
@@ -178,4 +181,4 @@ namespace gfe::library {
     };
 }
 
-#endif //GRAPHINDEX_BVGT_DRIVER_H
+#endif

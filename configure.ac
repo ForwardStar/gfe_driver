@@ -732,7 +732,7 @@ fi
 #############################################################################
 # Support for the GTX
 # Usage:
-# --with-gtx=/path/to/libgtx_lib.a
+# --with-gtx=/path/to/libgtx.a
 #
 
 AC_ARG_WITH([gtx], [AS_HELP_STRING([--with-gtx@<:@=ARG@:>@], [
@@ -741,7 +741,7 @@ AC_ARG_WITH([gtx], [AS_HELP_STRING([--with-gtx@<:@=ARG@:>@], [
 
 if ( test x"${with_gtx}" != x"" && test x"${with_gtx}" != "no" ); then
     if( test x"${with_gtx}" == x"yes" ); then
-        AC_MSG_ERROR(["the full path to the GTX build needs to be specified, e.g. --with-gtx=/path/to/libgtx_lib.a"]);
+        AC_MSG_ERROR(["the full path to the GTX build needs to be specified, e.g. --with-gtx=/path/to/libgtx.a"]);
     fi
 
     if ( test "${have_openmp}" == "no" ); then
@@ -751,11 +751,11 @@ if ( test x"${with_gtx}" != x"" && test x"${with_gtx}" != "no" ); then
     MY_INTEL_TBB()
 
     path_gtx=$(realpath "${with_gtx}")
-    path_gtx_library="${path_gtx}/libgtx_lib.a"
+    path_gtx_library="${path_gtx}/libgtx.a"
     AC_CHECK_FILE([${path_gtx_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_gtx_library}]) ])
 
 
-    AS_VAR_SET([LIBS], ["-L${path_gtx} -lGTX ${LIBS} -ljunction"])
+    AS_VAR_SET([LIBS], ["-L${path_gtx} -lgtx ${LIBS} -ljunction"])
 
     AC_MSG_NOTICE([GTX support enabled])
     AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_GTX"])

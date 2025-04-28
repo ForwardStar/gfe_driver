@@ -69,6 +69,10 @@
 #include "bvgt/bvgt_driver.h"
 #endif
 
+#if defined(HAVE_GTX)
+#include "gtx/gtx_driver.h"
+#endif
+
 #if defined(HAVE_FSTAR)
 #include "fstar/fstar_driver.h"
 #endif
@@ -248,6 +252,12 @@ std::unique_ptr<Interface> generate_bvgt(bool directed_graph){
 //}
 #endif
 
+#if defined(HAVE_GTX)
+std::unique_ptr<Interface> generate_gtx(bool directed_graph){
+    return unique_ptr<Interface>{ new GTXDriver(directed_graph) };
+}
+#endif
+
 #if defined(HAVE_FSTAR)
 std::unique_ptr<Interface> generate_fstar(bool directed_graph){
     return unique_ptr<Interface>{ new ForwardStarDriver(directed_graph) };
@@ -381,6 +391,10 @@ vector<ImplementationManifest> implementations() {
 
 #if defined(HAVE_FSTAR)
     result.emplace_back("forward_star", "Forward*", &generate_fstar);
+#endif
+
+#if defined(HAVE_GTX)
+    result.emplace_back("gtx", "GTX", &generate_gtx);
 #endif
 
 #if defined(HAVE_SORTLEDTON)

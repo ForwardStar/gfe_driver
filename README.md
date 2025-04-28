@@ -168,6 +168,11 @@ cd library/gtx/GTX-SIGMOD2025
 git submodule update --init --recursive
 ```
 
+Revise line 30 of ``CMakeList.txt`` to:
+```shell
+add_library(gtx STATIC bind/GTX.cpp src/block.cpp src/bw_index.cpp src/gtx_transaction.cpp src/bwgraph.cpp src/commit_manager.cpp src/transaction_tables.cpp src/cleanup_txn.cpp src/after_load_consolidation_transaction.cpp)
+```
+
 Then follow the instructions in the GTX README of the repository to setup and build the library:
 ```shell
 mkdir build && cd build
@@ -177,8 +182,8 @@ make -j
 
 Then move the library to the root directory:
 ```shell
-mv libgtx_lib.so ../../../
-cd ../../../
+mv libgtx.a ../../../../
+cd ../../../../
 ```
 
 Then configure the driver with:
@@ -348,7 +353,7 @@ in your ``Makefile`` before running ``make clean && make -j``, where ``LIBCPP_PA
 export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
 ```
 
-For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring Spruce if your TBB version is incorrect, try installing the correct version of the TBB (2022.01) by compiling from source and linking the TBB library with:
+For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring Spruce or GTX to GFE driver if your TBB version is incorrect, try installing the correct version of the TBB (2022.01) by compiling from source and linking the TBB library by adding following to ``build/Makefile``:
 ```sh
 LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 ```

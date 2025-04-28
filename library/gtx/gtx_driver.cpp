@@ -12,18 +12,9 @@ namespace gfe::library {
      *                                                                           *
      *****************************************************************************/
     GTXDriver::GTXDriver(bool is_directed) : m_is_directed(is_directed), vertex_num(1), edge_num(0) {
-        std::ifstream fin("settings");
-        int d;
-        fin >> d;
-        std::vector<int> a(d);
-        for (auto& i : a) fin >> i;
-        bool enable_query = 0;
-        fin >> enable_query;
-        G = new GTX(d, a, enable_query);
     }
 
     GTXDriver::~GTXDriver() {
-        delete G;
     }
 
     void GTXDriver::on_thread_init(int thread_id) {
@@ -52,8 +43,7 @@ namespace gfe::library {
     }
 
     bool GTXDriver::has_vertex(uint64_t vertex_id) const {
-        auto u = G->vertex_index->RetrieveVertex(vertex_id);
-        return u != nullptr;
+        // Not implemented
     }
 
     double GTXDriver::get_weight(uint64_t source, uint64_t destination) const {
@@ -82,37 +72,38 @@ namespace gfe::library {
     }
 
     bool GTXDriver::add_vertex(uint64_t vertex_id) {
-        // Use add_edge function instead
-        // vertex_num++;
-        // auto u = G->vertex_index->RetrieveVertex(vertex_id, true);
+        while (vertex_id >= vertex_num.load()) {
+            auto vid = txn.new_vertex();
+            txn.put_vertex(vid, "");
+            txn.commit();
+            vertex_num.fetch_add(1);
+        }
         return true;
     }
 
     bool GTXDriver::remove_vertex(uint64_t vertex_id) {
-        return G->vertex_index->DeleteVertex(vertex_id);
+        // Not implemented
     }
 
     bool GTXDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
-        G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
+        add_vertex(e.m_source), add_vertex(e.m_destination), txn.checked_put_edge(e.m_source, 0, e.m_destination, ""), txn.commit();
         return true;
     }
 
     bool GTXDriver::add_edge_v2(gfe::graph::WeightedEdge e) {
         edge_num++;
-        G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
-        if (!m_is_directed) G->InsertEdge(e.m_destination, e.m_source, e.m_weight);
+        add_vertex(e.m_source), add_vertex(e.m_destination), txn.checked_put_edge(e.m_source, 0, e.m_destination, ""), txn.commit();
         return true;
     }
 
     bool GTXDriver::update_edge(gfe::graph::WeightedEdge e) {
-        return G->UpdateEdge(e.m_source, e.m_destination, e.m_weight);
+        txn.checked_put_edge(e.m_source, 0, e.m_destination, ""), txn.commit();
     }
 
     bool GTXDriver::remove_edge(gfe::graph::Edge e) {
         edge_num--;
-        G->DeleteEdge(e.m_source, e.m_destination);
-        if (!m_is_directed) G->DeleteEdge(e.m_destination, e.m_source);
+        txn.checked_delete_edge(e.m_source, 0, e.m_destination), txn.commit();
         return true;
     }
 
@@ -159,8 +150,6 @@ namespace gfe::library {
         November 2012.
     */
     void GTXDriver::bfs(uint64_t source_vertex_id, const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        auto p = DOBFS(G, source_vertex_id, vertex_num, edge_num, -1);
     }
 
     /*****************************************************************************
@@ -211,8 +200,6 @@ namespace gfe::library {
     updates in the pull direction to remove the need for atomics.
     */
     void GTXDriver::pagerank(uint64_t num_iterations, double damping_factor, const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        PageRankPull(G, num_iterations, vertex_num);
     }
 
     /*****************************************************************************
@@ -279,8 +266,6 @@ namespace gfe::library {
     // direction, so we use a min-max swap such that lower component IDs propagate
     // independent of the edge's direction.
     void GTXDriver::wcc(const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        ShiloachVishkin(G, vertex_num);
     }
 
     /*****************************************************************************
@@ -306,8 +291,6 @@ namespace gfe::library {
     #endif
     // loosely based on the impl~ made for Stinger
     void GTXDriver::lcc(const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        OrderedCount(G, vertex_num);
     }
 
     /*****************************************************************************
@@ -344,7 +327,5 @@ namespace gfe::library {
     // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     void GTXDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        DeltaStep(G, source_vertex_id, 2.0, vertex_num, edge_num);
     }
 }
