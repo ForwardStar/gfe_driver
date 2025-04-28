@@ -5,3 +5,6 @@
 [submodule "library/fstar/forward_star"]
 	path = library/fstar/forward_star
 	url = https://github.com/ForwardStar/forward_star.git
+[submodule "library/gtx/GTX-SIGMOD25"]
+	path = library/gtx/GTX-SIGMOD25
+	url = https://github.com/Jiboxiake/GTX-SIGMOD2025.git
