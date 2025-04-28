@@ -730,6 +730,38 @@ if ( test x"${with_fstar}" != x"" && test x"${with_fstar}" != "no" ); then
 fi
 
 #############################################################################
+# Support for the GTX
+# Usage:
+# --with-gtx=/path/to/libgtx_lib.a
+#
+
+AC_ARG_WITH([gtx], [AS_HELP_STRING([--with-gtx@<:@=ARG@:>@], [
+    Enable the support to GTX. The argument needs to be the path where the library has been built.
+])], [])
+
+if ( test x"${with_gtx}" != x"" && test x"${with_gtx}" != "no" ); then
+    if( test x"${with_gtx}" == x"yes" ); then
+        AC_MSG_ERROR(["the full path to the GTX build needs to be specified, e.g. --with-gtx=/path/to/libgtx_lib.a"]);
+    fi
+
+    if ( test "${have_openmp}" == "no" ); then
+            AC_MSG_FAILURE([GTX: missing prerequisite header omp.h (OpenMP runtime library)])
+        fi
+
+    MY_INTEL_TBB()
+
+    path_gtx=$(realpath "${with_gtx}")
+    path_gtx_library="${path_gtx}/libgtx_lib.a"
+    AC_CHECK_FILE([${path_gtx_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_gtx_library}]) ])
+
+
+    AS_VAR_SET([LIBS], ["-L${path_gtx} -lGTX ${LIBS} -ljunction"])
+
+    AC_MSG_NOTICE([GTX support enabled])
+    AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_GTX"])
+fi
+
+#############################################################################
 # Support for the Microbenchmarks
 # Usage:
 # --with-microbenchmarks=/path/to/microbenchmarks/build

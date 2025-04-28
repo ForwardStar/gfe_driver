@@ -110,6 +110,9 @@ endif
 ifneq (,$(findstring -DHAVE_FSTAR,${ALL_CPPFLAGS}))
 	sources += $(addprefix library/fstar/, fstar_driver.cpp)
 endif
+ifneq (,$(findstring -DHAVE_GTX,${ALL_CPPFLAGS}))
+	sources += $(addprefix library/gtx/, gtx_driver.cpp)
+endif
 
 ifneq (,$(findstring -DHAVE_SORTLEDTONV2,${ALL_CPPFLAGS}))
 	sources += $(addprefix library/sortledton_v2/, sortledton_driver_v2.cpp)

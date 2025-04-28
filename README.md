@@ -3,7 +3,7 @@ GFE Driver for RadixGraph
 ---
 
 <!-- The GFE (Graph Framework Evaluation) Driver is the program used to run the experiments in "Spruce: a Fast yet Space-saving Structure for Dynamic Graph Storage", measuring the throughput of updates in libraries supporting structural dynamic graphs and the completion times of the [Graphalytics kernels](https://github.com/ldbc/ldbc_graphalytics).  -->
-The driver supports the following structures: [RadixGraph](https://github.com/ForwardStar/forward_star), [Spruce](https://github.com/Stardust-SJF/gfe_driver/tree/v2.0.0), [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
+The driver supports the following structures: [RadixGraph](https://github.com/ForwardStar/forward_star), [GTX](https://github.com/Jiboxiake/GTX-SIGMOD2025?tab=readme-ov-file), [Spruce](https://github.com/Stardust-SJF/gfe_driver/tree/v2.0.0), [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
 [Stinger](http://stingergraph.com/) and [LiveGraph](https://github.com/thu-pacman/LiveGraph-Binary). 
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
 execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC) and community detection through label propagation (CDLP).
@@ -13,11 +13,11 @@ execute the updates specified by a [graphlog file](https://github.com/whatsthecr
 #### Requisites 
 - O.S. Linux
 - Autotools, [Autoconf 2.69+](https://www.gnu.org/software/autoconf/)
-- A C++17 compliant compiler with support for OpenMP. We tested it with GCC 10.
+- A C++17 compliant compiler with support for OpenMP. We tested it with GCC 10.5.0.
 - libnuma 2.0 +
 - [libpapi 5.5 +](http://icl.utk.edu/papi/)
 - [SQLite 3.27 +](https://sqlite.org)
-- Intel Threading Building Blocks 2 (version 2020.1-2)
+- [Intel Threading Building Blocks](https://github.com/uxlfoundation/oneTBB) (version 2022.01)
 - jemalloc 5.2.1+
 - Disable NUMA balancing feature to avoid the Linux Kernel to swap pages during insertions: `echo 0 | sudo tee  /proc/sys/kernel/numa_balancing`
 - Python 3.5+ for downloading datasets (Or you can download manually)
@@ -161,6 +161,33 @@ cd build
 ../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
 ````````
 
+##### GTX
+We added Git submodule of GTX in ``library/gtx/GTX-SIGMOD2025``. You will need to fetch from [upstream](https://github.com/Jiboxiake/GTX-SIGMOD2025) and compile the codes to a library. For this paper, we evaluated commit "c9d7fc7895c03298c8df2a00e29c0086b892b095".
+```shell
+cd library/gtx/GTX-SIGMOD2025
+git submodule update --init --recursive
+```
+
+Then follow the instructions in the GTX README of the repository to setup and build the library:
+```shell
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j
+```
+
+Then move the library to the root directory:
+```shell
+mv libgtx_lib.so ../../../
+cd ../../../
+```
+
+Then configure the driver with:
+
+```
+cd build
+../configure --enable-optimize --disable-debug --with-gtx=../
+```
+
 #### Compile
 
 Once configured, run `make clean && make -j`. There is no `install` target, the final artifact is the executable `gfe_driver`.
@@ -296,25 +323,40 @@ sh run_analytics.sh forward_star [threads]
 
 Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
 
-### If you installed multiple versions of GCC
-You may get linking errors if you installed multiple versions of GCC. We recommend you to use ``GCC 10.5.0``. After configuring the corresponding graph systems (i.e., before executing ``make clean && make -j``), we recommend you to configure ``LDFLAGS`` in the Makefile manually.
+### Troubleshooting
+As in requisites, we recommend using ``GCC 10.5.0`` and ``tbb 2022.01``. If you have installed multiple GCC and TBB versions, configure in your ``.bashrc`` file to ensure that the correct GCC and TBB are used:
+```sh
+alias gcc=gcc-10
+alias g++=g++-10
+export CC=gcc-10
+export CXX=g++-10
+export TBB_PATH=/path/to/tbb
+export LD_LIBRARY_PATH=${TBB_PATH}/lib:$LD_LIBRARY_PATH
+```
 
-If you get errors like ``undefined reference to std::__throw_bad_array_new_length()``, try linking the standard C++ library with:
+where ``/path/to/tbb`` is your installed TBB by compiling from source, which should contain ``include``, ``lib`` and ``share`` folders.
+
+Following are some practical errors we met during configuration, most from (1) incompatible GCC compiler and libraries; (2) incompatible TBB versions.
+
+For (1), you may get linking errors if you installed multiple versions of GCC. If you get errors like ``undefined reference to std::__throw_bad_array_new_length()``, try linking the standard C++ library with:
 ```sh
 LDFLAGS += -L{LIBCPP_PATH} -lstdc++
 ```
 
-where ``LIBCPP_PATH`` is the path of ``libstdc++.so`` of GCC 10.5.0. Generally, it would be included in ``gcc/lib64`` of your manually installed GCC compiler.
+in your ``Makefile`` before running ``make clean && make -j``, where ``LIBCPP_PATH`` is the path of ``libstdc++.so`` of GCC 10.5.0. Generally, it would be included in ``gcc/lib64`` of your manually installed GCC compiler. Also, remember to update your ``LD_LIBRARY_PATH`` by adding this to ``.bashrc``:
+```sh
+export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
+```
 
-If you get errors about ``tbb``, try installing the correct version of the TBB and linking the TBB library with:
+For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring Spruce if your TBB version is incorrect, try installing the correct version of the TBB (2022.01) by compiling from source and linking the TBB library with:
 ```sh
 LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 ```
 
-Also, remember to add these libraries to your ``LD_LIBRARY_PATH``:
+When compiling the library of GTX, you may also encounter ``error: invalid ‘static_cast’ from type ‘const std::thread::id’ to type ‘std::size_t’ {aka ‘long unsigned int’}`` if your TBB version is incorrect. Similarly, try installing the correct version of the TBB and add TBB path to ``CMakeLists.txt`` in GTX:
 ```sh
-export LD_LIBRARY_PATH=${TBB_PATH}/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
+include_directories("/path/to/tbb/include")
+link_directories("/path/to/tbb/lib")
 ```
 
 We understand that the driver is difficult to configure and you may encounter some issues. In fact, we have tried to simplify the process of executing the driver compared with the original repo. Feel free to ask us for help and provide suggestions.
