@@ -732,30 +732,47 @@ fi
 #############################################################################
 # Support for the GTX
 # Usage:
-# --with-gtx=/path/to/libgtx.a
+# --with-gtx=/path/to/GTX/build
 #
 
-AC_ARG_WITH([gtx], [AS_HELP_STRING([--with-gtx@<:@=ARG@:>@], [
+AC_ARG_WITH([GTX], [AS_HELP_STRING([--with-gtx@<:@=ARG@:>@], [
     Enable the support to GTX. The argument needs to be the path where the library has been built.
 ])], [])
 
 if ( test x"${with_gtx}" != x"" && test x"${with_gtx}" != "no" ); then
     if( test x"${with_gtx}" == x"yes" ); then
-        AC_MSG_ERROR(["the full path to the GTX build needs to be specified, e.g. --with-gtx=/path/to/libgtx.a"]);
+        AC_MSG_ERROR(["the full path to the GTX build needs to be specified, e.g. --with-gtx=/path/to/gtx/build"]);
     fi
-
-    if ( test "${have_openmp}" == "no" ); then
-            AC_MSG_FAILURE([GTX: missing prerequisite header omp.h (OpenMP runtime library)])
-        fi
 
     MY_INTEL_TBB()
 
     path_gtx=$(realpath "${with_gtx}")
-    path_gtx_library="${path_gtx}/libgtx.a"
+    #path_gtx_library="${path_gtx}/libgtx.so"
+    path_gtx_library="${path_gtx}/libgtx.so"
     AC_CHECK_FILE([${path_gtx_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_gtx_library}]) ])
 
+    path_gtx_makefile="${path_gtx}/Makefile"
+    AC_CHECK_FILE([${path_gtx_makefile}], [  ],  [ AC_MSG_ERROR(["file not found: ${path_gtx_makefile}"]) ])
 
-    AS_VAR_SET([LIBS], ["-L${path_gtx} -lgtx ${LIBS} -ljunction"])
+    path_gtx_includedir=$(realpath "${path_gtx}/../")
+    AC_MSG_NOTICE([GTX include path: ${path_gtx_includedir}])
+
+    AS_VAR_APPEND([CPPFLAGS], [" -I${path_gtx_includedir} -I${path_gtx}/include"])
+    AS_VAR_APPEND([CPPFLAGS], [" -I${path_gtx_includedir}/bind -I${path_gtx_includedir}/core -I${path_gtx}/include"])
+    # TODO clean up include structure in gtx
+    #AS_VAR_SET([LIBS], ["-L${path_gtx} -lgtx ${LIBS}"])
+    AS_VAR_SET([LIBS], ["-L${path_gtx} -lgtx ${LIBS}"])
+
+    # Try to compile a program with GTX
+    AC_LINK_IFELSE([
+        AC_LANG_PROGRAM([[
+            @%:@include "GTX.hpp"
+        ]], [[
+            gt::Graph g;
+        ]])
+    ], [], [
+        AC_MSG_FAILURE([unable to compile and link an executable with GTX])
+    ])
 
     AC_MSG_NOTICE([GTX support enabled])
     AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_GTX"])

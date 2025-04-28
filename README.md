@@ -162,35 +162,12 @@ cd build
 ````````
 
 ##### GTX
-We added Git submodule of GTX in ``library/gtx/GTX-SIGMOD2025``. You will need to fetch from [upstream](https://github.com/Jiboxiake/GTX-SIGMOD2025) and compile the codes to a library. For this paper, we evaluated commit "c9d7fc7895c03298c8df2a00e29c0086b892b095".
-```shell
-cd library/gtx/GTX-SIGMOD2025
-git submodule update --init --recursive
-```
-
-Revise line 30 of ``CMakeList.txt`` to:
-```shell
-add_library(gtx STATIC bind/GTX.cpp src/block.cpp src/bw_index.cpp src/gtx_transaction.cpp src/bwgraph.cpp src/commit_manager.cpp src/transaction_tables.cpp src/cleanup_txn.cpp src/after_load_consolidation_transaction.cpp)
-```
-
-Then follow the instructions in the GTX README of the repository to setup and build the library:
-```shell
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j
-```
-
-Then move the library to the root directory:
-```shell
-mv libgtx.a ../../../../
-cd ../../../../
-```
-
-Then configure the driver with:
-
+Currently we use the branch 'master' from 'https://github.com/Jiboxiake/GTX-SIGMOD2025' . If GFE_DRIVER is used to reproduce the experiments for billion-edges grahs, please change the [USING_BIGDATA] flag to true in ./core/graph_global.hpp. Follow the instruction in REAME to build GTX. After GTX has been built, configure the driver with:
 ```
 cd build
-../configure --enable-optimize --disable-debug --with-gtx=../
+../configure --enable-optimize --disable-debug --with-gtx=/path/to/GTX/build
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/GTX/build
+export LD_LIBRARY_PATH 
 ```
 
 #### Compile
@@ -302,7 +279,7 @@ If you have downloaded the data via the ``downloader.py``, after you compile ``g
 sh run_random.sh forward_star [threads]
 ```
 
-Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
+Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Sequential Insertions and Deletions
 Repeat the same procedure with ``run_sequential.sh``:
@@ -326,7 +303,7 @@ Firstly comment lines 202-241 in ``experiment/details/insert_only.cpp``. If you 
 sh run_analytics.sh forward_star [threads]
 ```
 
-Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4`` and ``bvgt``.
+Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ### Troubleshooting
 As in requisites, we recommend using ``GCC 10.5.0`` and ``tbb 2022.01``. If you have installed multiple GCC and TBB versions, configure in your ``.bashrc`` file to ensure that the correct GCC and TBB are used:

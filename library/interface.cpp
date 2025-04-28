@@ -70,7 +70,7 @@
 #endif
 
 #if defined(HAVE_GTX)
-#include "gtx/gtx_driver.h"
+#include "gtx/gtx_driver.hpp"
 #endif
 
 #if defined(HAVE_FSTAR)
@@ -254,7 +254,7 @@ std::unique_ptr<Interface> generate_bvgt(bool directed_graph){
 
 #if defined(HAVE_GTX)
 std::unique_ptr<Interface> generate_gtx(bool directed_graph){
-    return unique_ptr<Interface>{ new GTXDriver(directed_graph) };
+    return unique_ptr<Interface>{ new GTXDriver(directed_graph, false) };
 }
 #endif
 
