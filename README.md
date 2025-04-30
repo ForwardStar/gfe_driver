@@ -172,7 +172,7 @@ export LD_LIBRARY_PATH
 
 #### Compile
 
-Once configured, run `make clean && make -j`. There is no `install` target, the final artifact is the executable `gfe_driver`.
+Once configured, run `make clean && make -j`. Due to name collision, you cannot run `make -j` directly. Instead, run `make clean` every time before you compile. There is no `install` target, the final artifact is the executable `gfe_driver`.
 
 ### Datasets
 

@@ -861,5 +861,5 @@ Enable assertions...: ${enable_assert}
 Enable debug........: ${enable_debug}
 Enable optimize.....: ${enable_optimize}
 
-Now type 'make -j'
+Now type 'make clean && make -j'
 --------------------------------------------------"
