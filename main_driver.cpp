@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <iostream>
-
 #include "common/database.hpp"
 #include "common/error.hpp"
 #include "common/system.hpp"
@@ -121,10 +120,7 @@ static void run_standalone(int argc, char* argv[]){
             InsertOnly experiment { impl_upd, stream, configuration().num_threads(THREADS_WRITE) };
             experiment.set_build_frequency(chrono::milliseconds{ configuration().get_build_frequency() });
             experiment.set_scheduler_granularity(1ull < 20);
-//            auto before = memory_footprint();
             experiment.execute();
-//            auto after = memory_footprint();
-//            LOG("[driver] Memory_footprint: " << after - before);
             if(configuration().has_database()) experiment.save();
 
           if(configuration().validate_inserts() && impl_upd->can_be_validated()){
@@ -135,7 +131,6 @@ static void run_standalone(int argc, char* argv[]){
               LOG("[driver] Number of write threads: " << configuration().num_threads(THREADS_WRITE));
               LOG("[driver] Number of read threads: " << configuration().num_threads(THREADS_READ));
               LOG("[driver] Aging2, path to the log of updates: " << configuration().get_update_log());
-
               // Configure aging experiment
               Aging2Experiment agingExperiment;
               agingExperiment.set_library(impl_upd);
@@ -174,6 +169,9 @@ static void run_standalone(int argc, char* argv[]){
               LOG("[driver] Number of concurrent threads: " << configuration().num_threads(THREADS_WRITE));
               LOG("[driver] Aging2, path to the log of updates: " << configuration().get_update_log());
               Aging2Experiment experiment;
+#if HAVE_GTX
+                impl_upd->set_worker_thread_num(configuration().num_threads(THREADS_WRITE));
+#endif
               experiment.set_library(impl_upd);
               experiment.set_log(configuration().get_update_log());
               experiment.set_parallelism_degree(configuration().num_threads(THREADS_WRITE));
@@ -216,6 +214,13 @@ static void run_standalone(int argc, char* argv[]){
             LOG("[driver] OpenMP, number of threads for the Graphalytics suite: " << configuration().num_threads(ThreadsType::THREADS_READ));
             omp_set_num_threads(configuration().num_threads(ThreadsType::THREADS_READ));
         }
+#if HAVE_GTX
+        //no need to plus 1, main thread will participate in openmp
+        impl_ga.get()->finish_loading();
+        std::cout<<"gtx set reader threads"<<std::endl;
+        impl_ga.get()->set_worker_thread_num(configuration().num_threads(ThreadsType::THREADS_READ));
+        //impl_ga.get()->configure_distinct_reader_and_writer_threads(configuration().num_threads(ThreadsType::THREADS_READ),1);
+#endif //HAVE_GTX
 #endif
 
         // run the graphalytics suite
@@ -242,7 +247,6 @@ static void run_standalone(int argc, char* argv[]){
         exp_seq.execute();
         exp_seq.report(configuration().has_database());
     }
-
     LOG( "[driver] Done" );
 }
 
@@ -264,5 +268,3 @@ int main(int argc, char* argv[]){
 
     return rc;
 }
-
-

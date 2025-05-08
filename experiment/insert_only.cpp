@@ -70,7 +70,9 @@ static void run_sequential_delete(library::UpdateInterface* interface, graph::We
 
 void InsertOnly::execute_round_robin(){
     vector<thread> threads;
-
+    #if HAVE_GTX
+        m_interface.get()->set_worker_thread_num(m_num_threads);
+    #endif
     atomic<uint64_t> start_chunk_next = 0;
     atomic<int> tempp = m_stream.get()->num_edges()/100;
 #if defined(HAVE_BVGT)
@@ -114,7 +116,9 @@ void InsertOnly::execute_round_robin(){
 
 void InsertOnly::execute_round_robin_delete(){
     vector<thread> threads;
-
+    #if HAVE_GTX
+        m_interface.get()->set_worker_thread_num(m_num_threads);
+    #endif
     atomic<uint64_t> start_chunk_next = 0;
 
 
