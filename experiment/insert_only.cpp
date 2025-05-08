@@ -75,33 +75,21 @@ void InsertOnly::execute_round_robin(){
     #endif
     atomic<uint64_t> start_chunk_next = 0;
     atomic<int> tempp = m_stream.get()->num_edges()/100;
-#if defined(HAVE_BVGT)
-    m_interface.get()->add_vertex(m_stream.get()->max_vertex_id() + 1);
-#endif
+    #if defined(HAVE_BVGT)
+        m_interface.get()->add_vertex(m_stream.get()->max_vertex_id() + 1);
+    #endif
     for(int64_t i = 0; i < m_num_threads; i++){
         threads.emplace_back([this, &start_chunk_next, &tempp](int thread_id){
-//            LOG(thread_id);
             concurrency::set_thread_name("Worker #" + to_string(thread_id));
             int64_t memllb = common::get_memory_footprint();
-//            LOG(memllb);
             auto interface = m_interface.get();
             auto graph = m_stream.get();
             uint64_t start;
             const uint64_t size = graph->num_edges();
 
             interface->on_thread_init(thread_id);
-//            int temp = size/100;
             while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
                 uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
-                //if case is used to monitor mem, comment if and tempp for testing insertion speed (following 8 lines)
-//                 if(thread_id==0) {
-//                     if (end > tempp) {
-//                         int64_t memll = common::get_memory_footprint();
-//                         LOG(memll-memllb);
-//                         tempp += size / 100;
-// //                        LOG(tempp << " " << memll);
-//                     }
-//                 }
                 run_sequential(interface, graph, start, end);
             }
 
@@ -155,16 +143,6 @@ chrono::microseconds InsertOnly::execute() {
         LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " edge insertions per thread");
     }
 
-    // edit by stardust
-//    const bool measure_memfp = parameters().m_memfp;
-//    const bool measure_physical_memory = parameters().m_memfp_physical;
-//    const bool report_memfp = parameters().m_report_memory_footprint;
-//    uint64_t memfp_process = measure_physical_memory ? common::get_memory_footprint() : max<int64_t>(utility::MemoryUsage::memory_footprint(), 0);
-//    uint64_t memfp_driver = memory_footprint();
-//    Aging2Result::MemoryFootprint memfp { tick, memfp_process, memfp_driver, /* cool off ? */ false };
-//    m_results.m_memory_footprint.push_back( memfp );;
-//    if(report_memfp){ LOG("Memory footprint after " << DurationQuantity( tick ) << ": " << ComputerQuantity(memfp_process - memfp_driver, true)); }
-
     auto before = common::get_memory_footprint();
     LOG("Memory before: " <<  before << "MB");
     // Execute the insertions
@@ -185,11 +163,9 @@ chrono::microseconds InsertOnly::execute() {
 
     // A final invocation of the method #build()
     m_interface->on_thread_init(0);
-//    LOG("Init successfully");
     timer.start();
     m_interface->build();
     timer.stop();
-//    LOG("Build successfully");
     m_time_build = timer.microseconds();
     if(m_time_build > 0){
         LOG("Build time: " << timer);
@@ -202,45 +178,38 @@ chrono::microseconds InsertOnly::execute() {
     m_interface->on_main_destroy();
 
     //////////////////////////////////////
-    // Delete here
-   if(m_stream->num_edges() / m_num_threads < m_scheduler_granularity){
-       m_scheduler_granularity = m_stream->num_edges() / m_num_threads;
-       if(m_scheduler_granularity == 0) m_scheduler_granularity = 1; // corner case
-       LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " edge insertions per thread");
-   }
+    // Delete here (When not running graph analytics)
+    if (configuration().num_repetitions() == 0 || configuration().is_mixed_workload()) {
+        if(m_stream->num_edges() / m_num_threads < m_scheduler_granularity){
+            m_scheduler_granularity = m_stream->num_edges() / m_num_threads;
+            if(m_scheduler_granularity == 0) m_scheduler_granularity = 1; // corner case
+            LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " edge insertions per thread");
+        }
 
+        m_interface->on_main_init(m_num_threads /* build thread */ +1);
+        m_interface->updates_start();
+        timer.start();
+        BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
+        execute_round_robin_delete();
+        build_service2.stop();
+        timer.stop();
+        m_interface->updates_stop();
+        LOG("Deletions performed with " << m_num_threads << " threads in " << timer);
+        m_time_insert = timer.microseconds();
+        m_num_build_invocations = build_service2.num_invocations();
 
-//    auto before = common::get_memory_footprint();
-   // Execute the insertions
-   m_interface->on_main_init(m_num_threads /* build thread */ +1);
-   m_interface->updates_start();
-   timer.start();
-   BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
-   execute_round_robin_delete();
-   build_service2.stop();
-   timer.stop();
-//    auto after = common::get_memory_footprint();
-//    LOG("Memory consumption: " << after - before);
-   m_interface->updates_stop();
-   LOG("Deletions performed with " << m_num_threads << " threads in " << timer);
-   m_time_insert = timer.microseconds();
-   m_num_build_invocations = build_service2.num_invocations();
+        m_interface->on_thread_init(0);
+        timer.start();
+        m_interface->build();
+        timer.stop();
+        m_time_build = timer.microseconds();
+        if(m_time_build > 0){
+            LOG("Build time: " << timer);
+        }
+        m_num_build_invocations++;
 
-   // A final invocation of the method #build()
-   m_interface->on_thread_init(0);
-//    LOG("Init successfully");
-   timer.start();
-   m_interface->build();
-   timer.stop();
-//    LOG("Build successfully");
-   m_time_build = timer.microseconds();
-   if(m_time_build > 0){
-       LOG("Build time: " << timer);
-   }
-   m_num_build_invocations++;
-
-   LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
-
+        LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+    }
    m_interface->on_thread_destroy(0);
    m_interface->on_main_destroy();
     //Delete finshed
