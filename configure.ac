@@ -698,35 +698,35 @@ if ( test x"${with_bvgt}" != x"" && test x"${with_bvgt}" != "no" ); then
 fi
 
 #############################################################################
-# Support for the forward_star
+# Support for the RadixGraph
 # Usage:
-# --with-fstar=/path/to/libfstar.a
+# --with-radixgraph=/path/to/libRG.a
 #
 
-AC_ARG_WITH([fstar], [AS_HELP_STRING([--with-fstar@<:@=ARG@:>@], [
-    Enable the support to forward_star. The argument needs to be the path where the library has been built.
+AC_ARG_WITH([radixgraph], [AS_HELP_STRING([--with-radixgraph@<:@=ARG@:>@], [
+    Enable the support to RadixGraph. The argument needs to be the path where the library has been built.
 ])], [])
 
-if ( test x"${with_fstar}" != x"" && test x"${with_fstar}" != "no" ); then
-    if( test x"${with_fstar}" == x"yes" ); then
-        AC_MSG_ERROR(["the full path to the forward_star build needs to be specified, e.g. --with-fstar=/path/to/libFSTAR.a"]);
+if ( test x"${with_radixgraph}" != x"" && test x"${with_radixgraph}" != "no" ); then
+    if( test x"${with_radixgraph}" == x"yes" ); then
+        AC_MSG_ERROR(["the full path to the RadixGraph build needs to be specified, e.g. --with-radixgraph=/path/to/libRG.a"]);
     fi
 
     if ( test "${have_openmp}" == "no" ); then
-            AC_MSG_FAILURE([forward_star: missing prerequisite header omp.h (OpenMP runtime library)])
+            AC_MSG_FAILURE([RadixGraph: missing prerequisite header omp.h (OpenMP runtime library)])
         fi
 
     MY_INTEL_TBB()
 
-    path_fstar=$(realpath "${with_fstar}")
-    path_fstar_library="${path_fstar}/libFSTAR.a"
-    AC_CHECK_FILE([${path_fstar_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_fstar_library}]) ])
+    path_radixgraph=$(realpath "${with_radixgraph}")
+    path_radixgraph_library="${path_radixgraph}/libRG.a"
+    AC_CHECK_FILE([${path_radixgraph_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_radixgraph_library}]) ])
 
 
-    AS_VAR_SET([LIBS], ["-L${path_fstar} -lFSTAR ${LIBS} -ljunction"])
+    AS_VAR_SET([LIBS], ["-L${path_radixgraph} -lRG ${LIBS} -ljunction"])
 
-    AC_MSG_NOTICE([forward_star support enabled])
-    AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_FSTAR"])
+    AC_MSG_NOTICE([radixgraph support enabled])
+    AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_RG"])
 fi
 
 #############################################################################

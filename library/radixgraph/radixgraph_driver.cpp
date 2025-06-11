@@ -1,8 +1,8 @@
 /*
     Author: Haoxuan Xie
+    Year: 2025
 */
-
-#include "fstar_driver.h"
+#include "radixgraph_driver.h"
 
 namespace gfe::library {
 
@@ -11,7 +11,7 @@ namespace gfe::library {
      *  Init                                                                     *
      *                                                                           *
      *****************************************************************************/
-    ForwardStarDriver::ForwardStarDriver(bool is_directed) : m_is_directed(is_directed), vertex_num(1), edge_num(0) {
+    RadixGraphDriver::RadixGraphDriver(bool is_directed) : m_is_directed(is_directed), vertex_num(1), edge_num(0) {
         std::ifstream fin("settings");
         int d;
         fin >> d;
@@ -19,22 +19,22 @@ namespace gfe::library {
         for (auto& i : a) fin >> i;
         bool enable_query = 0;
         fin >> enable_query;
-        G = new ForwardStar(d, a, enable_query);
+        G = new RadixGraph(d, a, enable_query);
     }
 
-    ForwardStarDriver::~ForwardStarDriver() {
+    RadixGraphDriver::~RadixGraphDriver() {
         delete G;
     }
 
-    void ForwardStarDriver::on_thread_init(int thread_id) {
+    void RadixGraphDriver::on_thread_init(int thread_id) {
         // Not implemented
     }
 
-    void ForwardStarDriver::on_thread_destroy(int thread_id) {
+    void RadixGraphDriver::on_thread_destroy(int thread_id) {
         // Not implemented
     }
 
-    void* ForwardStarDriver::handle_impl() {
+    void* RadixGraphDriver::handle_impl() {
         return nullptr;
     }
 
@@ -43,73 +43,73 @@ namespace gfe::library {
      *  Updates & point look ups                                                 *
      *                                                                           *
      *****************************************************************************/
-    uint64_t ForwardStarDriver::num_edges() const {
+    uint64_t RadixGraphDriver::num_edges() const {
         return edge_num;
     }
 
-    uint64_t ForwardStarDriver::num_vertices() const {
+    uint64_t RadixGraphDriver::num_vertices() const {
         return vertex_num;
     }
 
-    bool ForwardStarDriver::has_vertex(uint64_t vertex_id) const {
+    bool RadixGraphDriver::has_vertex(uint64_t vertex_id) const {
         auto u = G->vertex_index->RetrieveVertex(vertex_id);
         return u != nullptr;
     }
 
-    double ForwardStarDriver::get_weight(uint64_t source, uint64_t destination) const {
+    double RadixGraphDriver::get_weight(uint64_t source, uint64_t destination) const {
         // Not supported
         return 0.0;
     }
 
-    bool ForwardStarDriver::is_directed() const {
+    bool RadixGraphDriver::is_directed() const {
         return m_is_directed;
     }
 
-    void ForwardStarDriver::set_timeout(uint64_t seconds) {
+    void RadixGraphDriver::set_timeout(uint64_t seconds) {
         // m_timeout = std::chrono::seconds{ seconds };
     }
 
-    void ForwardStarDriver::set_thread_affinity(bool value) {
+    void RadixGraphDriver::set_thread_affinity(bool value) {
         // Not implemented
     }
 
-    bool ForwardStarDriver::has_thread_affinity() const {
+    bool RadixGraphDriver::has_thread_affinity() const {
         return true;
     }
 
-    bool ForwardStarDriver::has_read_only_transactions() const {
+    bool RadixGraphDriver::has_read_only_transactions() const {
         return true;
     }
 
-    bool ForwardStarDriver::add_vertex(uint64_t vertex_id) {
+    bool RadixGraphDriver::add_vertex(uint64_t vertex_id) {
         // Use add_edge function instead
         // vertex_num++;
         // auto u = G->vertex_index->RetrieveVertex(vertex_id, true);
         return true;
     }
 
-    bool ForwardStarDriver::remove_vertex(uint64_t vertex_id) {
+    bool RadixGraphDriver::remove_vertex(uint64_t vertex_id) {
         return G->vertex_index->DeleteVertex(vertex_id);
     }
 
-    bool ForwardStarDriver::add_edge(gfe::graph::WeightedEdge e) {
+    bool RadixGraphDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         return true;
     }
 
-    bool ForwardStarDriver::add_edge_v2(gfe::graph::WeightedEdge e) {
+    bool RadixGraphDriver::add_edge_v2(gfe::graph::WeightedEdge e) {
         edge_num++;
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         if (!m_is_directed) G->InsertEdge(e.m_destination, e.m_source, e.m_weight);
         return true;
     }
 
-    bool ForwardStarDriver::update_edge(gfe::graph::WeightedEdge e) {
+    bool RadixGraphDriver::update_edge(gfe::graph::WeightedEdge e) {
         return G->UpdateEdge(e.m_source, e.m_destination, e.m_weight);
     }
 
-    bool ForwardStarDriver::remove_edge(gfe::graph::Edge e) {
+    bool RadixGraphDriver::remove_edge(gfe::graph::Edge e) {
         edge_num--;
         G->DeleteEdge(e.m_source, e.m_destination);
         if (!m_is_directed) G->DeleteEdge(e.m_destination, e.m_source);
@@ -121,7 +121,7 @@ namespace gfe::library {
      *  Dump                                                                     *
      *                                                                           *
      *****************************************************************************/
-    void ForwardStarDriver::dump_ostream(std::ostream &out) const {
+    void RadixGraphDriver::dump_ostream(std::ostream &out) const {
         // Not implemented
     }
 
@@ -158,7 +158,7 @@ namespace gfe::library {
         Computing, Networking, Storage and Analysis (SC), Salt Lake City, Utah,
         November 2012.
     */
-    void ForwardStarDriver::bfs(uint64_t source_vertex_id, const char* dump2file) {
+    void RadixGraphDriver::bfs(uint64_t source_vertex_id, const char* dump2file) {
         vertex_num = G->vertex_index->cnt;
         auto p = DOBFS(G, source_vertex_id, vertex_num, edge_num, -1);
     }
@@ -210,7 +210,7 @@ namespace gfe::library {
     it is not necesarily the fastest way to implement it. It does perform the
     updates in the pull direction to remove the need for atomics.
     */
-    void ForwardStarDriver::pagerank(uint64_t num_iterations, double damping_factor, const char* dump2file) {
+    void RadixGraphDriver::pagerank(uint64_t num_iterations, double damping_factor, const char* dump2file) {
         vertex_num = G->vertex_index->cnt;
         PageRankPull(G, num_iterations, vertex_num);
     }
@@ -278,7 +278,7 @@ namespace gfe::library {
     // The hooking condition (comp_u < comp_v) may not coincide with the edge's
     // direction, so we use a min-max swap such that lower component IDs propagate
     // independent of the edge's direction.
-    void ForwardStarDriver::wcc(const char* dump2file) {
+    void RadixGraphDriver::wcc(const char* dump2file) {
         vertex_num = G->vertex_index->cnt;
         ShiloachVishkin(G, vertex_num);
     }
@@ -289,7 +289,7 @@ namespace gfe::library {
      *                                                                           *
      *****************************************************************************/
     // same impl~ as the one done for llama
-    void ForwardStarDriver::cdlp(uint64_t max_iterations, const char* dump2file) {
+    void RadixGraphDriver::cdlp(uint64_t max_iterations, const char* dump2file) {
         // Not implemented
     }
 
@@ -305,7 +305,7 @@ namespace gfe::library {
     #define COUT_DEBUG_LCC(msg)
     #endif
     // loosely based on the impl~ made for Stinger
-    void ForwardStarDriver::lcc(const char* dump2file) {
+    void RadixGraphDriver::lcc(const char* dump2file) {
         vertex_num = G->vertex_index->cnt;
         OrderedCount(G, vertex_num);
     }
@@ -343,7 +343,7 @@ namespace gfe::library {
     // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-    void ForwardStarDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
+    void RadixGraphDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
         vertex_num = G->vertex_index->cnt;
         DeltaStep(G, source_vertex_id, 2.0, vertex_num, edge_num);
     }

@@ -42,7 +42,7 @@ datasets.tar.gz
 setting
 
 # Lib and optimizer
-libFSTAR.a
+libRG.a
 optimizer
 
 # Datasets

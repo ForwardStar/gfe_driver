@@ -2,9 +2,6 @@
 	path = third-party/libcommon
 	url = https://github.com/PerFuchs/libcommon
 	branch = master
-[submodule "library/fstar/forward_star"]
-	path = library/fstar/forward_star
-	url = https://github.com/ForwardStar/forward_star.git
-[submodule "library/gtx/GTX-SIGMOD2025"]
-	path = library/gtx/GTX-SIGMOD2025
-	url = https://github.com/Jiboxiake/GTX-SIGMOD2025.git
+[submodule "library/radixgraph/RadixGraph"]
+	path = library/radixgraph/RadixGraph
+	url = https://github.com/ForwardStar/RadixGraph.git

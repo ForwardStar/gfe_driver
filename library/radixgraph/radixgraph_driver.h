@@ -1,28 +1,32 @@
-#ifndef GRAPHINDEX_FORWARD_STAR_DRIVER_H
-#define GRAPHINDEX_FORWARD_STAR_DRIVER_H
+/*
+    Author: Haoxuan Xie
+    Year: 2025
+*/
+#ifndef GRAPHINDEX_RADIXGRAPH_DRIVER_H
+#define GRAPHINDEX_RADIXGRAPH_DRIVER_H
 
 #include <chrono>
 #include <utility>
 #include <vector>
 #include "library/interface.hpp"
-#include "forward_star/src/forward_star.h"
-#include "forward_star/src/headers.h"
-#include "forward_star/src/GAPBS/bfs.h"
-#include "forward_star/src/GAPBS/pr_spmv.h"
-#include "forward_star/src/GAPBS/cc_sv.h"
-#include "forward_star/src/GAPBS/sssp.h"
-#include "forward_star/src/GAPBS/tc.h"
+#include "RadixGraph/src/radixgraph.h"
+#include "RadixGraph/src/headers.h"
+#include "RadixGraph/src/GAPBS/bfs.h"
+#include "RadixGraph/src/GAPBS/pr_spmv.h"
+#include "RadixGraph/src/GAPBS/cc_sv.h"
+#include "RadixGraph/src/GAPBS/sssp.h"
+#include "RadixGraph/src/GAPBS/tc.h"
 
 namespace gfe::library {
 
-    class ForwardStarDriver : public virtual UpdateInterface, public virtual GraphalyticsInterface {
+    class RadixGraphDriver : public virtual UpdateInterface, public virtual GraphalyticsInterface {
 
     protected:
         const bool m_is_directed; // whether the underlying graph is directed or undirected
         std::chrono::seconds m_timeout{0}; // the budget to complete each of the algorithms in the Graphalytics suite
         std::atomic<uint32_t> vertex_num;
         std::atomic<uint32_t> edge_num;
-        ForwardStar* G = nullptr;
+        RadixGraph* G = nullptr;
         // Helper, save the content of the vector to the given output file
         template<typename T, bool negative_scores = true>
         void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
@@ -34,12 +38,12 @@ namespace gfe::library {
          */
 
 
-        ForwardStarDriver(bool is_directed);
+        RadixGraphDriver(bool is_directed);
 
         /**
          * Destructor
          */
-        virtual ~ForwardStarDriver();
+        virtual ~RadixGraphDriver();
 
         /**
          * Dump the content of the graph to given stream

@@ -3,7 +3,7 @@ GFE Driver for RadixGraph
 ---
 
 <!-- The GFE (Graph Framework Evaluation) Driver is the program used to run the experiments in "Spruce: a Fast yet Space-saving Structure for Dynamic Graph Storage", measuring the throughput of updates in libraries supporting structural dynamic graphs and the completion times of the [Graphalytics kernels](https://github.com/ldbc/ldbc_graphalytics).  -->
-The driver supports the following structures: [RadixGraph](https://github.com/ForwardStar/forward_star), [GTX](https://github.com/Jiboxiake/GTX-SIGMOD2025?tab=readme-ov-file), [Spruce](https://github.com/Stardust-SJF/gfe_driver/tree/v2.0.0), [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
+The driver supports the following structures: [RadixGraph](https://github.com/ForwardStar/RadixGraph), [GTX](https://github.com/Jiboxiake/GTX-SIGMOD2025?tab=readme-ov-file), [Spruce](https://github.com/Stardust-SJF/gfe_driver/tree/v2.0.0), [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
 [Stinger](http://stingergraph.com/) and [LiveGraph](https://github.com/thu-pacman/LiveGraph-Binary). 
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
 execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC) and community detection through label propagation (CDLP).
@@ -36,22 +36,22 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/fstar/forward_star``. You will need to fetch from [upstream](https://github.com/ForwardStar/forward_star) and compile the codes to a library. For this paper, we evaluated commit "8cf05bff60acb8e38ea853cf81cfcc847fffde3e".
+We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "8cf05bff60acb8e38ea853cf81cfcc847fffde3e".
 ```shell
-cd library/fstar/forward_star
+cd library/radixgraph/RadixGraph
 git submodule update --init --recursive
 cmake -S . -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-This would generate ``libFSTAR.a``. Also, compute the dynamic programming optimizer:
+This would generate ``libRG.a``. Also, compute the dynamic programming optimizer:
 ```shell
 /path/to/compiler optimizer.cpp -o optimizer -O3
 ```
 
 Then move them to the root directory:
 ```shell
-mv libFSTAR.a ../../../
+mv libRG.a ../../../
 mv optimizer ../../../
 cd ../../../
 ```
@@ -60,7 +60,7 @@ Now you can configure the driver with:
 
 ````````shell
 cd build
-../configure --enable-optimize --disable-debug --with-fstar=../
+../configure --enable-optimize --disable-debug --with-radixgraph=../
 ````````
 
 ##### Stinger
@@ -231,11 +231,11 @@ Here are some examples:
 
 If you are using a property file to indicate the input graph:
 ```
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/graph500-24.properties -l forward_star -w 28 -d extra20230224.sqlite3
+./gfe_driver -u -G ../../../../Dataset/GFEDataset/graph500-24.properties -l radixgraph -w 28 -d extra20230224.sqlite3
 ```
 If you are using a plain edge list file (each line of the file contains two integers) as the input graph:
 ```
-./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l forward_star -w 56 --is_timestamped true -d extra20230224.sqlite3
+./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l radixgraph -w 56 --is_timestamped true -d extra20230224.sqlite3
 ```
 
 - **Updates**: perform all insertions and deletions from a log. Add the option --log /path/to/updates.graphlog :
@@ -276,22 +276,22 @@ These are the full commands to repeat the experiments in the paper:
 
 If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_random.sh forward_star [threads]
+sh run_random.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Sequential Insertions and Deletions
 Repeat the same procedure with ``run_sequential.sh``:
 ```sh
-sh run_sequential.sh forward_star [threads]
+sh run_sequential.sh radixgraph [threads]
 ```
 
 ##### Memory Consumption
 
 Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example:
 ```sh
-../configure --enable-optimize --enable-mem-analysis --disable-debug --with-fstar=../
+../configure --enable-optimize --enable-mem-analysis --disable-debug --with-radixgraph=../
 ```
 
 Then run ``run_random.sh`` with the same procedure.
@@ -300,10 +300,10 @@ Then run ``run_random.sh`` with the same procedure.
 
 If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_analytics.sh forward_star [threads]
+sh run_analytics.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``forward_star`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ### Troubleshooting
 As in requisites, we recommend using ``GCC 10.5.0`` and ``tbb 2022.01``. If you have installed multiple GCC and TBB versions, configure in your ``.bashrc`` file to ensure that the correct GCC and TBB are used:
