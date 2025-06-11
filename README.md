@@ -337,8 +337,7 @@ LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 
 When compiling the library of GTX, you may also encounter ``error: invalid ‘static_cast’ from type ‘const std::thread::id’ to type ‘std::size_t’ {aka ‘long unsigned int’}`` if your TBB version is incorrect. Similarly, try installing the correct version of the TBB and add TBB path to ``CMakeLists.txt`` in GTX:
 ```sh
-include_directories("/path/to/tbb/include")
-link_directories("/path/to/tbb/lib")
+set(CMAKE_PREFIX_PATH "/path/to/tbb")
 ```
 
 We understand that the driver is difficult to configure and you may encounter some issues. In fact, we have tried to simplify the process of executing the driver compared with the original repo. Feel free to ask us for help and provide suggestions.
