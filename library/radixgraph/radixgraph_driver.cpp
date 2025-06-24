@@ -17,9 +17,7 @@ namespace gfe::library {
         fin >> d;
         std::vector<int> a(d);
         for (auto& i : a) fin >> i;
-        bool enable_query = 0;
-        fin >> enable_query;
-        G = new RadixGraph(d, a, enable_query);
+        G = new RadixGraph(d, a);
     }
 
     RadixGraphDriver::~RadixGraphDriver() {
@@ -94,12 +92,16 @@ namespace gfe::library {
 
     bool RadixGraphDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
+        vertex_num = std::max((uint64_t)vertex_num, e.m_source + 1);
+        vertex_num = std::max((uint64_t)vertex_num, e.m_destination + 1);
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         return true;
     }
 
     bool RadixGraphDriver::add_edge_v2(gfe::graph::WeightedEdge e) {
         edge_num++;
+        vertex_num = std::max((uint64_t)vertex_num, e.m_source + 1);
+        vertex_num = std::max((uint64_t)vertex_num, e.m_destination + 1);
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         if (!m_is_directed) G->InsertEdge(e.m_destination, e.m_source, e.m_weight);
         return true;
@@ -159,8 +161,7 @@ namespace gfe::library {
         November 2012.
     */
     void RadixGraphDriver::bfs(uint64_t source_vertex_id, const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        auto p = DOBFS(G, source_vertex_id, vertex_num, edge_num, -1);
+        auto p = DOBFS(G, source_vertex_id, G->vertex_index->cnt, edge_num, -1);
     }
 
     /*****************************************************************************
@@ -211,7 +212,6 @@ namespace gfe::library {
     updates in the pull direction to remove the need for atomics.
     */
     void RadixGraphDriver::pagerank(uint64_t num_iterations, double damping_factor, const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
         PageRankPull(G, num_iterations, vertex_num);
     }
 
@@ -279,7 +279,6 @@ namespace gfe::library {
     // direction, so we use a min-max swap such that lower component IDs propagate
     // independent of the edge's direction.
     void RadixGraphDriver::wcc(const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
         ShiloachVishkin(G, vertex_num);
     }
 
@@ -306,8 +305,7 @@ namespace gfe::library {
     #endif
     // loosely based on the impl~ made for Stinger
     void RadixGraphDriver::lcc(const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        OrderedCount(G, vertex_num);
+        OrderedCount(G, G->vertex_index->cnt);
     }
 
     /*****************************************************************************
@@ -344,7 +342,6 @@ namespace gfe::library {
     // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     void RadixGraphDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
-        vertex_num = G->vertex_index->cnt;
-        DeltaStep(G, source_vertex_id, 2.0, vertex_num, edge_num);
+        DeltaStep(G, source_vertex_id, 2.0, G->vertex_index->cnt, edge_num);
     }
 }
