@@ -25,11 +25,11 @@ namespace gfe::library {
     }
 
     void RadixGraphDriver::on_thread_init(int thread_id) {
-        // Not implemented
+        G->thread_id_local = thread_id;
     }
 
     void RadixGraphDriver::on_thread_destroy(int thread_id) {
-        // Not implemented
+        G->thread_id_local = -1;
     }
 
     void* RadixGraphDriver::handle_impl() {
