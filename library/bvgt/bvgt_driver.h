@@ -131,6 +131,12 @@ namespace gfe::library {
         virtual bool remove_edge(gfe::graph::Edge e);
 
         /**
+         * Get neighbor edges of a vertex from the graph
+         * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+         */
+        virtual bool get_neighbors(uint64_t vertex_id);
+
+        /**
          * Callback, invoked when a thread is created
          */
         virtual void on_thread_init(int thread_id);

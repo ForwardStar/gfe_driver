@@ -88,10 +88,6 @@ ifneq (,$(findstring -DHAVE_STINGER,${ALL_CPPFLAGS}))
 	sources += $(addprefix library/stinger/, community_detection.cpp connected_components.cpp local_clustering_coefficient.cpp pagerank.cpp shortest_paths.cpp stinger_ref.cpp stinger_unsafe.cpp)
 	sources += $(addprefix library/stinger-dv/, stinger-dv.cpp)
 endif
-ifneq (,$(findstring -DHAVE_LLAMA,${ALL_CPPFLAGS}))
-	sources += $(addprefix library/llama/, llama_bfs.cpp llama_class.cpp llama_cdlp.cpp llama_internal.cpp llama_lcc.cpp llama_pagerank.cpp llama_ref.cpp llama_sssp.cpp llama_wcc.cpp)
-	sources += $(addprefix library/llama-dv/, llama-dv.cpp)
-endif
 ifneq (,$(findstring -DHAVE_GRAPHONE,${ALL_CPPFLAGS}))
 	sources += $(addprefix library/graphone/, graphone.cpp)
 endif
@@ -116,10 +112,6 @@ endif
 
 ifneq (,$(findstring -DHAVE_SORTLEDTONV2,${ALL_CPPFLAGS}))
 	sources += $(addprefix library/sortledton_v2/, sortledton_driver_v2.cpp)
-endif
-
-ifneq (,$(findstring -DHAVE_MICROBENCHMARKS,${ALL_CPPFLAGS}))
-	sources += $(addprefix library/microbenchmarks/, microbenchmarks_driver.cpp)
 endif
 
 

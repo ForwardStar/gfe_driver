@@ -51,6 +51,8 @@ namespace gfe::library {
         void save_results(const std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);
         
     public:
+        static thread_local int thread_id_local;
+        
         GTXDriver(bool is_directed, bool read_only = true);
 
         virtual void set_worker_thread_num(uint64_t new_num);
@@ -104,6 +106,12 @@ namespace gfe::library {
      * @return true if a mapping for that vertex existed, false otherwise
      */
         virtual bool remove_vertex(uint64_t vertex_id);
+
+        /**
+         * Get neighbor edges of a vertex from the graph
+         * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+         */
+        virtual bool get_neighbors(uint64_t vertex_id);
 
         /**
          * Add the given edge in the graph if it doesn't exist

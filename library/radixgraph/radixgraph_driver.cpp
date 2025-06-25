@@ -90,6 +90,12 @@ namespace gfe::library {
         return G->vertex_index->DeleteVertex(vertex_id);
     }
 
+    bool RadixGraphDriver::get_neighbors(uint64_t vertex_id) {
+        std::vector<WeightedEdge> neighbors;
+        G->GetNeighbours(vertex_id, neighbors);
+        return true;
+    }
+
     bool RadixGraphDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
         vertex_num = std::max((uint64_t)vertex_num, e.m_source + 1);

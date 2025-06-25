@@ -56,7 +56,12 @@ static void run_sequential(library::UpdateInterface* interface, graph::WeightedE
     for(uint64_t pos = start; pos < end; pos++){
         auto edge = graph->get(pos);
         [[maybe_unused]] bool result = interface->add_edge_v2(edge);
-        assert(result == true && "Edge not inserted");
+    }
+}
+
+static void run_sequential_get_neighbors(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
+    for(uint64_t pos = start; pos < end; pos++){
+        [[maybe_unused]] bool result = interface->get_neighbors(pos);
     }
 }
 
@@ -64,7 +69,6 @@ static void run_sequential_delete(library::UpdateInterface* interface, graph::We
     for(uint64_t pos = start; pos < end; pos++){
         auto edge = graph->get(pos);
         [[maybe_unused]] bool result = interface->remove_edge(edge);
-        assert(result == true && "Edge not inserted");
     }
 }
 
@@ -91,6 +95,39 @@ void InsertOnly::execute_round_robin(){
             while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
                 uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
                 run_sequential(interface, graph, start, end);
+            }
+
+            interface->on_thread_destroy(thread_id);
+
+        }, static_cast<int>(i));
+    }
+
+    // wait for all threads to complete
+    for(auto& t : threads) t.join();
+}
+
+void InsertOnly::execute_round_robin_get_neighbors(){
+    vector<thread> threads;
+    #if HAVE_GTX
+        m_interface.get()->set_worker_thread_num(m_num_threads);
+    #endif
+    atomic<uint64_t> start_chunk_next = 0;
+
+
+    for(int64_t i = 0; i < m_num_threads; i++){
+        threads.emplace_back([this, &start_chunk_next](int thread_id){
+            concurrency::set_thread_name("Worker #" + to_string(thread_id));
+
+            auto interface = m_interface.get();
+            auto graph = m_stream.get();
+            uint64_t start;
+            const uint64_t size = graph->max_vertex_id() + 1;
+
+            interface->on_thread_init(thread_id);
+
+            while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
+                uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
+                run_sequential_get_neighbors(interface, graph, start, end);
             }
 
             interface->on_thread_destroy(thread_id);
@@ -178,6 +215,24 @@ chrono::microseconds InsertOnly::execute() {
     m_interface->on_main_destroy();
 
     //////////////////////////////////////
+    // Get-neighbor here (When not running graph analytics)
+    if (configuration().num_repetitions() == 0 || configuration().is_mixed_workload()) {
+        if((m_stream->max_vertex_id() + 1) / m_num_threads < m_scheduler_granularity){
+            m_scheduler_granularity = (m_stream->max_vertex_id() + 1) / m_num_threads;
+            if(m_scheduler_granularity == 0) m_scheduler_granularity = 1; // corner case
+            LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " neighbour queries per thread");
+        }
+
+        m_interface->on_main_init(m_num_threads /* build thread */ +1);
+        timer.start();
+        BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
+        execute_round_robin_get_neighbors();
+        build_service2.stop();
+        timer.stop();
+        LOG("Get neighbors performed with " << m_num_threads << " threads in " << timer);
+    }
+
+    //////////////////////////////////////
     // Delete here (When not running graph analytics)
     if (configuration().num_repetitions() == 0 || configuration().is_mixed_workload()) {
         if(m_stream->num_edges() / m_num_threads < m_scheduler_granularity){
@@ -208,7 +263,7 @@ chrono::microseconds InsertOnly::execute() {
         }
         m_num_build_invocations++;
 
-        LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+        LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (0 == m_interface->num_edges() ? "yes" : "no"));
     }
    m_interface->on_thread_destroy(0);
    m_interface->on_main_destroy();

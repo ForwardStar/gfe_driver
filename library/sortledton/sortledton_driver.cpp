@@ -24,6 +24,7 @@
 #include "algorithms/GAPBSAlgorithms.h"
 #include "data-structure/EdgeDoesNotExistsPrecondition.h"
 #include "data-structure/VersionedBlockedEdgeIterator.h"
+#include "data-structure/VersionedBlockedPropertyEdgeIterator.h"
 
 using namespace gapbs;
 using namespace common;
@@ -145,6 +146,24 @@ namespace gfe::library {
  */
     bool SortledtonDriver::remove_vertex(uint64_t vertex_id) {
       throw NotImplemented();
+    }
+
+    /**
+     * Get neighbor edges of a vertex from the graph
+     * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    bool SortledtonDriver::get_neighbors(uint64_t vertex_id) {
+        SortledtonDriver *non_const_this = const_cast<SortledtonDriver *>(this);
+        SnapshotTransaction tx = non_const_this->tm.getSnapshotTransaction(ds, false);
+        if (tx.has_vertex(vertex_id)) {
+          std::vector<std::pair<uint64_t, double>> neighbors;
+          auto u = ds->physical_id(vertex_id);
+          SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, u, v, w, end_iteration, {
+            neighbors.emplace_back(v, w);
+          });
+        }
+        non_const_this->tm.transactionCompleted(tx);
+        return true;
     }
 
 

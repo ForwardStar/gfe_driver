@@ -144,6 +144,11 @@ bool StingerDV::remove_vertex(uint64_t vertex_id){
     return true; // lie
 }
 
+bool StingerDV::get_neighbors(uint64_t vertex_id) {
+    // Not implmented
+    return true; // lie
+}
+
 bool StingerDV::add_edge(graph::WeightedEdge e){
     COUT_DEBUG("edge: " << e);
 

@@ -50,6 +50,8 @@ namespace gfe { extern mutex _log_mutex [[maybe_unused]]; }
 #endif
 
 namespace gfe::library {
+    thread_local int GTXDriver::thread_id_local = -1;
+
     GTXDriver::GTXDriver(bool is_directed, bool read_only):m_pImpl(nullptr), m_pHashMap(nullptr), m_is_directed(is_directed),m_read_only(read_only) {
         m_pImpl = new gt::Graph();
         m_pHashMap = new tbb::concurrent_hash_map<uint64_t, /* vertex_t */ uint64_t>();
@@ -190,6 +192,21 @@ namespace gfe::library {
     //todo:: currently gtx did not implement delete vertex, it should be much more complicated
     bool GTXDriver::remove_vertex(uint64_t vertex_id) {
         m_num_vertices --;
+        return true;
+    }
+    
+    bool GTXDriver::get_neighbors(uint64_t vertex_id) {
+        gt::SharedROTransaction transaction = GTX->begin_shared_read_only_transaction();
+        auto iterator = transaction.generate_edge_delta_iterator(thread_id_local);
+        transaction.simple_get_edges(vertex_id, 1, thread_id_local, iterator);
+        std::vector<std::pair<uint64_t, double>> neighbors;
+        while (iterator.valid()) {
+            uint64_t dst = iterator.dst_id();
+            double weight = iterator.edge_delta_weight();
+            neighbors.emplace_back(dst, weight);
+        }
+        iterator.close();
+        transaction.commit();
         return true;
     }
 

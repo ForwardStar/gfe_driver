@@ -118,6 +118,12 @@ public:
     virtual bool remove_vertex(uint64_t vertex_id);
 
     /**
+     * Get neighbor edges of a vertex from the graph
+     * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    virtual bool get_neighbors(uint64_t vertex_id);
+
+    /**
      * Add the given edge in the graph
      * @return true if the edge has been inserted, false if this edge already exists or one of the referred
      *         vertices does not exist.

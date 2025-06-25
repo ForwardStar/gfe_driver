@@ -180,6 +180,23 @@ bool LiveGraphDriver::remove_vertex(uint64_t external_id){
     return found;
 }
 
+bool LiveGraphDriver::get_neighbors(uint64_t vertex_id) {
+    auto transaction = LiveGraph->begin_transaction();
+    if (has_vertex(vertex_id)) {
+        auto iterator = transaction.get_edges(vertex_id, /* label */ 0); // fixme: incoming edges for directed graphs
+        std::vector<std::pair<uint64_t, double>> neighbors;
+        while(iterator.valid()){
+            uint64_t dst = iterator.dst_id();
+            string_view payload = iterator.edge_data();
+            double w = *reinterpret_cast<const double*>(payload.data());
+            neighbors.emplace_back(dst, w);
+            iterator.next();
+        }
+    }
+    transaction.commit();
+    return true;
+}
+
 bool LiveGraphDriver::has_vertex(uint64_t vertex_id) const {
     vertex_dictionary_t::const_accessor accessor;
     return VertexDictionary->find(accessor, vertex_id);

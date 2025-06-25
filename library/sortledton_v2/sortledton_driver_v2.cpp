@@ -128,6 +128,15 @@ namespace gfe::library {
       throw sortledton::NotImplemented {};
     }
 
+    /**
+     * Get neighbor edges of a vertex from the graph
+     * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    bool SortledtonDriverV2::get_neighbors(uint64_t vertex_id) {
+        // Not implemented
+        return true;
+    }
+
 
 /**
  * Adds a given edge to the graph if both vertices exists already

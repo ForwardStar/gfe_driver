@@ -233,6 +233,12 @@ public:
     virtual bool remove_edge(gfe::graph::Edge e) = 0;
 
     /**
+     * Get neighbor edges of a vertex from the graph
+     * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    virtual bool get_neighbors(uint64_t vertex_id) = 0;
+
+    /**
      * Load the whole graph representation from the given path
      */
     virtual void load(const std::string& path) override; // default implementation provided in terms of #add_vertex and #add_edge

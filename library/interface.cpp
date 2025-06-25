@@ -36,11 +36,6 @@
 
 #include "../configuration.hpp"
 
-#if defined(HAVE_LLAMA)
-#include "llama/llama_class.hpp"
-#include "llama/llama_ref.hpp"
-#include "llama-dv/llama-dv.hpp"
-#endif
 #include "reader/reader.hpp"
 #if defined(HAVE_STINGER)
 #include "stinger/stinger.hpp"
@@ -75,10 +70,6 @@
 
 #if defined(HAVE_RG)
 #include "radixgraph/radixgraph_driver.h"
-#endif
-
-#if defined(HAVE_MICROBENCHMARKS)
-#include "microbenchmarks/microbenchmarks_driver.hpp"
 #endif
 
 using namespace std;
@@ -131,21 +122,6 @@ std::unique_ptr<Interface> generate_csr_lcc_numa(bool directed_graph){
 std::unique_ptr<Interface> generate_dummy(bool directed_graph){
     return unique_ptr<Interface>{ new Dummy(directed_graph) };
 }
-
-#if defined(HAVE_LLAMA)
-std::unique_ptr<Interface> generate_llama(bool directed_graph){
-    return unique_ptr<Interface>{ new LLAMAClass(directed_graph) };
-}
-std::unique_ptr<Interface> generate_llama_dv(bool directed_graph){
-    return unique_ptr<Interface>{ new LLAMA_DV(directed_graph) };
-}
-std::unique_ptr<Interface> generate_llama_dv_nobw(bool directed_graph){
-    return unique_ptr<Interface>{ new LLAMA_DV(directed_graph, /* blind writes */ false) };
-}
-std::unique_ptr<Interface> generate_llama_ref(bool directed_graph){
-    return unique_ptr<Interface>{ new LLAMARef(directed_graph) };
-}
-#endif
 
 #if defined(HAVE_STINGER)
 std::unique_ptr<Interface> generate_stinger(bool directed_graph){
@@ -280,16 +256,6 @@ std::unique_ptr<Interface> generate_sortledton_v2(bool directed_graph) {
 }
 #endif
 
-#if defined(HAVE_MICROBENCHMARKS)
-std::unique_ptr<Interface> generate_microbenchmarks(bool directed_graph) {
-  auto& config = configuration();
-  string library_name = config.get_library_name();
-  string version_delimiter = ".";
-  string library_name_without_version = library_name.substr(0, library_name.find(version_delimiter));
-  return unique_ptr<Interface>{ new MicroBenchmarksDriver(directed_graph,  library_name_without_version) };
-}
-#endif
-
 vector<ImplementationManifest> implementations() {
     vector<ImplementationManifest> result;
 
@@ -311,20 +277,6 @@ vector<ImplementationManifest> implementations() {
     // v2 25/06/2020: Updates, implicitly create a vertex referred in a new edge upon first reference with the method add_edge_v2
     // v3 14/04/2021: Fix the predicate in the TimeoutService
     result.emplace_back("dummy_v3", "Dummy implementation of the interface, all operations are nop", &generate_dummy);
-
-#if defined(HAVE_LLAMA)
-    // v2 25/11/2019: better scalability for the llama dictionary
-    // v3 23/01/2020: switch to Intel TBB for the vertex dictionary. All experiments should be repeated.
-    // v4 13/05/2020: fair mutex for compactation, it's a major bug fix as new delta levels were not issued every 10s due to starvation. All experiments should be repeated
-    // v5 12/06/2020: OMP dynamic scheduling in the Graphalytics kernels
-    // v6 25/06/2020: Updates, implicitly create a vertex referred in a new edge upon first reference with the method add_edge_v2
-    // v7 14/04/2021: Fix the predicate in the TimeoutService
-    // v8 23/04/2021: Materialization step with a vector
-    result.emplace_back("llama8", "LLAMA library", &generate_llama);
-    result.emplace_back("llama8-dv", "LLAMA with dense vertices", &generate_llama_dv);
-    result.emplace_back("llama8-dv-nobw", "LLAMA with dense vertices, no blind writes", &generate_llama_dv_nobw);
-    result.emplace_back("llama8-ref", "LLAMA with the GAPBS ref impl.", &generate_llama_ref);
-#endif
 
 #if defined(HAVE_STINGER)
     // v2 12/06/2020: OMP dynamic scheduling in the Graphalytics kernels
@@ -471,69 +423,6 @@ vector<ImplementationManifest> implementations() {
     result.emplace_back("sortledton.v2.1", "Sortledton V2", &generate_sortledton_v2);
 #endif
 
-#if defined(HAVE_MICROBENCHMARKS)
-//    result.emplace_back("vector_al", "Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("sorted_vector_al", "Sorted Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_sorted_vector_al", "Sorted Vector adjacency lists with robin hood hash set index", &generate_microbenchmarks);
-//    result.emplace_back("tree_sorted_vector_al", "Sorted Vector adjacency lists with std::ordered_map index", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_al", "Adjacency set based on a flat robin hood hash set.", &generate_microbenchmarks);
-//    result.emplace_back("edgeiter_sorted_vector_al", "Sorted Vector adjacency lists with EdgeIterator instead of BlockedEdgeIterator", &generate_microbenchmarks);
-
-    // Bugfix 14.06.2021 library is now linked against OpenMP and runs algorithms in paralell, also adds a robin hood based adjacency list
-//    result.emplace_back("vector_al.1", "Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("sorted_vector_al.1", "Sorted Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_sorted_vector_al.1", "Sorted Vector adjacency lists with robin hood hash set index", &generate_microbenchmarks);
-//    result.emplace_back("tree_sorted_vector_al.1", "Sorted Vector adjacency lists with std::ordered_map index", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_al.1", "Adjacency set based on a flat robin hood hash set.", &generate_microbenchmarks);
-//    result.emplace_back("edgeiter_sorted_vector_al.1", "Sorted Vector adjacency lists with EdgeIterator instead of BlockedEdgeIterator", &generate_microbenchmarks);
-
-    // Bugfix 16.06.2021 vertices addtions are now serialized due to issues with TBB concurent_hash_set semantics.
-    // Changes to shared locks to speed up LCC.
-    // Also, adds a special LCC method for hash sets.
-//    result.emplace_back("vector_al.2", "Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("sorted_vector_al.2", "Sorted Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_sorted_vector_al.2", "Sorted Vector adjacency lists with robin hood hash set index", &generate_microbenchmarks);
-//    result.emplace_back("tree_sorted_vector_al.2", "Sorted Vector adjacency lists with std::ordered_map index", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_al.2", "Adjacency set based on a flat robin hood hash set.", &generate_microbenchmarks);
-//    result.emplace_back("edgeiter_sorted_vector_al.2", "Sorted Vector adjacency lists with EdgeIterator instead of BlockedEdgeIterator", &generate_microbenchmarks);
-//
-//    result.emplace_back("single-numa-node-sorted-vector_al.2", "Sorted Vector adjacency lists with EdgeIterator instead of BlockedEdgeIterator", &generate_microbenchmarks);
-
-    // Performance and bufixes 19.06.2021
-    // Changes:
-    //   * Use of blocked iterator for SSSP
-    //   * Removes unnecessary translation and edge counting from the BFS
-    //   * Removes locks from sequential tree and hash set index when running analytics
-//    result.emplace_back("vector_al.3", "Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("sorted_vector_al.3", "Sorted Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_sorted_vector_al.3", "Sorted Vector adjacency lists with robin hood hash set index", &generate_microbenchmarks);
-//    result.emplace_back("tree_sorted_vector_al.3", "Sorted Vector adjacency lists with std::ordered_map index", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_al.3", "Adjacency set based on a flat robin hood hash set.", &generate_microbenchmarks);
-//    result.emplace_back("edgeiter_sorted_vector_al.3", "Sorted Vector adjacency lists with EdgeIterator instead of BlockedEdgeIterator", &generate_microbenchmarks);
- //   result.emplace_back("mb-csr.3", "CSR data structure of micro benchmarks", &generate_microbenchmarks);
-
-//      result.emplace_back("single-numa-node-sorted-vector_al.4", "Sorted Vector adjacency lists run on a single NUMA node", &generate_microbenchmarks);
-
-    // Performance and bugfixes 22.06.2021
-    // * CSR is now implemented lock free and with a smaller index entry.
-    // * all data structures do not aquire locks while running analytics
-    // * We use the same LCC implementation as the GFE driver
-    // * data structures use a pthread spin lock to keep index elements smaller
-//    result.emplace_back("mb-csr.6", "CSR data structure of micro benchmarks", &generate_microbenchmarks);
-//    result.emplace_back("vector_al.4", "Vector adjacency lists", &generate_microbenchmarks);
-    result.emplace_back("sorted_vector_al.6", "Sorted Vector adjacency lists", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_sorted_vector_al.4", "Sorted Vector adjacency lists with robin hood hash set index", &generate_microbenchmarks);
-//    result.emplace_back("tree_sorted_vector_al.4", "Sorted Vector adjacency lists with std::ordered_map index", &generate_microbenchmarks);
-//    result.emplace_back("robin_hood_al.4", "Adjacency set based on a flat robin hood hash set.", &generate_microbenchmarks);
-//    result.emplace_back("edgeiter_sorted_vector_al.4", "Sorted Vector adjacency lists with EdgeIterator instead of BlockedEdgeIterator", &generate_microbenchmarks);
-
-      result.emplace_back("single-numa-node-sorted-vector_al.4", "Sorted Vector adjacency lists run on a single NUMA node", &generate_microbenchmarks);
-
-      // Test this is the same as mb-csr.6 but with WCC implemented and compiled as part of the GFE driver.
-//      result.emplace_back("mb-csr.7", "CSR data structure of micro benchmarks", &generate_microbenchmarks);
-      result.emplace_back("mb-csr.8", "CSR data structure of micro benchmarks", &generate_microbenchmarks);
-
-#endif
     return result;
 }
 

@@ -361,6 +361,26 @@ bool GraphOne::remove_vertex(uint64_t vertex_id){
     return false;
 }
 
+bool GraphOne::get_neighbors(uint64_t vertex_id) {
+    if (has_vertex(vertex_id)) {
+        auto labels = g->get_typekv();
+        string str_source = to_string(vertex_id);
+        sid_t v0 = labels->get_sid(str_source.c_str());
+        lite_edge_t* neighbours = nullptr;
+        uint64_t neighbours_sz = 0;
+        auto g_graph = get_graphone_graph();
+        uint64_t degree_out = g_graph->get_degree_out(v0);
+        if(degree_out > neighbours_sz){
+            neighbours_sz = degree_out;
+            neighbours = (lite_edge_t*) realloc(neighbours, sizeof(neighbours[0]) * degree_out);
+            if(neighbours == nullptr) throw std::bad_alloc{};
+        }
+        get_graphone_graph()->get_nebrs_out(v0, neighbours);
+        free(neighbours); neighbours = nullptr; neighbours_sz = 0;
+    }
+    return true;
+}
+
 bool GraphOne::add_edge(gfe::graph::WeightedEdge e){
     COUT_DEBUG("Edge: " << e);
 

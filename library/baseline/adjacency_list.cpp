@@ -223,6 +223,21 @@ bool AdjacencyList::remove_vertex(uint64_t vertex_id){
     }
 }
 
+bool AdjacencyList::get_neighbors(uint64_t vertex_id) {
+    auto v_src = m_adjacency_list.find(vertex_id);
+    if(v_src == m_adjacency_list.end()) {
+        // Vertex not exist
+    }
+    else {
+        auto& list_out = v_src->second.first;
+        std::vector<std::pair<uint64_t, double>> neighbors;
+        for (int i = 0; i < list_out.size(); i++) {
+            neighbors.emplace_back(list_out[i].first, list_out[i].second);
+        }
+    }
+    return true;
+}
+
 bool AdjacencyList::delete_vertex0(uint64_t vertex_id){
     COUT_DEBUG("vertex_id: " << vertex_id);
     auto vertex_src = m_adjacency_list.find(vertex_id);

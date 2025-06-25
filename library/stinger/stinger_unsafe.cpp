@@ -388,6 +388,18 @@ bool Stinger::remove_vertex(uint64_t external_vertex_id){
 }
 #endif
 
+bool Stinger::get_neighbors(uint64_t vertex_id) {
+    int64_t vid = get_internal_id(vertex_id);
+    if(vid >= 0) {
+        std::vector<std::pair<int64_t, double>> neighbors;
+        STINGER_FORALL_OUT_EDGES_OF_VTX_BEGIN(STINGER, vertex_id) {
+            neighbors.emplace_back(STINGER_EDGE_DEST, STINGER_EDGE_WEIGHT);
+        }
+        STINGER_FORALL_OUT_EDGES_OF_VTX_END();
+    }
+    return true;
+}
+
 bool Stinger::add_edge(graph::WeightedEdge e){
     COUT_DEBUG("edge: " << e);
 

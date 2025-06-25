@@ -21,6 +21,7 @@ double Dummy::get_weight(uint64_t source, uint64_t destination) const { return 0
 void Dummy::dump_ostream(std::ostream& out) const { out << "DuMMy"; }
 bool Dummy::add_vertex(uint64_t vertex_id) { return true; }
 bool Dummy::remove_vertex(uint64_t vertex_id){ return true; }
+bool Dummy::get_neighbors(uint64_t vertex_id) { return true; };
 bool Dummy::add_edge(graph::WeightedEdge e) { return true; }
 bool Dummy::add_edge_v2(graph::WeightedEdge e) { return true; }
 bool Dummy::update_edge(graph::WeightedEdge e) { return true; }
