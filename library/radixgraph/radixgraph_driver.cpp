@@ -97,16 +97,12 @@ namespace gfe::library {
 
     bool RadixGraphDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
-        vertex_num = std::max((uint64_t)vertex_num, e.m_source + 1);
-        vertex_num = std::max((uint64_t)vertex_num, e.m_destination + 1);
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         return true;
     }
 
     bool RadixGraphDriver::add_edge_v2(gfe::graph::WeightedEdge e) {
         edge_num++;
-        vertex_num = std::max((uint64_t)vertex_num, e.m_source + 1);
-        vertex_num = std::max((uint64_t)vertex_num, e.m_destination + 1);
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);
         if (!m_is_directed) G->InsertEdge(e.m_destination, e.m_source, e.m_weight);
         return true;
