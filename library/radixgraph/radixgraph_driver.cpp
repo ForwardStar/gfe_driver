@@ -80,9 +80,8 @@ namespace gfe::library {
     }
 
     bool RadixGraphDriver::add_vertex(uint64_t vertex_id) {
-        // Use add_edge function instead
-        // vertex_num++;
-        // auto u = G->vertex_index->RetrieveVertex(vertex_id, true);
+        vertex_num = std::max((uint64_t)vertex_num, vertex_id + 1);
+        auto u = G->vertex_index->RetrieveVertex(vertex_id, true);
         return true;
     }
 
