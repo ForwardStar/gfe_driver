@@ -82,6 +82,9 @@ void InsertOnly::execute_round_robin(){
     #if defined(HAVE_BVGT)
         m_interface.get()->add_vertex(m_stream.get()->max_vertex_id() + 1);
     #endif
+    #if defined(HAVE_RG)
+        m_interface.get()->add_vertex(m_stream.get()->max_vertex_id());
+    #endif
     for(int64_t i = 0; i < m_num_threads; i++){
         threads.emplace_back([this, &start_chunk_next, &tempp](int thread_id){
             concurrency::set_thread_name("Worker #" + to_string(thread_id));
