@@ -180,19 +180,20 @@ In our experiments, we used the following input graphs and data sets:
 
 - `dota-league` and `graph500-SF`, with `SF` in {24 26} , were taken from the [official Graphalytics collection](https://www.graphalytics.org/datasets).
 - `uniform-SF`, with `SF` in {24, 26} were generated with an [ad-hoc tool](https://github.com/whatsthecraic/uniform_graph_generator). These are synthetic graphs having the same number of vertices and edges of `graph500-SF`, but a uniform node degree distribution.
-- `livejournal`,`orkut` and `com-friendster` were taken from the [Stanford Large Network Dataset Collection](https://snap.stanford.edu/data/index.html).
+- `livejournal`, `orkut`, `twitter` and `com-friendster` were taken from the [Stanford Large Network Dataset Collection](https://snap.stanford.edu/data/index.html).
 
-A complete image of all datasets used in the experiments can be downloaded here: [dota-league, graph500-SF, and uniform-SF](https://zenodo.org/record/3966439), [livejournal, orkut, and friendster](https://snap.stanford.edu/data/index.html).
+A complete image of all datasets used in the experiments can be downloaded here: [dota-league, graph500-SF, and uniform-SF](https://zenodo.org/record/3966439), [livejournal, orkut, twitter, and friendster](https://snap.stanford.edu/data/index.html).
 
 Or you can simply download all datasets by (requires some time to download and extract the datasets):
 ```sh
 python3 downloader.py
 ```
 
-For `livejournal`, `orkut` and `com-friendster`, you need to remove the comment lines and reformat them before running:
+For `livejournal`, `orkut`, `twitter` and `com-friendster`, you need to remove the comment lines and reformat them before running:
 ```sh
 sed -i '/^#/d' datasets/*.txt
 sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+mv datasets/twitter-2010.txt datasets/twitter-2010.el
 mv datasets/com-friendster.ungraph.txt datasets/com-friendster.ungraph.el
 mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
 mv datasets/com-orkut.ungraph.txt datasets/com-orkut.ungraph.el
@@ -208,7 +209,7 @@ GFE driver supports two types of graph formats:
 
 ### Executing the driver
 
-The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We note that 256GB of memory is needed to run all the experiments due to the large sizes of some graphs (e.g., uniform-26, and Friendster).
+The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We noted that several graph systems can raise OOM exceptions on a 256GB machine.
 
 For `RadixGraph`, we need to compute an optimal setting for the radix tree, so you need to execute `optimizer` before running the gfe_driver:
 ```
@@ -217,12 +218,19 @@ For `RadixGraph`, we need to compute an optimal setting for the radix tree, so y
 
 There are three kinds of experiments that can be executed:
 
-- **Insertions and Deletions** : insert all vertices and edges from an input graph, in a random order, then delete all of them in random order.
+- **Random Insertions, Get Neighbors and Deletions** : (1) insert all vertices and edges from an input graph in random order; (2) get neighbor edges of all vertices; (3) then delete all inserted edges in random order.
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
 ```
 
-- **Insertions only** : Comment line 206-244 in `experiment/insert_only.cpp` and recompile the gfe-driver. It would insert all vertices and edges from an input graph, in a random order. Use the command:
+Specifically, ``get_neighbor`` task is triggered in lines 220-236 in `experiment/insert_only.cpp` and `delete` task is triggered in lines 238-274. You can comment them to execute only the tasks you want.
+
+- **Sequential Insertions and Deletions**: add ``--is_timestamped true`` option to insert or delete the edges in a timestamped order.
+```
+./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3 --is_timestamped true
+```
+
+- **Insertions only** : Comment lines 220-274 in `experiment/insert_only.cpp` and recompile the gfe-driver. It would insert all vertices and edges from an input graph, in a random order. Use the command:
 
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
