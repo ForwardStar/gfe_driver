@@ -54,6 +54,15 @@ namespace gfe::library {
         static thread_local int thread_id_local;
         
         GTXDriver(bool is_directed, bool read_only = true);
+        /**
+         * Callback, invoked when a thread is created
+         */
+        virtual void on_thread_init(int thread_id);
+
+        /**
+         * Callback, invoked when a thread is going to be removed
+         */
+        virtual void on_thread_destroy(int thread_id);
 
         virtual void set_worker_thread_num(uint64_t new_num);
         virtual void on_edge_writes_finish();
@@ -112,6 +121,12 @@ namespace gfe::library {
          * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
          */
         virtual bool get_neighbors(uint64_t vertex_id);
+
+        /**
+         * Get 2-hop neighbors of a vertex from the graph
+         * @return true if the 2-hop neighbors has been retrieved, false otherwise (e.g. this vertex does not exist)
+         */
+        virtual bool get_two_hop_neighbors(uint64_t vertex_id);
 
         /**
          * Add the given edge in the graph if it doesn't exist

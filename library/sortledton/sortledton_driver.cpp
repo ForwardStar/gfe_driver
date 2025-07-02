@@ -166,6 +166,27 @@ namespace gfe::library {
         return true;
     }
 
+    bool SortledtonDriver::get_two_hop_neighbors(uint64_t vertex_id) {
+        SortledtonDriver *non_const_this = const_cast<SortledtonDriver *>(this);
+        SnapshotTransaction tx = non_const_this->tm.getSnapshotTransaction(ds, false);
+        if (tx.has_vertex(vertex_id)) {
+          std::vector<std::pair<uint64_t, double>> neighbors;
+          auto u = ds->physical_id(vertex_id);
+          SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, u, v, w, end_iteration, {
+            neighbors.emplace_back(v, w);
+          });
+          for (auto e : neighbors) {
+            std::vector<std::pair<uint64_t, double>> neighbors2;
+            auto u2 = ds->physical_id(e.first);
+            SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, u2, v, w, end_iteration, {
+              neighbors2.emplace_back(v, w);
+            });
+          }
+        }
+        non_const_this->tm.transactionCompleted(tx);
+        return true;
+    }
+
 
 /**
  * Adds a given edge to the graph if both vertices exists already

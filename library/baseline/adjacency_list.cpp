@@ -238,6 +238,29 @@ bool AdjacencyList::get_neighbors(uint64_t vertex_id) {
     return true;
 }
 
+bool AdjacencyList::get_two_hop_neighbors(uint64_t vertex_id) {
+    auto v_src = m_adjacency_list.find(vertex_id);
+    if(v_src == m_adjacency_list.end()) {
+        // Vertex not exist
+    }
+    else {
+        auto& list_out = v_src->second.first;
+        std::vector<std::pair<uint64_t, double>> neighbors;
+        for (int i = 0; i < list_out.size(); i++) {
+            neighbors.emplace_back(list_out[i].first, list_out[i].second);
+        }
+        for (auto e : neighbors) {
+            std::vector<std::pair<uint64_t, double>> neighbors2;
+            auto v_src2 = m_adjacency_list.find(e.first);
+            auto& list_out2 = v_src2->second.first;
+            for (int i = 0; i < list_out2.size(); i++) {
+                neighbors2.emplace_back(list_out2[i].first, list_out2[i].second);
+            }
+        }
+    }
+    return true;
+}
+
 bool AdjacencyList::delete_vertex0(uint64_t vertex_id){
     COUT_DEBUG("vertex_id: " << vertex_id);
     auto vertex_src = m_adjacency_list.find(vertex_id);

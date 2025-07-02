@@ -173,6 +173,26 @@ bool TeseoDriver::get_neighbors(uint64_t vertex_id) {
     return true;
 }
 
+bool TeseoDriver::get_two_hop_neighbors(uint64_t vertex_id) {
+    // Note: Teseo throws error when vertex does not exist, so we only use logical ID instead (but it is still very slow!)
+    auto tx = TESEO->start_transaction(true);
+    if (vertex_id < tx.num_vertices()) {
+        std::vector<std::pair<uint64_t, double>> neighbors;
+        tx.iterator().edges(vertex_id, true, [&neighbors](uint64_t des, double w){
+            neighbors.emplace_back(des, w);
+        });
+        for (auto e : neighbors) {
+            auto vid = tx.logical_id(e.first);
+            std::vector<std::pair<uint64_t, double>> neighbors2;
+            tx.iterator().edges(vid, true, [&neighbors2](uint64_t des, double w){
+                neighbors2.emplace_back(des, w);
+            });
+        }
+    }
+    tx.commit();
+    return true;
+}
+
 bool TeseoDriver::add_edge(gfe::graph::WeightedEdge e) {
     auto tx = TESEO->start_transaction();
     try {

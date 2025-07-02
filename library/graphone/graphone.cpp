@@ -375,7 +375,40 @@ bool GraphOne::get_neighbors(uint64_t vertex_id) {
             neighbours = (lite_edge_t*) realloc(neighbours, sizeof(neighbours[0]) * degree_out);
             if(neighbours == nullptr) throw std::bad_alloc{};
         }
-        get_graphone_graph()->get_nebrs_out(v0, neighbours);
+        g_graph->get_nebrs_out(v0, neighbours);
+        free(neighbours); neighbours = nullptr; neighbours_sz = 0;
+    }
+    return true;
+}
+
+bool GraphOne::get_two_hop_neighbors(uint64_t vertex_id) {
+    if (has_vertex(vertex_id)) {
+        auto labels = g->get_typekv();
+        string str_source = to_string(vertex_id);
+        sid_t v0 = labels->get_sid(str_source.c_str());
+        lite_edge_t* neighbours = nullptr;
+        uint64_t neighbours_sz = 0;
+        auto g_graph = get_graphone_graph();
+        uint64_t degree_out = g_graph->get_degree_out(v0);
+        if(degree_out > neighbours_sz){
+            neighbours_sz = degree_out;
+            neighbours = (lite_edge_t*) realloc(neighbours, sizeof(neighbours[0]) * degree_out);
+            if(neighbours == nullptr) throw std::bad_alloc{};
+        }
+        g_graph->get_nebrs_out(v0, neighbours);
+        for (int i = 0; i < neighbours_sz; i++) {
+            auto v = get_sid(neighbours[i]);
+            lite_edge_t* neighbours2 = nullptr;
+            uint64_t neighbours_sz2 = 0;
+            uint64_t degree_out2 = g_graph->get_degree_out(v);
+            if (degree_out2 > neighbours_sz2) {
+                neighbours_sz2 = degree_out2;
+                neighbours2 = (lite_edge_t*) realloc(neighbours2, sizeof(neighbours2[0]) * degree_out2);
+                if(neighbours2 == nullptr) throw std::bad_alloc{};
+            }
+            g_graph->get_nebrs_out(v, neighbours2);
+            free(neighbours2); neighbours2 = nullptr; neighbours_sz2 = 0;
+        }
         free(neighbours); neighbours = nullptr; neighbours_sz = 0;
     }
     return true;

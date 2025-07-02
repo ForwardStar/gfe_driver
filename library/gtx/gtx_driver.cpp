@@ -62,6 +62,14 @@ namespace gfe::library {
         delete VertexDictionary; m_pHashMap = nullptr;
     }
 
+    void GTXDriver::on_thread_init(int thread_id) {
+        thread_id_local = thread_id;
+    }
+
+    void GTXDriver::on_thread_destroy(int thread_id) {
+        thread_id_local = -1;
+    }
+
     void GTXDriver::set_worker_thread_num(uint64_t new_num) {
 
         GTX->set_worker_thread_num(new_num);
@@ -206,6 +214,32 @@ namespace gfe::library {
             neighbors.emplace_back(dst, weight);
         }
         iterator.close();
+        transaction.commit();
+        return true;
+    }
+
+    bool GTXDriver::get_two_hop_neighbors(uint64_t vertex_id) {
+        gt::SharedROTransaction transaction = GTX->begin_shared_read_only_transaction();
+        auto iterator = transaction.generate_edge_delta_iterator(thread_id_local);
+        transaction.simple_get_edges(vertex_id, 1, thread_id_local, iterator);
+        std::vector<std::pair<uint64_t, double>> neighbors;
+        while (iterator.valid()) {
+            uint64_t dst = iterator.dst_id();
+            double weight = iterator.edge_delta_weight();
+            neighbors.emplace_back(dst, weight);
+        }
+        iterator.close();
+        for (auto e : neighbors) {
+            auto iterator2 = transaction.generate_edge_delta_iterator(thread_id_local);
+            transaction.simple_get_edges(e.first, 1, thread_id_local, iterator2);
+            std::vector<std::pair<uint64_t, double>> neighbors2;
+            while (iterator2.valid()) {
+                uint64_t dst = iterator2.dst_id();
+                double weight = iterator2.edge_delta_weight();
+                neighbors2.emplace_back(dst, weight);
+            }
+            iterator2.close();
+        }
         transaction.commit();
         return true;
     }

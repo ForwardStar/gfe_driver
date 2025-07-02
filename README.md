@@ -218,19 +218,17 @@ For `RadixGraph`, we need to compute an optimal setting for the radix tree, so y
 
 There are three kinds of experiments that can be executed:
 
-- **Random Insertions, Get Neighbors and Deletions** : (1) insert all vertices and edges from an input graph in random order; (2) get neighbor edges of all vertices; (3) then delete all inserted edges in random order.
+- **Random Insertions and Deletions** : insert all vertices and edges from an input graph in random order; then delete all inserted edges in random order.
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
 ```
-
-Specifically, ``get_neighbor`` task is triggered in lines 220-236 in `experiment/insert_only.cpp` and `delete` task is triggered in lines 238-274. You can comment them to execute only the tasks you want.
 
 - **Sequential Insertions and Deletions**: add ``--is_timestamped true`` option to insert or delete the edges in a timestamped order.
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3 --is_timestamped true
 ```
 
-- **Insertions only** : Comment lines 220-274 in `experiment/insert_only.cpp` and recompile the gfe-driver. It would insert all vertices and edges from an input graph, in a random order. Use the command:
+- **Insertions only** : Comment lines 285-321 in `experiment/insert_only.cpp` and recompile the gfe-driver. It would insert all vertices and edges from an input graph, in a random order. Use the command:
 
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
@@ -284,7 +282,7 @@ These are the full commands to repeat the experiments in the paper:
 
 If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_random.sh radixgraph [threads]
+sh scripts/run_random.sh radixgraph [threads]
 ```
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
@@ -292,7 +290,7 @@ Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-
 ##### Sequential Insertions and Deletions
 Repeat the same procedure with ``run_sequential.sh``:
 ```sh
-sh run_sequential.sh radixgraph [threads]
+sh scripts/run_sequential.sh radixgraph [threads]
 ```
 
 ##### Memory Consumption
@@ -308,10 +306,16 @@ Then run ``run_random.sh`` with the same procedure.
 
 If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
-sh run_analytics.sh radixgraph [threads]
+sh scripts/run_analytics.sh radixgraph [threads]
 ```
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+
+##### Plotting Figures
+After executing above scripts, run the Python files in ``scripts`` folder like:
+```sh
+python3 scripts/insert_and_delete.py
+```
 
 ### Troubleshooting
 As in requisites, we recommend using ``GCC 10.5.0`` and ``tbb 2022.01``. If you have installed multiple GCC and TBB versions, configure in your ``.bashrc`` file to ensure that the correct GCC and TBB are used:

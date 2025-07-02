@@ -152,7 +152,13 @@ public:
      * Get neighbor edges of a vertex from the graph
      * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
      */
-    virtual bool get_neighbors(uint64_t vertex_id) = 0;
+    virtual bool get_neighbors(uint64_t vertex_id);
+
+    /**
+     * Get 2-hop neighbors of a vertex from the graph
+     * @return true if the 2-hop neighbors has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    virtual bool get_two_hop_neighbors(uint64_t vertex_id);
 
     /**
      * Add the given edge in the graph

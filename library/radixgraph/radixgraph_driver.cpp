@@ -95,6 +95,16 @@ namespace gfe::library {
         return true;
     }
 
+    bool RadixGraphDriver::get_two_hop_neighbors(uint64_t vertex_id) {
+        std::vector<WeightedEdge> neighbors;
+        G->GetNeighbours(vertex_id, neighbors);
+        for (auto e : neighbors) {
+            std::vector<WeightedEdge> neighbors2;
+            G->GetNeighboursByOffset(e.idx, neighbors2);
+        }
+        return true;
+    }
+
     bool RadixGraphDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
         G->InsertEdge(e.m_source, e.m_destination, e.m_weight);

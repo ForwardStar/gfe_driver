@@ -95,6 +95,16 @@ namespace gfe::library {
         return true;
     }
 
+    bool BVGTDriver::get_two_hop_neighbors(uint64_t vertex_id) {
+        std::vector<SpruceTransVer::WeightedOutEdgeSimple> neighbors;
+        SpruceTransVer::get_neighbours((SpruceTransVer::TopBlock*)top_block, (uint32_t)vertex_id, neighbors);
+        for (auto e : neighbors) {
+            std::vector<SpruceTransVer::WeightedOutEdgeSimple> neighbors2;
+            SpruceTransVer::get_neighbours((SpruceTransVer::TopBlock*)top_block, (uint32_t)e.des, neighbors2);
+        }
+        return true;
+    }
+
     bool BVGTDriver::add_edge(gfe::graph::WeightedEdge e) {
         edge_num++;
         return SpruceTransVer::InsertEdge((SpruceTransVer::TopBlock*)top_block, SpruceTransVer::WeightedEdge{(uint32_t)e.m_source, (uint32_t)e.m_destination, (float)e.m_weight});
