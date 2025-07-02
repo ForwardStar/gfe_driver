@@ -228,11 +228,6 @@ There are three kinds of experiments that can be executed:
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3 --is_timestamped true
 ```
 
-- **Insertions only** : Comment lines 285-321 in `experiment/insert_only.cpp` and recompile the gfe-driver. It would insert all vertices and edges from an input graph, in a random order. Use the command:
-
-```
-./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
-```
 Here are some examples:
 
 If you are using a property file to indicate the input graph:
