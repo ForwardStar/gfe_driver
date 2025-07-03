@@ -72,21 +72,21 @@ def read_results(result_path):
                     if line.startswith("Get 2-hop"):
                         tm = line.split()[8]
                         if line.split()[-1] == "ms":
-                            get_neighbor_latency[idx][idx2] = int(tm)
+                            two_hop_latency[idx][idx2] = int(tm)
                         else:
                             tm = tm.split(":")
                             multiple = 1
                             for i in range(len(tm) - 1, -1, -1):
                                 two_hop_latency[idx][idx2] += float(tm[i]) * multiple
                                 multiple *= 60
-                                get_neighbor_latency[idx][idx2] *= 1000
+                                two_hop_latency[idx][idx2] *= 1000
                     if line.startswith(">> BFS N:"):
                         tm = line.split()[5].rstrip(",")
                         bfs_latency[idx][idx2] = int(tm) / 1000
                     if line.startswith(">> SSSP N:"):
                         tm = line.split()[5].rstrip(",")
                         sssp_latency[idx][idx2] = int(tm) / 1000
-                    if line.startswith(">> PR N:"):
+                    if line.startswith(">> PageRank N:"):
                         tm = line.split()[5].rstrip(",")
                         pr_latency[idx][idx2] = int(tm) / 1000
                     if line.startswith(">> WCC N:"):
