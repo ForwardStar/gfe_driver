@@ -80,7 +80,7 @@ def read_results(result_path):
                                 two_hop_latency[idx][idx2] += float(tm[i]) * multiple
                                 multiple *= 60
                                 get_neighbor_latency[idx][idx2] *= 1000
-                    if line.startswith("BFS N:"):
+                    if line.startswith(">> BFS N:"):
                         tm = line.split()[5].rstrip(",")
                         bfs_latency[idx][idx2] = int(tm) / 1000
                     if line.startswith(">> SSSP N:"):

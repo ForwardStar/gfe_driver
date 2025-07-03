@@ -50,57 +50,29 @@ def read_results(result_path, exp_type="random"):
                 idx2 = 1
             elif file.startswith("com-orkut"):
                 idx2 = 2
-            elif file.startswith("twitter-2010"):
+            elif file.startswith("graph500-24"):
                 idx2 = 3
+            elif file.startswith("uniform-24"):
+                idx2 = 4
+            elif file.startswith("twitter-2010"):
+                idx2 = 5
             else:
                 continue
             with open(os.path.join(method_path, file), "r") as f:
                 lines = f.readlines()
-                m = 0
-                insert_time = 0
-                delete_time = 0
                 for line in lines:
-                    if line.startswith("Loaded"):
-                        m = int(line.split()[1])
-                    if line.startswith("Insertions"):
-                        time_str = line.split()[6]
-                        time_str = time_str.split(":")
-                        multiple = 1
-                        for i in range(len(time_str) - 1, -1, -1):
-                            insert_time += float(time_str[i]) * multiple
-                            multiple *= 60
-                    if line.startswith("Deletions"):
-                        time_str = line.split()[6]
-                        time_str = time_str.split(":")
-                        multiple = 1
-                        for i in range(len(time_str) - 1, -1, -1):
-                            delete_time += float(time_str[i]) * multiple
-                            multiple *= 60
-                if insert_time == 0:
-                    insert_throughputs[idx][idx2] = 0
-                else:
-                    insert_throughputs[idx][idx2] = m / insert_time / 1e6
-                if delete_time == 0:
-                    delete_throughputs[idx][idx2] = 0
-                else:
-                    delete_throughputs[idx][idx2] = m / delete_time / 1e6
+                    if line.startswith("Memory consumption"):
+                        memory[idx][idx2] = int(line.split()[-1].rstrip("MB"))
                     
 # Example data
-datasets = ['lj', 'dota', 'orkut', 'twitter']
+datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
-insert_throughputs = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-]
-delete_throughputs = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
+memory = [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 read_results("./results")
 
@@ -108,7 +80,7 @@ read_results("./results")
 colors = ['steelblue', 'orange', 'green', 'red', 'purple']
 hatches = ['/', '\\', 'x', '-', 'o']
 
-def plot(throughputs, output_path):
+def plot_memory(memory, output_path):
     # Plotting setup
     x = np.arange(len(datasets))  # Label locations
     width = 0.15  # Width of each bar
@@ -118,11 +90,12 @@ def plot(throughputs, output_path):
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
         offset = (i - 2) * width  # Center the bars
-        ax.bar(x + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
+        ax.bar(x + offset, memory[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel('Throughput (mops)', fontsize=25, fontweight='bold')
+    ax.set_ylabel('Memory (MB)', fontsize=25, fontweight='bold')
     # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
+    ax.set_yscale('log')
     ax.set_xticks(x)
     ax.tick_params(axis='y', labelsize=25)
     ax.set_xticklabels(datasets, fontsize=25)
@@ -132,5 +105,4 @@ def plot(throughputs, output_path):
     plt.tight_layout()
     plt.savefig(output_path)
 
-plot(insert_throughputs, "./insert.pdf")
-plot(delete_throughputs, "./delete.pdf")
+plot_memory(memory, "./memory.pdf")
