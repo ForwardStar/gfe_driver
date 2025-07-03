@@ -10,9 +10,11 @@ plt.rcParams.update({
     'font.family': 'Times New Roman'
 })
 for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
-    if "Libertine" in font:
+    if "Libertine_R" in font:
+        font_prop = fm.FontProperties(fname=font)
+        font_name = font_prop.get_name()
         plt.rcParams.update({
-            'font.family': 'LinLibertine_RZ.otf'
+            'font.family': font_name
         })
 
 def read_results(result_path):
