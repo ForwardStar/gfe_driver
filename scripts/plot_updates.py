@@ -4,12 +4,25 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import matplotlib.font_manager as fm
+
+plt.rcParams.update({
+    'font.family': 'Times New Roman'
+})
+for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
+    if "Libertine_R" in font:
+        font_prop = fm.FontProperties(fname=font)
+        font_name = font_prop.get_name()
+        plt.rcParams.update({
+            'font.family': font_name
+        })
 
 def read_results(result_path, exp_type="random"):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
     global insert_throughputs
     global delete_throughputs
+    global memory
     methods = os.listdir(result_path)
     for method in methods:
         print("Processing", method)
@@ -67,6 +80,8 @@ def read_results(result_path, exp_type="random"):
                         for i in range(len(time_str) - 1, -1, -1):
                             delete_time += float(time_str[i]) * multiple
                             multiple *= 60
+                    if line.startswith("Memory consumption"):
+                        memory[idx][idx2] = int(line.split()[-1].rstrip("MB"))
                 if insert_time == 0:
                     insert_throughputs[idx][idx2] = 0
                 else:
@@ -93,6 +108,13 @@ delete_throughputs = [
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0]
 ]
+memory = [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
+]
 read_results("./results")
 
 # Colors and hatch patterns for each method
@@ -104,7 +126,7 @@ def plot(throughputs, output_path):
     x = np.arange(len(datasets))  # Label locations
     width = 0.15  # Width of each bar
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 4))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
@@ -112,15 +134,42 @@ def plot(throughputs, output_path):
         ax.bar(x + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel('Throughput (mops)')
-    ax.set_xlabel('Datasets')
+    ax.set_ylabel('Throughput (mops)', fontsize=20, fontweight='bold')
+    # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
     ax.set_xticks(x)
-    ax.set_xticklabels(datasets)
-    ax.legend()
+    ax.tick_params(axis='y', labelsize=18)
+    ax.set_xticklabels(datasets, fontsize=18)
+    ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=20, ncol=5)
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()
     plt.savefig(output_path)
 
-plot(insert_throughputs, "./insert.svg")
-plot(delete_throughputs, "./delete.svg")
+def plot_memory(memory, output_path):
+    # Plotting setup
+    x = np.arange(len(datasets))  # Label locations
+    width = 0.15  # Width of each bar
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+
+    # Plot each method's bars
+    for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
+        offset = (i - 2) * width  # Center the bars
+        ax.bar(x + offset, memory[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
+
+    # Axes labels and ticks
+    ax.set_ylabel('Memory (MB)', fontsize=20, fontweight='bold')
+    # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
+    ax.set_yscale('log')
+    ax.set_xticks(x)
+    ax.tick_params(axis='y', labelsize=18)
+    ax.set_xticklabels(datasets, fontsize=18)
+    ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=20, ncol=5)
+    ax.grid(True, axis='y', linestyle='--', alpha=0.7)
+
+    plt.tight_layout()
+    plt.savefig(output_path)
+
+plot(insert_throughputs, "./insert.pdf")
+plot(delete_throughputs, "./delete.pdf")
+plot_memory(memory, "./memory.pdf")

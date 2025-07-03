@@ -309,7 +309,8 @@ Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-
 ##### Plotting Figures
 After executing above scripts, run the Python files in ``scripts`` folder like:
 ```sh
-python3 scripts/insert_and_delete.py
+python3 scripts/plot_updates.py
+python3 scripts/plot_analytics.py
 ```
 
 ### Troubleshooting

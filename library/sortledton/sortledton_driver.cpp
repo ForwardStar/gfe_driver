@@ -177,8 +177,7 @@ namespace gfe::library {
           });
           for (auto e : neighbors) {
             std::vector<std::pair<uint64_t, double>> neighbors2;
-            auto u2 = ds->physical_id(e.first);
-            SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, u2, v, w, end_iteration, {
+            SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, e.first, v, w, end_iteration, {
               neighbors2.emplace_back(v, w);
             });
           }

@@ -182,9 +182,8 @@ bool TeseoDriver::get_two_hop_neighbors(uint64_t vertex_id) {
             neighbors.emplace_back(des, w);
         });
         for (auto e : neighbors) {
-            auto vid = tx.logical_id(e.first);
             std::vector<std::pair<uint64_t, double>> neighbors2;
-            tx.iterator().edges(vid, true, [&neighbors2](uint64_t des, double w){
+            tx.iterator().edges(e.first, true, [&neighbors2](uint64_t des, double w){
                 neighbors2.emplace_back(des, w);
             });
         }
