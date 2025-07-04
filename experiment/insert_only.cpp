@@ -265,7 +265,6 @@ chrono::microseconds InsertOnly::execute() {
             LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " neighbour queries per thread");
         }
 
-        m_interface->on_main_init(m_num_threads /* build thread */ +1);
         timer.start();
         BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
         execute_round_robin_get_neighbors();
@@ -273,7 +272,6 @@ chrono::microseconds InsertOnly::execute() {
         timer.stop();
         LOG("Get 1-hop neighbors performed with " << m_num_threads << " threads in " << timer);
 
-        m_interface->on_main_init(m_num_threads /* build thread */ +1);
         timer.start();
         BuildThread build_service3 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
         execute_round_robin_get_two_hop_neighbors();
@@ -291,7 +289,6 @@ chrono::microseconds InsertOnly::execute() {
             LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " edge insertions per thread");
         }
 
-        m_interface->on_main_init(m_num_threads /* build thread */ +1);
         m_interface->updates_start();
         timer.start();
         BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
