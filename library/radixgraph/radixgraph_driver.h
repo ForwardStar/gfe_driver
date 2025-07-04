@@ -142,6 +142,11 @@ namespace gfe::library {
         virtual bool remove_edge(gfe::graph::Edge e);
 
         /**
+         * Create a static view of the graph
+         */
+        virtual void build();
+
+        /**
          * Callback, invoked when a thread is created
          */
         virtual void on_thread_init(int thread_id);
@@ -150,6 +155,17 @@ namespace gfe::library {
          * Callback, invoked when a thread is going to be removed
          */
         virtual void on_thread_destroy(int thread_id);
+        
+        /**
+         * Set the number of threads allowed in the system
+         */
+        virtual void on_main_init(int num_threads);
+
+        /**
+         * Set the type of workloads.
+         * @param is_mixed_workload true if concurrent reads and writes are required and false otherwise
+         */
+        virtual void set_mixed_workloads(bool is_mixed_workloads);
 
         /**
          * Perform a BFS from source_vertex_id to all the other vertices in the graph.

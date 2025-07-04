@@ -32,6 +32,15 @@ namespace gfe::library {
         G->thread_id_local = -1;
     }
 
+    void RadixGraphDriver::on_main_init(int num_threads) {
+        G->Init(num_threads);
+    }
+
+    void RadixGraphDriver::set_mixed_workloads(bool is_mixed_workloads) {
+        G->is_mixed_workloads = is_mixed_workloads;
+        G->vertex_index->is_mixed_workloads = is_mixed_workloads;
+    }
+
     void* RadixGraphDriver::handle_impl() {
         return nullptr;
     }
@@ -127,6 +136,10 @@ namespace gfe::library {
         G->DeleteEdge(e.m_source, e.m_destination);
         if (!m_is_directed) G->DeleteEdge(e.m_destination, e.m_source);
         return true;
+    }
+
+    void RadixGraphDriver::build() {
+        G->CreateSnapshots();
     }
 
     /*****************************************************************************
