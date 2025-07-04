@@ -309,9 +309,13 @@ Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-
 ##### Plotting Figures
 After executing above scripts, run the Python files in ``scripts`` folder like:
 ```sh
+python3 scripts/plot_legends.py
 python3 scripts/plot_updates.py
+python3 scripts/plot_memory.py
 python3 scripts/plot_analytics.py
 ```
+
+The generated figures will be placed in the ``figures`` folder.
 
 ### Troubleshooting
 As in requisites, we recommend using ``GCC 10.5.0`` and ``tbb 2022.01``. If you have installed multiple GCC and TBB versions, configure in your ``.bashrc`` file to ensure that the correct GCC and TBB are used:
