@@ -50,6 +50,7 @@ datasets
 
 # Results
 results
+figures
 
 # Baselines
 libBVGT.a

@@ -85,7 +85,7 @@ def plot_memory(memory, output_path):
     x = np.arange(len(datasets))  # Label locations
     width = 0.15  # Width of each bar
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
@@ -93,16 +93,18 @@ def plot_memory(memory, output_path):
         ax.bar(x + offset, memory[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel('Memory (MB)', fontsize=25, fontweight='bold')
+    ax.set_ylabel('Memory (MB)', fontsize=35, fontweight='bold')
     # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
     ax.set_yscale('log')
     ax.set_xticks(x)
-    ax.tick_params(axis='y', labelsize=25)
-    ax.set_xticklabels(datasets, fontsize=25)
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
+    ax.tick_params(axis='y', labelsize=30)
+    ax.set_xticklabels(datasets, fontsize=30)
+    # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()
     plt.savefig(output_path)
 
-plot_memory(memory, "./memory.pdf")
+if not os.path.exists("./figures"):
+    os.makedirs("./figures")
+plot_memory(memory, "./figures/memory.pdf")

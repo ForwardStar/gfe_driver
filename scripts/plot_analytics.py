@@ -20,8 +20,8 @@ for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
 def read_results(result_path):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
-    global get_neighbor_latency
-    global two_hop_latency
+    global get_neighbor_throughputs
+    global two_hop_throughputs
     global bfs_latency
     global sssp_latency
     global pr_latency
@@ -57,29 +57,32 @@ def read_results(result_path):
                 continue
             with open(os.path.join(method_path, file), "r") as f:
                 lines = f.readlines()
+                n = 0
                 for line in lines:
+                    if line.startswith("Loaded"):
+                        n = int(line.split()[6].rstrip('.')) + 1
                     if line.startswith("Get 1-hop"):
                         tm = line.split()[8]
                         if line.split()[-1] == "ms":
-                            get_neighbor_latency[idx][idx2] = int(tm)
+                            get_neighbor_throughputs[idx][idx2] = int(tm) / 1000
                         else:
                             tm = tm.split(":")
                             multiple = 1
                             for i in range(len(tm) - 1, -1, -1):
-                                get_neighbor_latency[idx][idx2] += float(tm[i]) * multiple
+                                get_neighbor_throughputs[idx][idx2] += float(tm[i]) * multiple
                                 multiple *= 60
-                                get_neighbor_latency[idx][idx2] *= 1000
+                        get_neighbor_throughputs[idx][idx2] = n / get_neighbor_throughputs[idx][idx2]
                     if line.startswith("Get 2-hop"):
                         tm = line.split()[8]
                         if line.split()[-1] == "ms":
-                            two_hop_latency[idx][idx2] = int(tm)
+                            two_hop_throughputs[idx][idx2] = int(tm) / 1000
                         else:
                             tm = tm.split(":")
                             multiple = 1
                             for i in range(len(tm) - 1, -1, -1):
-                                two_hop_latency[idx][idx2] += float(tm[i]) * multiple
+                                two_hop_throughputs[idx][idx2] += float(tm[i]) * multiple
                                 multiple *= 60
-                                two_hop_latency[idx][idx2] *= 1000
+                        two_hop_throughputs[idx][idx2] = n / two_hop_throughputs[idx][idx2]
                     if line.startswith(">> BFS N:"):
                         tm = line.split()[5].rstrip(",")
                         bfs_latency[idx][idx2] = int(tm) / 1000
@@ -96,14 +99,14 @@ def read_results(result_path):
 # Example data
 datasets = ['dota', 'g24', 'u24']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
-get_neighbor_latency = [
+get_neighbor_throughputs = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0]
 ]
-two_hop_latency = [
+two_hop_throughputs = [
     [0, 0, 0],
     [0, 0, 0],
     [0, 0, 0],
@@ -144,34 +147,36 @@ read_results("./results")
 colors = ['steelblue', 'orange', 'green', 'red', 'purple']
 hatches = ['/', '\\', 'x', '-', 'o']
 
-def plot(throughputs, output_path):
+def plot(results, output_path, y='Latency (ms)'):
     # Plotting setup
     x = np.arange(len(datasets))  # Label locations
     width = 0.15  # Width of each bar
 
-    fig, ax = plt.subplots(figsize=(10, 4))
+    fig, ax = plt.subplots(figsize=(7, 4))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
         offset = (i - 2) * width  # Center the bars
-        ax.bar(x + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
+        ax.bar(x + offset, results[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel('Latency (ms)', fontsize=20, fontweight='bold')
+    ax.set_ylabel(y, fontsize=20, fontweight='bold')
     # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
     ax.set_yscale('log')
     ax.set_xticks(x)
     ax.tick_params(axis='y', labelsize=18)
     ax.set_xticklabels(datasets, fontsize=18)
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=20, ncol=5)
+    # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=20, ncol=5)
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()
     plt.savefig(output_path)
 
-plot(get_neighbor_latency, "./get-neighbor.pdf")
-plot(two_hop_latency, "./two-hop.pdf")
-plot(bfs_latency, "./bfs.pdf")
-plot(sssp_latency, "./sssp.pdf")
-plot(pr_latency, "./pr.pdf")
-plot(wcc_latency, "./wcc.pdf")
+if not os.path.exists("./figures"):
+    os.makedirs("./figures")
+plot(get_neighbor_throughputs, "./figures/get-neighbor.pdf", 'Throughputs (qops)')
+plot(two_hop_throughputs, "./figures/two-hop.pdf", 'Throughputs (qops)')
+plot(bfs_latency, "./figures/bfs.pdf")
+plot(sssp_latency, "./figures/sssp.pdf")
+plot(pr_latency, "./figures/pr.pdf")
+plot(wcc_latency, "./figures/wcc.pdf")
