@@ -20,8 +20,6 @@ for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
 def read_results(result_path, exp_type="random"):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
-    global insert_throughputs
-    global delete_throughputs
     global memory
     methods = os.listdir(result_path)
     for method in methods:

@@ -160,12 +160,12 @@ def plot(results, output_path, y='Latency (ms)'):
         ax.bar(x + offset, results[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel(y, fontsize=20, fontweight='bold')
+    ax.set_ylabel(y, fontsize=25, fontweight='bold')
     # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
     ax.set_yscale('log')
     ax.set_xticks(x)
-    ax.tick_params(axis='y', labelsize=18)
-    ax.set_xticklabels(datasets, fontsize=18)
+    ax.tick_params(axis='y', labelsize=25)
+    ax.set_xticklabels(datasets, fontsize=25)
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=20, ncol=5)
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 

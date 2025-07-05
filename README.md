@@ -326,6 +326,7 @@ After executing above scripts, run the Python files in ``scripts`` folder like:
 ```sh
 python3 scripts/plot_legends.py
 python3 scripts/plot_updates.py
+python3 scripts/plot_mixed.py
 python3 scripts/plot_memory.py
 python3 scripts/plot_analytics.py
 ```
