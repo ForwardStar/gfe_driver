@@ -27,6 +27,7 @@ namespace gfe::library {
         std::atomic<uint32_t> vertex_num;
         std::atomic<uint32_t> edge_num;
         RadixGraph* G = nullptr;
+        int _num_threads = 64;
         // Helper, save the content of the vector to the given output file
         template<typename T, bool negative_scores = true>
         void save_results(std::vector<std::pair<uint64_t, T>>& result, const char* dump2file);

@@ -289,13 +289,28 @@ sh scripts/run_sequential.sh radixgraph [threads]
 ```
 
 ##### Memory Consumption
-
 Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example:
 ```sh
 ../configure --enable-optimize --enable-mem-analysis --disable-debug --with-radixgraph=../
 ```
 
 Then run ``run_random.sh`` with the same procedure.
+
+##### Mixed Updates
+Generate the update log file with [graphlog](https://github.com/whatsthecraic/graphlog) and move them to the folder of ``gfe_driver``:
+```sh
+./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/graph500-24.properties /path/to/gfe_driver/graph500-24-1.0.graphlog
+./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/uniform-24.properties /path/to/gfe_driver/uniform-24-1.0.graphlog
+```
+
+This will generate 10x operations of #edges of the original dataset, but the final built graph is still the same as the original graph.
+
+Then execute:
+```sh
+sh scripts/run_mixed.sh radixgraph [threads]
+```
+
+Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Graph Analytics
 

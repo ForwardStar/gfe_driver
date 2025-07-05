@@ -17,7 +17,7 @@ namespace gfe::library {
         fin >> d;
         std::vector<int> a(d);
         for (auto& i : a) fin >> i;
-        G = new RadixGraph(d, a);
+        G = new RadixGraph(d, a, _num_threads);
     }
 
     RadixGraphDriver::~RadixGraphDriver() {
@@ -33,7 +33,8 @@ namespace gfe::library {
     }
 
     void RadixGraphDriver::on_main_init(int num_threads) {
-        G->Init(num_threads);
+        _num_threads = num_threads;
+        if (G) G->Init(_num_threads);
     }
 
     void RadixGraphDriver::set_mixed_workloads(bool is_mixed_workloads) {
