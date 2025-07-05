@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.font_manager as fm
 import os
+from matplotlib.lines import Line2D
 
 plt.rcParams.update({
     'font.family': 'Times New Roman'
@@ -37,4 +38,36 @@ ax.axis('off')
 plt.tight_layout()
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
-plt.savefig("./figures/legends.pdf")
+plt.savefig("./figures/legends_bar.pdf")
+plt.clf()
+
+legend_labels = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
+colors = ['steelblue', 'orange', 'green', 'red', 'purple']
+markers = ['o', 's', '^', 'D', 'v']
+legend_elements = [
+    Line2D(
+        [0], [0],
+        marker=markers[i],
+        color=colors[i],  # No line
+        label=legend_labels[i],
+        markerfacecolor='white',
+        markeredgecolor=colors[i],
+        markeredgewidth=1.5,
+        markersize=15,
+        linewidth=2,
+        linestyle='-'
+    )
+    for i in range(len(legend_labels))
+]
+
+fig = plt.figure(figsize=(12, 1))
+plt.legend(
+    handles=legend_elements,
+    loc='center',
+    ncol=3,
+    fontsize=30,
+    frameon=False
+)
+plt.axis('off')  # Hide axes
+plt.tight_layout()
+plt.savefig("./figures/legends_curve.pdf")

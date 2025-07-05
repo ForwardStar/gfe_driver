@@ -5,6 +5,7 @@ import sqlite3
 import os
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import numpy as np
 
 plt.rcParams.update({
     'font.family': 'Times New Roman'
@@ -64,7 +65,7 @@ def read_results(result_path):
 
             # Total operations
             total_ops = ops[-1]
-            ten_percent = total_ops / 10
+            ten_percent = total_ops // 10
             if method == 'gtx':
                 # We only execute 20% operations for GTX (cause it raises OOM for more operations)
                 # If you executed the full operations with a large-memory machine, comment this
@@ -113,30 +114,33 @@ colors = ['steelblue', 'orange', 'green', 'red', 'purple']
 markers = ['o', 's', '^', 'D', 'v']
 
 def plot(throughput, output_path):
-    plt.figure(figsize=(10, 8))
-    x = ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
+    fig, ax = plt.subplots(figsize=(7, 4))
     for i in range(len(throughput)):
+        x = ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
+        x = x[:len(throughput[i])]
         if len(throughput[i]) == 0:
             continue
         y = throughput[i]
-        plt.plot(
+        ax.plot(
             x,
             y,
             label=legend_labels[i],
             color=colors[i],
             marker=markers[i],
-            markersize=20,
+            markersize=15,
             markerfacecolor='white',
             markeredgewidth=1.5,
             linewidth=2
         )
-    plt.xlabel("Progress (%)", fontsize=30, fontweight='bold')
-    plt.ylabel("Time (s)", fontsize=30, fontweight='bold')
-    plt.xticks(fontsize=25)
-    plt.yticks(fontsize=25)
-    plt.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
+    ax.set_xlabel("Progress (%)", fontsize=25, fontweight='bold')
+    ax.set_ylabel("Time (s)", fontsize=25, fontweight='bold')
+    x_ticks = ['', '20%', '', '40%', '', '60%', '', '80%', '', '100%']
+    ax.set_xticks(np.arange(len(x_ticks)))
+    ax.set_xticklabels(x_ticks, fontsize=25)
+    ax.tick_params(axis='y', labelsize=25)
+    # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
+    plt.tight_layout()
     plt.savefig(output_path)
-    plt.clf()
 
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
