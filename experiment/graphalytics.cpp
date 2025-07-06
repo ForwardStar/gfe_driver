@@ -150,13 +150,13 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         }
         
         // Get neighbors
-        #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
+        #pragma omp parallel for
         for (uint64_t i = 0; i <= max_vertex_id; i++) {
             interface->get_neighbors(i);
         }
 
         // // Get 2-hop neighbors
-        // #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
+        // #pragma omp parallel for
         // for (uint64_t i = 0; i <= max_vertex_id; i++) {
         //     interface->get_two_hop_neighbors(i);
         // }

@@ -80,7 +80,8 @@ Aging2Master::Aging2Master(const Aging2Experiment& parameters) :
 
     m_parameters.m_library->on_main_init(m_parameters.m_num_threads + /* this + builder service */ 2 + /* plus potentially an analytics runner (mixed epxeriment) */ 1);
     #if defined(HAVE_RG)
-        m_parameters.m_library->on_main_init(m_parameters.m_num_threads + configuration().num_threads(THREADS_READ) + /* this + builder service */ 2 + /* plus potentially an analytics runner (mixed epxeriment) */ 1);
+        int nth = std::max(m_parameters.m_num_threads + configuration().num_threads(THREADS_READ) + /* this + builder service */ 2 + /* plus potentially an analytics runner (mixed epxeriment) */ 1, (uint64_t)64);
+        m_parameters.m_library->on_main_init(nth);
     #endif
 
     init_workers();

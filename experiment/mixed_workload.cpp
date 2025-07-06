@@ -40,10 +40,16 @@ namespace gfe::experiment {
                     }
 #endif
 
+      auto start = std::chrono::high_resolution_clock::now();
+      int num_tasks_executed = 0;
       while (m_aging_experiment.progress_so_far() < 0.9 && aging_result_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
         m_graphalytics.execute();
+        num_tasks_executed++;
       }
+      auto end = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> duration = end - start;
 
+      cout << "Graphaltyics finished. Number of rounds executed: " << num_tasks_executed << " with " << m_read_threads << " threads in " << duration.count() << " s" << endl;
       cout << "Waiting for aging experiment to finish" << endl;
       aging_result_future.wait();
       cout << "Getting aging experiment results" << endl;
