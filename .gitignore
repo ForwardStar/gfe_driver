@@ -55,6 +55,7 @@ figures
 # Update log
 graph500-24-1.0.graphlog
 uniform-24-1.0.graphlog
+dota-league.graphlog
 
 # Baselines
 libBVGT.a

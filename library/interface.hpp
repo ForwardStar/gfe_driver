@@ -190,6 +190,7 @@ private:
     void batch_try_again(Action action, Edge edge);
 
 public:
+    virtual void set_mixed_workloads(bool is_mixed_workloads){}
     virtual void set_worker_thread_num(uint64_t new_num){}
     /**
      * Add the given vertex to the graph
@@ -236,13 +237,13 @@ public:
      * Get neighbor edges of a vertex from the graph
      * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
      */
-    virtual bool get_neighbors(uint64_t vertex_id) = 0;
+    virtual bool get_neighbors(uint64_t vertex_id){}
 
     /**
      * Get 2-hop neighbors of a vertex from the graph
      * @return true if the 2-hop neighbors has been retrieved, false otherwise (e.g. this vertex does not exist)
      */
-    virtual bool get_two_hop_neighbors(uint64_t vertex_id) = 0;
+    virtual bool get_two_hop_neighbors(uint64_t vertex_id){}
 
     /**
      * Load the whole graph representation from the given path
@@ -285,8 +286,21 @@ public:
  */
 class GraphalyticsInterface : public virtual Interface {
 public:
+    virtual void set_mixed_workloads(bool is_mixed_workloads){}
     virtual void set_worker_thread_num(uint64_t new_num){}
     virtual void finish_loading(){}
+    /**
+     * Get neighbor edges of a vertex from the graph
+     * @return true if the neighbor edges has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    virtual bool get_neighbors(uint64_t vertex_id){}
+
+    /**
+     * Get 2-hop neighbors of a vertex from the graph
+     * @return true if the 2-hop neighbors has been retrieved, false otherwise (e.g. this vertex does not exist)
+     */
+    virtual bool get_two_hop_neighbors(uint64_t vertex_id){}
+
     /**
      * Perform a BFS from source_vertex_id to all the other vertices in the graph.
      * @param source_vertex_id the vertex where to start the search

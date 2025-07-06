@@ -127,6 +127,34 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
 
     Timer t_global, t_local;
     t_global.start();
+    if (!configuration().get_update_log().empty() && m_num_repetitions == 0) {
+        // If using a graph log but not using -R <num_repetitions>, graph algorithms are not executed
+        // Instead, run 1-hop neighbor queries or 2-hop neighbor queries
+        // (In InsertOnly, there are also get_neighbor and get_two_hop_neighbor executions)
+        // (I'm sorry to make this thing messy, it should be tidier :)
+        // Let me explain this a bit more detailed:
+        // * If not using graph logs, InsertOnly is executed, and neighbor queries are performed in InsertOnly instead of here;
+        // * If using graph logs, this function is invoked only when mixed_workload is true;
+        // * Therefore, if using graph logs and mixed_workload is true, but m_num_repititions is 0, no graph algorithms are executed;
+        // * And we run neighbor queries here.
+        {
+            // Get neighbors
+            #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
+            for (uint64_t i = 0; i < 1000000; i++) {
+                // Query vertex id 0-999999 (for dota, the maximum vertex id is 317727)
+                interface->get_neighbors(i);
+            }
+        }
+
+        // {
+        //     // Get 2-hop neighbors
+        //     #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
+        //     for (uint64_t i = 0; i < 1000000; i++) {
+        //         // Query vertex id 0-999999 (for dota, the maximum vertex id is 317727)
+        //         interface->get_two_hop_neighbors(i);
+        //     }
+        // }
+    }
 
     for(uint64_t i = 0; i < m_num_repetitions; i++){
 

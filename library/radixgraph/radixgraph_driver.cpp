@@ -107,10 +107,11 @@ namespace gfe::library {
 
     bool RadixGraphDriver::get_two_hop_neighbors(uint64_t vertex_id) {
         std::vector<WeightedEdge> neighbors;
-        G->GetNeighbours(vertex_id, neighbors);
+        int t = G->GetGlobalTimestamp(); // Get timestamp for consistency (1-hop and 2-hop neighbors should be in the same graph snapshot)
+        G->GetNeighbours(vertex_id, neighbors, false, t);
         for (auto e : neighbors) {
             std::vector<WeightedEdge> neighbors2;
-            G->GetNeighboursByOffset(e.idx, neighbors2);
+            G->GetNeighboursByOffset(e.idx, neighbors2, false, t);
         }
         return true;
     }

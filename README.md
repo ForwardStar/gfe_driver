@@ -321,6 +321,21 @@ sh scripts/run_analytics.sh radixgraph [threads]
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
+##### Concurrent Reads and Writes
+Generate the update log file with [graphlog](https://github.com/whatsthecraic/graphlog) for `dota-league`:
+```sh
+./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/dota-league.properties /path/to/gfe_driver/dota-league.graphlog
+```
+
+Execute updates and 1-hop neighbor queries concurrently:
+```sh
+./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l radixgraph -r [num_read_threads] -w [num_write_threads] --mixed_workload true
+```
+
+To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 140-147 in ``experiment/graphalytics.cpp`` and uncomment lines 149-156. Then execute the same command as above.
+
+Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+
 ##### Plotting Figures
 After executing above scripts, run the Python files in ``scripts`` folder like:
 ```sh

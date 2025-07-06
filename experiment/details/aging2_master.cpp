@@ -181,6 +181,11 @@ void Aging2Master::prepare_latencies(){
 
 void Aging2Master::do_run_experiment(){
     LOG("[Aging2] Experiment started ...");
+    if (configuration().is_mixed_workload()) {
+        #if defined(HAVE_RG)
+            parameters().m_library->set_mixed_workloads(true);
+        #endif
+    }
     m_last_progress_reported = 0;
     m_last_time_reported = 0; m_time_start = chrono::steady_clock::now();
 
