@@ -137,22 +137,28 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         // * If using graph logs, this function is invoked only when mixed_workload is true;
         // * Therefore, if using graph logs and mixed_workload is true, but m_num_repititions is 0, no graph algorithms are executed;
         // * And we run neighbor queries here.
-        {
-            // Get neighbors
-            #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
-            for (uint64_t i = 0; i < 1000000; i++) {
-                // Query vertex id 0-999999 (for dota, the maximum vertex id is 317727)
-                interface->get_neighbors(i);
-            }
+        uint64_t max_vertex_id = 0;
+        auto dataset = configuration().get_path_graph();
+        if (dataset.find("graph500") != std::string::npos) {
+            max_vertex_id = 16777215;
+        }
+        if (dataset.find("uniform") != std::string::npos) {
+            max_vertex_id = 13306413;
+        }
+        if (dataset.find("dota-league") != std::string::npos) {
+            max_vertex_id = 317727;
+        }
+        
+        // Get neighbors
+        #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
+        for (uint64_t i = 0; i <= max_vertex_id; i++) {
+            interface->get_neighbors(i);
         }
 
-        // {
-        //     // Get 2-hop neighbors
-        //     #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
-        //     for (uint64_t i = 0; i < 1000000; i++) {
-        //         // Query vertex id 0-999999 (for dota, the maximum vertex id is 317727)
-        //         interface->get_two_hop_neighbors(i);
-        //     }
+        // // Get 2-hop neighbors
+        // #pragma omp parallel for num_threads(configuration().num_threads(THREADS_READ))
+        // for (uint64_t i = 0; i <= max_vertex_id; i++) {
+        //     interface->get_two_hop_neighbors(i);
         // }
     }
 

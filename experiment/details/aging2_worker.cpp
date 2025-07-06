@@ -165,6 +165,9 @@ void Aging2Worker::main_thread(){
     concurrency::set_thread_name("Worker #" + to_string(m_worker_id));
 
     m_library->on_thread_init(m_worker_id);
+    #if defined(HAVE_RG)
+        m_library->on_thread_init(m_worker_id + configuration().num_threads(THREADS_READ));
+    #endif
 
     bool terminate = false;
     Task task; // current task
@@ -206,6 +209,9 @@ void Aging2Worker::main_thread(){
     } while (!terminate);
 
     m_library->on_thread_destroy(m_worker_id);
+    #if defined(HAVE_RG)
+        m_library->on_thread_destroy(m_worker_id + configuration().num_threads(THREADS_READ));
+    #endif
 
     // not really necessary, only present for consistency ..
     unique_lock<mutex> lock(m_mutex);

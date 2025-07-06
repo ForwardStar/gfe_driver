@@ -332,7 +332,14 @@ Execute updates and 1-hop neighbor queries concurrently:
 ./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l radixgraph -r [num_read_threads] -w [num_write_threads] --mixed_workload true
 ```
 
-To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 140-147 in ``experiment/graphalytics.cpp`` and uncomment lines 149-156. Then execute the same command as above.
+Or simply by:
+```sh
+sh scripts/run_concurrent.sh radixgraph
+```
+
+which runs with 64 threads with read thread ratio 0.25, 0.5 and 0.75.
+
+To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 152-156 in ``experiment/graphalytics.cpp`` and uncomment lines 158-162. Then execute the same command as above.
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 

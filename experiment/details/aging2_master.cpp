@@ -79,6 +79,9 @@ Aging2Master::Aging2Master(const Aging2Experiment& parameters) :
     m_reported_times = new uint64_t[static_cast<uint64_t>( m_parameters.m_num_reports_per_operations * ::ceil( static_cast<double>(num_operations_total())/num_edges_final_graph()) + 1 )]();
 
     m_parameters.m_library->on_main_init(m_parameters.m_num_threads + /* this + builder service */ 2 + /* plus potentially an analytics runner (mixed epxeriment) */ 1);
+    #if defined(HAVE_RG)
+        m_parameters.m_library->on_main_init(m_parameters.m_num_threads + configuration().num_threads(THREADS_READ) + /* this + builder service */ 2 + /* plus potentially an analytics runner (mixed epxeriment) */ 1);
+    #endif
 
     init_workers();
     m_parameters.m_library->on_thread_init(m_parameters.m_num_threads + 1);
