@@ -150,16 +150,36 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         }
         
         // Get neighbors
-        #pragma omp parallel for
-        for (uint64_t i = 0; i <= max_vertex_id; i++) {
-            interface->get_neighbors(i);
-        }
-
-        // // Get 2-hop neighbors
-        // #pragma omp parallel for
-        // for (uint64_t i = 0; i <= max_vertex_id; i++) {
-        //     interface->get_two_hop_neighbors(i);
-        // }
+        #if defined(HAVE_GTX)
+            // GTX provides its own interface
+            std::vector<uint64_t> candidate_vertices(max_vertex_id + 1);
+            #pragma omp parallel for
+            for (uint64_t i = 0; i <= max_vertex_id; i++) {
+                candidate_vertices[i] = i;
+            }
+            interface->one_hop_neighbors(candidate_vertices);
+        #else
+            #pragma omp parallel for
+            for (uint64_t i = 0; i <= max_vertex_id; i++) {
+                interface->get_neighbors(i);
+            }
+        #endif
+        
+        // Get 2-hop neighbors
+        // #if defined(HAVE_GTX)
+        //     // GTX provides its own interface
+        //     std::vector<uint64_t> candidate_vertices(max_vertex_id + 1);
+        //     #pragma omp parallel for
+        //     for (uint64_t i = 0; i <= max_vertex_id; i++) {
+        //         candidate_vertices[i] = i;
+        //     }
+        //     interface->two_hop_neighbors(candidate_vertices);
+        // #else
+        //     #pragma omp parallel for
+        //     for (uint64_t i = 0; i <= max_vertex_id; i++) {
+        //         interface->get_two_hop_neighbors(i);
+        //     }
+        // #endif
     }
 
     for(uint64_t i = 0; i < m_num_repetitions; i++){
