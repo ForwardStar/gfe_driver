@@ -163,8 +163,8 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
             interface->one_hop_neighbors(candidate_vertices);
         #else
             #pragma omp parallel for
-            for (uint64_t i = 0; i <= max_vertex_id; i++) {
-                interface->get_neighbors(i);
+            for (uint64_t i = 0; i < 1000; i++) {
+                interface->get_neighbors(candidate_vertices[i]);
             }
         #endif
         
@@ -174,7 +174,7 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         //     interface->two_hop_neighbors(candidate_vertices);
         // #else
         //     #pragma omp parallel for
-        //     for (uint64_t i = 0; i <= max_vertex_id; i++) {
+        //     for (uint64_t i = 0; i < 1000; i++) {
         //         interface->get_two_hop_neighbors(candidate_vertices[i]);
         //     }
         // #endif
