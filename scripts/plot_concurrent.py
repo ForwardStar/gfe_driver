@@ -58,8 +58,7 @@ def read_results(result_path):
                     if "read-threads" in file and line.startswith("Graphaltyics finished."):
                         tm = float(line.split()[-2])
                         op = int(line.split()[-7])
-                        # op *= 16777215
-                        op *= 317727
+                        op *= 1000
                         read_throughputs[idx][idx2] = op / tm
                     if "write-threads" in file and line.startswith("[Aging2] Updates performed"):
                         time_str = line.split()[-2]

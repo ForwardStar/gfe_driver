@@ -148,15 +148,18 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         if (dataset.find("dota-league") != std::string::npos) {
             max_vertex_id = 317727;
         }
+
+        // Sample vertices to be queried
+        std::vector<uint64_t> candidate_vertices(1000);
+        std::mt19937 rng(42);
+        std::uniform_int_distribution<uint64_t> dist(0, max_vertex_id);
+        for (int i = 0; i < 1000; i++) {
+            candidate_vertices[i] = dist(rng);
+        }
         
         // Get neighbors
         #if defined(HAVE_GTX)
             // GTX provides its own interface
-            std::vector<uint64_t> candidate_vertices(max_vertex_id + 1);
-            #pragma omp parallel for
-            for (uint64_t i = 0; i <= max_vertex_id; i++) {
-                candidate_vertices[i] = i;
-            }
             interface->one_hop_neighbors(candidate_vertices);
         #else
             #pragma omp parallel for
@@ -168,16 +171,11 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         // Get 2-hop neighbors
         // #if defined(HAVE_GTX)
         //     // GTX provides its own interface
-        //     std::vector<uint64_t> candidate_vertices(max_vertex_id + 1);
-        //     #pragma omp parallel for
-        //     for (uint64_t i = 0; i <= max_vertex_id; i++) {
-        //         candidate_vertices[i] = i;
-        //     }
         //     interface->two_hop_neighbors(candidate_vertices);
         // #else
         //     #pragma omp parallel for
         //     for (uint64_t i = 0; i <= max_vertex_id; i++) {
-        //         interface->get_two_hop_neighbors(i);
+        //         interface->get_two_hop_neighbors(candidate_vertices[i]);
         //     }
         // #endif
     }
