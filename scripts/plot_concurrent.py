@@ -28,12 +28,10 @@ def read_results(result_path):
         method_path = os.path.join(result_path, method)
         method_path = os.path.join(method_path, 'concurrent')
         idx = 0
-        if method == 'bvgt':
+        if method == 'gtx':
             idx = 0
-        elif method == 'gtx':
-            idx = 1
         elif method == 'radixgraph':
-            idx = 2
+            idx = 1
         else:
             continue
         for file in os.listdir(method_path):
@@ -77,41 +75,37 @@ def read_results(result_path):
                     
 # Example data
 num_thread = ['4', '8', '16', '32']
-methods = ['Spruce', 'GTX', 'RadixGraph']
+methods = ['GTX', 'RadixGraph']
 read_throughputs = [
-    [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0]
 ]
 write_throughputs = [
-    [0, 0, 0, 0],
     [0, 0, 0, 0],
     [0, 0, 0, 0]
 ]
 read_results("./results")
 
 # Colors and hatch patterns for each method
-colors = ['green', 'red', 'purple']
-hatches = ['x', '-', 'o']
+colors = ['red', 'purple']
+hatches = ['-', 'o']
 
-def plot(throughputs, output_path, yaxis, log_scale=False):
+def plot(throughputs, output_path, yaxis):
     # Plotting setup
     x = np.arange(len(num_thread))  # Label locations
-    width = 0.15  # Width of each bar
+    width = 0.3  # Width of each bar
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(8, 5))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
-        offset = (i - 2) * width  # Center the bars
+        offset = (i - 0.5) * width  # Center the bars
         ax.bar(x + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
     ax.set_ylabel(yaxis, fontsize=30, fontweight='bold')
     ax.set_xlabel('Number of threads', fontsize=30, fontweight='bold')
     ax.set_xticks(x)
-    if log_scale:
-        ax.set_yscale('log')
     ax.tick_params(axis='y', labelsize=30)
     ax.set_xticklabels(num_thread, fontsize=30)
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
@@ -123,5 +117,5 @@ def plot(throughputs, output_path, yaxis, log_scale=False):
 
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
-plot(read_throughputs, "./figures/concurrent_read.pdf", 'Throughput (qops)', True)
+plot(read_throughputs, "./figures/concurrent_read.pdf", 'Throughput (qops)')
 plot(write_throughputs, "./figures/concurrent_write.pdf", 'Throughput (mops)')
