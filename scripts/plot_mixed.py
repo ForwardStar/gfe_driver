@@ -114,7 +114,7 @@ colors = ['steelblue', 'orange', 'green', 'red', 'purple']
 markers = ['o', 's', '^', 'D', 'v']
 
 def plot(throughput, output_path):
-    fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(7, 5))
     for i in range(len(throughput)):
         x = ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
         x = x[:len(throughput[i])]
