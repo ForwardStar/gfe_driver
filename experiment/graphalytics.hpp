@@ -70,6 +70,8 @@ std::ostream& operator<<(std::ostream& out, const GraphalyticsAlgorithms& props)
  * Execute one by one the algorithms of the Graphalytics suite, up to N times
  */
 class GraphalyticsSequential{
+    std::vector<uint64_t> candidate_vertices;
+
     std::shared_ptr<library::GraphalyticsInterface> m_interface; // the library to evaluate
     const uint64_t m_num_repetitions; // number of times to repeat the execution of each algorithm
     GraphalyticsAlgorithms m_properties; // the properties of the graphalytics algorithms

@@ -91,23 +91,24 @@ hatches = ['-', 'o']
 
 def plot(throughputs, output_path, yaxis):
     # Plotting setup
-    x = np.arange(len(num_thread))  # Label locations
-    width = 0.3  # Width of each bar
+    x_base = np.array([0, 0.5, 1, 1.5])
+    width = 0.2  # Width of each bar
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(6, 6))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
-        offset = (i - 0.5) * width  # Center the bars
-        ax.bar(x + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
+        offset = (i - 0.5) * width # Center the bars
+        ax.bar(x_base + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
     ax.set_ylabel(yaxis, fontsize=30, fontweight='bold')
     ax.set_xlabel('Number of threads', fontsize=30, fontweight='bold')
-    ax.set_xticks(x)
+    ax.set_xticks(x_base)
     ax.tick_params(axis='y', labelsize=30)
     ax.set_xticklabels(num_thread, fontsize=30)
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
+    ax.yaxis.get_offset_text().set_fontsize(30)
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()

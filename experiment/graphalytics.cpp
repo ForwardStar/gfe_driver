@@ -150,34 +150,36 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         }
 
         // Sample vertices to be queried
-        std::vector<uint64_t> candidate_vertices(1000);
-        std::mt19937 rng(42);
-        std::uniform_int_distribution<uint64_t> dist(0, max_vertex_id);
-        for (int i = 0; i < 1000; i++) {
-            candidate_vertices[i] = dist(rng);
+        if (candidate_vertices.size() == 0) {
+            candidate_vertices.resize(1000);
+            std::mt19937 rng(42);
+            std::uniform_int_distribution<uint64_t> dist(0, max_vertex_id);
+            for (int i = 0; i < 1000; i++) {
+                candidate_vertices[i] = dist(rng);
+            }
         }
         
         // Get neighbors
-        #if defined(HAVE_GTX)
-            // GTX provides its own interface
-            interface->one_hop_neighbors(candidate_vertices);
-        #else
-            #pragma omp parallel for
-            for (uint64_t i = 0; i < 1000; i++) {
-                interface->get_neighbors(candidate_vertices[i]);
-            }
-        #endif
-        
-        // Get 2-hop neighbors
         // #if defined(HAVE_GTX)
         //     // GTX provides its own interface
-        //     interface->two_hop_neighbors(candidate_vertices);
+        //     interface->one_hop_neighbors(candidate_vertices);
         // #else
         //     #pragma omp parallel for
         //     for (uint64_t i = 0; i < 1000; i++) {
-        //         interface->get_two_hop_neighbors(candidate_vertices[i]);
+        //         interface->get_neighbors(candidate_vertices[i]);
         //     }
         // #endif
+        
+        // Get 2-hop neighbors
+        #if defined(HAVE_GTX)
+            // GTX provides its own interface
+            interface->two_hop_neighbors(candidate_vertices);
+        #else
+            #pragma omp parallel for
+            for (uint64_t i = 0; i < 1000; i++) {
+                interface->get_two_hop_neighbors(candidate_vertices[i]);
+            }
+        #endif
     }
 
     for(uint64_t i = 0; i < m_num_repetitions; i++){

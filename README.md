@@ -339,7 +339,7 @@ sh scripts/run_concurrent.sh radixgraph
 
 which runs with with 4, 8, 16, 32 read/write threads.
 
-To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 161-169 in ``experiment/graphalytics.cpp`` and uncomment lines 172-180. Then execute the same command as above.
+To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 164-171 in ``experiment/graphalytics.cpp`` and uncomment lines 174-182. Then execute the same command as above.
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
