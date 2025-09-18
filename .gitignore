@@ -51,6 +51,7 @@ datasets
 # Results
 results
 figures
+csv
 
 # Update log
 graph500-24-1.0.graphlog
