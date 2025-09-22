@@ -34,8 +34,12 @@ def read_results(result_path, exp_type="random"):
                 idx2 = 1
             elif file.startswith("com-orkut"):
                 idx2 = 2
-            elif file.startswith("twitter-2010"):
+            elif file.startswith("graph500-24"):
                 idx2 = 3
+            elif file.startswith("uniform-24"):
+                idx2 = 4
+            elif file.startswith("twitter-2010"):
+                idx2 = 5
             else:
                 continue
             with open(os.path.join(method_path, file), "r") as f:
@@ -70,21 +74,21 @@ def read_results(result_path, exp_type="random"):
                     delete_throughputs[idx][idx2] = m / delete_time / 1e6
                     
 # Example data
-datasets = ['lj', 'dota', 'orkut', 'twitter']
+datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 insert_throughputs = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
 ]
 delete_throughputs = [
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 read_results("./results")
 
