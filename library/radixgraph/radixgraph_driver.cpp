@@ -90,7 +90,7 @@ namespace gfe::library {
     }
 
     bool RadixGraphDriver::add_vertex(uint64_t vertex_id) {
-        vertex_num = std::max((uint64_t)vertex_num, vertex_id + 1);
+        // vertex_num = std::max((uint64_t)vertex_num, vertex_id + 1);
         G->vertex_index->InsertSimpleVertex(vertex_id);
         return true;
     }
