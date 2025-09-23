@@ -25,6 +25,8 @@ def read_results(result_path, exp_type="vertices"):
         else:
             continue
         for file in os.listdir(method_path):
+            if file.endswith('sqlite3'):
+                continue
             # print("Processing file", file)
             idx2 = 0
             if file.startswith("com-lj"):

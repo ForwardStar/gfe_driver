@@ -17,11 +17,9 @@ for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
             'font.family': font_name
         })
 
-def read_results(result_path, exp_type="random"):
+def read_results(result_path, exp_type="vertices"):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
-    global insert_throughputs
-    global delete_throughputs
     global memory
     methods = os.listdir(result_path)
     for method in methods:
@@ -42,6 +40,8 @@ def read_results(result_path, exp_type="random"):
         else:
             continue
         for file in os.listdir(method_path):
+            if file.endswith('sqlite3'):
+                continue
             print("Processing file", file)
             idx2 = 0
             if file.startswith("com-lj"):
@@ -60,46 +60,14 @@ def read_results(result_path, exp_type="random"):
                 continue
             with open(os.path.join(method_path, file), "r") as f:
                 lines = f.readlines()
-                m = 0
-                insert_time = 0
-                delete_time = 0
                 for line in lines:
-                    if line.startswith("Loaded"):
-                        m = int(line.split()[1])
-                    if line.startswith("Insertions"):
-                        time_str = line.split()[6]
-                        time_str = time_str.split(":")
-                        multiple = 1
-                        for i in range(len(time_str) - 1, -1, -1):
-                            insert_time += float(time_str[i]) * multiple
-                            multiple *= 60
-                    if line.startswith("Deletions"):
-                        time_str = line.split()[6]
-                        time_str = time_str.split(":")
-                        multiple = 1
-                        for i in range(len(time_str) - 1, -1, -1):
-                            delete_time += float(time_str[i]) * multiple
-                            multiple *= 60
-                if insert_time == 0:
-                    insert_throughputs[idx][idx2] = 0
-                else:
-                    insert_throughputs[idx][idx2] = m / insert_time / 1e6
-                if delete_time == 0:
-                    delete_throughputs[idx][idx2] = 0
-                else:
-                    delete_throughputs[idx][idx2] = m / delete_time / 1e6
+                    if line.startswith("Memory consumption"):
+                        memory[idx][idx2] = int(line.split()[-1].rstrip("MB"))
                     
 # Example data
 datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
-insert_throughputs = [
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0]
-]
-delete_throughputs = [
+memory = [
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
@@ -112,7 +80,7 @@ read_results("./results")
 colors = ['steelblue', 'orange', 'green', 'red', 'purple']
 hatches = ['/', '\\', 'x', '-', 'o']
 
-def plot(throughputs, output_path):
+def plot_memory(memory, output_path):
     # Plotting setup
     x = np.arange(len(datasets))  # Label locations
     width = 0.15  # Width of each bar
@@ -122,11 +90,12 @@ def plot(throughputs, output_path):
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
         offset = (i - 2) * width  # Center the bars
-        ax.bar(x + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
+        ax.bar(x + offset, memory[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel('Throughput (mops)', fontsize=35, fontweight='bold')
+    ax.set_ylabel('Memory (MB)', fontsize=35, fontweight='bold')
     # ax.set_xlabel('Datasets', fontsize=20, fontweight='bold')
+    ax.set_yscale('log')
     ax.set_xticks(x)
     ax.tick_params(axis='y', labelsize=35)
     ax.set_xticklabels(datasets, fontsize=35)
@@ -134,10 +103,8 @@ def plot(throughputs, output_path):
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()
-    plt.subplots_adjust(left=0.15)
     plt.savefig(output_path)
 
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
-plot(insert_throughputs, "./figures/insert.pdf")
-plot(delete_throughputs, "./figures/delete.pdf")
+plot_memory(memory, "./figures/memory_vertex.pdf")

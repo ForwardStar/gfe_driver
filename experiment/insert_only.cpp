@@ -55,13 +55,12 @@ void InsertOnly::set_build_frequency(std::chrono::milliseconds millisecs){
 static void run_sequential(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
     for(uint64_t pos = start; pos < end; pos++){
         auto edge = graph->get(pos);
-        #if defined(HAVE_BVGT)
-            // BVGT does not support only inserting a vertex
-            [[maybe_unused]] bool result = interface->add_edge_v2(edge);
-            continue;
-        #endif
         if (configuration().is_insert_vertex_only()) {
             [[maybe_unused]] bool result = interface->add_vertex(edge.m_source);
+            #if defined(HAVE_BVGT)
+                // BVGT does not support only inserting a vertex
+                result = interface->add_edge(edge);
+            #endif
         }
         else {
             [[maybe_unused]] bool result = interface->add_edge_v2(edge);
