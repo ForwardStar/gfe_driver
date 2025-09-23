@@ -53,6 +53,9 @@ results
 figures
 csv
 
+# Create Vertex Ops
+create_vertex_ops
+
 # Update log
 graph500-24-1.0.graphlog
 uniform-24-1.0.graphlog

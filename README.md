@@ -239,6 +239,15 @@ If you are using a plain edge list file (each line of the file contains two inte
 ./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l radixgraph -w 56 --is_timestamped true -d extra20230224.sqlite3
 ```
 
+- **Vertex Insertions Only**: since some systems do not support only inserting vertices, to simulate vertex insertions, insert an edge for each vertex alternatively. For example, if there are three vertices ``0, 1, 2``, create an edge list file:
+```
+0 1
+1 2
+2 0
+```
+
+and process it with gfe_driver.
+
 - **Updates**: perform all insertions and deletions from a log. Add the option --log /path/to/updates.graphlog :
 
 ```
@@ -283,12 +292,33 @@ sh scripts/run_random.sh radixgraph [threads]
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Sequential Insertions and Deletions
+
 Repeat the same procedure with ``run_sequential.sh``:
 ```sh
 sh scripts/run_sequential.sh radixgraph [threads]
 ```
 
+##### Vertex Insertions Only
+
+To generate vertex operations, compile:
+```sh
+g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
+```
+
+and run:
+```sh
+./create_vertex_ops
+```
+
+Then run the corresponding scripts to execute gfe_driver with the generated vertex operations:
+```sh
+sh scripts/run_vertex.sh radixgraph [threads]
+```
+
+Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+
 ##### Memory Consumption
+
 Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example:
 ```sh
 ../configure --enable-optimize --enable-mem-analysis --disable-debug --with-radixgraph=../
@@ -297,6 +327,7 @@ Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example
 Then run ``run_random.sh`` with the same procedure.
 
 ##### Mixed Updates
+
 Generate the update log file with [graphlog](https://github.com/whatsthecraic/graphlog) and move them to the folder of ``gfe_driver``:
 ```sh
 ./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/graph500-24.properties /path/to/gfe_driver/graph500-24-1.0.graphlog
@@ -322,6 +353,7 @@ sh scripts/run_analytics.sh radixgraph [threads]
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Concurrent Reads and Writes
+
 Generate the update log file with [graphlog](https://github.com/whatsthecraic/graphlog) for `dota-league`:
 ```sh
 ./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/dota-league.properties /path/to/gfe_driver/dota-league.graphlog
@@ -344,6 +376,7 @@ To execute updates and 2-hop neighbor queries concurrently, firstly comment line
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Plotting Figures
+
 After executing above scripts, run the Python files in ``scripts`` folder like:
 ```sh
 python3 scripts/plot_legends.py
@@ -356,12 +389,14 @@ python3 scripts/plot_analytics.py
 The generated figures will be placed in the ``figures`` folder.
 
 ##### Summarize data
+
 To collect data to CSV files, after you execute all experiments, run:
 ```sh
 python3 scripts/data_to_csv.py
 ```
 
 ### Troubleshooting
+
 As in requisites, we recommend using ``GCC 10.5.0`` and ``tbb 2022.01``. If you have installed multiple GCC and TBB versions, configure in your ``.bashrc`` file to ensure that the correct GCC and TBB are used:
 ```sh
 alias gcc=gcc-10
