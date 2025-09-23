@@ -102,13 +102,16 @@ def plot(throughputs, output_path, yaxis):
         ax.bar(x_base + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel(yaxis, fontsize=30, fontweight='bold')
-    ax.set_xlabel('Number of threads', fontsize=30, fontweight='bold')
+    # ax.set_ylabel(yaxis, fontsize=35, fontweight='bold')
+    ax.set_xlabel('Number of threads', fontsize=35, fontweight='bold')
     ax.set_xticks(x_base)
-    ax.tick_params(axis='y', labelsize=30)
-    ax.set_xticklabels(num_thread, fontsize=30)
+    ax.tick_params(axis='y', labelsize=35)
+    ax.set_xticklabels(num_thread, fontsize=35)
     # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
-    ax.yaxis.get_offset_text().set_fontsize(30)
+    # ax.yaxis.get_offset_text().set_fontsize(35)
+    # ax.yaxis.offsetText.set_visible(False)  # Hide automatic 1e6
+    # ax.text(-0.25, 2.5e6, '1e6', fontsize=35,
+    #     va='top', ha='left')
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
     plt.tight_layout()
