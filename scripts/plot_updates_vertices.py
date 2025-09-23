@@ -73,7 +73,7 @@ def read_results(result_path, exp_type="vertices"):
                         for i in range(len(time_str) - 1, -1, -1):
                             insert_time += float(time_str[i]) * multiple
                             multiple *= 60
-                        if line.split()[-1] == "ms":
+                        if line.split()[-1].strip("\n") == "ms":
                             insert_time /= 1000
                 if insert_time == 0:
                     insert_throughputs[idx][idx2] = 0
