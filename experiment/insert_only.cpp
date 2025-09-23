@@ -291,8 +291,8 @@ chrono::microseconds InsertOnly::execute() {
     }
 
     //////////////////////////////////////
-    // Delete here (When not running graph analytics)
-    if (configuration().num_repetitions() == 0) {
+    // Delete here (When not running graph analytics and vertex insertion only)
+    if (configuration().num_repetitions() == 0 && !configuration().is_insert_vertex_only()) {
         if(m_stream->num_edges() / m_num_threads < m_scheduler_granularity){
             m_scheduler_granularity = m_stream->num_edges() / m_num_threads;
             if(m_scheduler_granularity == 0) m_scheduler_granularity = 1; // corner case
