@@ -91,7 +91,7 @@ namespace gfe::library {
 
     bool RadixGraphDriver::add_vertex(uint64_t vertex_id) {
         vertex_num = std::max((uint64_t)vertex_num, vertex_id + 1);
-        auto u = G->vertex_index->RetrieveVertex(vertex_id, true);
+        G->vertex_index->InsertSimpleVertex(vertex_id);
         return true;
     }
 
