@@ -128,6 +128,7 @@ void Configuration::initialise(int argc, char* argv[]){
         ("b, block_size", "The block size for Sortledton to use.", value<int>()->default_value("1024"))
         ("m, mixed_workload", "If set run updates and analytics concurrently.", value<bool>()->default_value("false"))
         ("is_timestamped", "If the graph log is sorted by external timestamps and should not be shuffled.", value<bool>()->default_value("false"))
+        ("insert_vertex_only", "If set, only insert vertices from the log file.", value<bool>()->default_value("false"))
     ;
 
     try {
@@ -315,6 +316,10 @@ void Configuration::initialise(int argc, char* argv[]){
           set_is_timestamped( result["is_timestamped"].as<bool>() );
         }
 
+        if(result["insert_vertex_only"].count() > 0 ){
+          set_insert_vertex_only( result["insert_vertex_only"].as<bool>() );
+        }
+
     } catch ( argument_incorrect_type& e){
         ERROR(e.what());
     }
@@ -434,8 +439,16 @@ void Configuration::set_is_timestamped(bool timestamped) {
   m_is_timestamped_graph = timestamped;
 }
 
+void Configuration::set_insert_vertex_only(bool insert_vertex_only) {
+  m_insert_vertex_only = insert_vertex_only;
+}
+
 bool Configuration::is_timestamped_graph() const {
   return m_is_timestamped_graph;
+}
+
+bool Configuration::is_insert_vertex_only() const {
+  return m_insert_vertex_only;
 }
 
 uint64_t Configuration::get_num_recordings_per_ops() const {

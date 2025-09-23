@@ -239,14 +239,18 @@ If you are using a plain edge list file (each line of the file contains two inte
 ./gfe_driver -u -G ../../../../Dataset/GFEDataset/yahoo-song.el -l radixgraph -w 56 --is_timestamped true -d extra20230224.sqlite3
 ```
 
-- **Vertex Insertions Only**: since some systems do not support only inserting vertices, to simulate vertex insertions, insert an edge for each vertex alternatively. For example, if there are three vertices ``0, 1, 2``, create an edge list file:
+- **Vertex Insertions Only**: prepare a vertex file and add ``--insert_vertex_only true`` option before executing gfe_driver. The vertex file should be in the following format and its filename should be ended with ``.vertices.el``:
 ```
-0 1
-1 2
-2 0
+u1 u2
+u2 u3
+u3 u4
+u4 u1
 ```
 
-and process it with gfe_driver.
+for vertices ``u1, u2, u3, u4``. Then run:
+```
+./gfe_driver -G /path/to/input/graph.vertices.el -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
+```
 
 - **Updates**: perform all insertions and deletions from a log. Add the option --log /path/to/updates.graphlog :
 
