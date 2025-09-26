@@ -53,7 +53,7 @@ cmake -S . -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-This would generate ``libRG.a``. Also, compute the dynamic programming optimizer:
+This would generate ``libRG.a``. Also, compile the dynamic programming optimizer:
 ```sh
 /path/to/compiler optimizer.cpp -o optimizer -O3
 ```
@@ -181,7 +181,7 @@ cd build
 ../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
 ```
 
-Spruce requires [junction](https://github.com/preshing/junction). You need to compile an ``include`` and ``lib`` folder following the instructions of junction. After you run the above configure commands and generate a ``Makefile`` in the ``build`` folder, locate the ``SRC_CPPFLAGS`` and ``LD_FLAGS`` and add following to the Makefile:
+Spruce requires [junction](https://github.com/preshing/junction). You need to compile an ``include`` and ``lib`` folder following the instructions of junction. After you run the above configure commands and generate a ``Makefile`` in the ``build`` folder, locate the ``SRC_CPPFLAGS`` and ``LDFLAGS`` and add following to the Makefile:
 ```
 ...
 SRC_CPPFLAGS := ...
