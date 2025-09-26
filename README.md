@@ -181,9 +181,14 @@ cd build
 ../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
 ```
 
-Spruce requires [junction](https://github.com/preshing/junction). You need to compile a ``libjunction.a`` following the instructions. After you run the above commands and generate a ``Makefile`` in the ``build`` folder, add following to the Makefile:
+Spruce requires [junction](https://github.com/preshing/junction). You need to compile an ``include`` and ``lib`` folder following the instructions of junction. After you run the above configure commands and generate a ``Makefile`` in the ``build`` folder, locate the ``SRC_CPPFLAGS`` and ``LD_FLAGS`` and add following to the Makefile:
 ```
-LDFLAGS += -L/path/to/libjunction.a
+...
+SRC_CPPFLAGS := ...
+SRC_CPPFLAGS += -I/path/to/junction/include
+...
+LDFLAGS := ...
+LDFLAGS += -L/path/to/junction/lib -I/path/to/junction/include 
 ```
 
 ##### GTX
