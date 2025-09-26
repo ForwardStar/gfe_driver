@@ -13,20 +13,29 @@ execute the updates specified by a [graphlog file](https://github.com/whatsthecr
 #### Requisites 
 - O.S. Linux
 - Autotools, [Autoconf 2.69+](https://www.gnu.org/software/autoconf/)
-- A C++17 compliant compiler with support for OpenMP. We tested it with GCC 10.5.0.
+- CMake 3.24 +
+- A C++17 compliant compiler with support for OpenMP. We tested it with GCC 11.4.0.
 - libnuma 2.0 +
+- [zlib 1.3.1 +](https://github.com/madler/zlib)
 - [libpapi 5.5 +](http://icl.utk.edu/papi/)
 - [SQLite 3.27 +](https://sqlite.org)
 - [Intel Threading Building Blocks](https://github.com/uxlfoundation/oneTBB) (version 2022.01)
+- libevent 2.1.x
+- libboost
 - jemalloc 5.2.1+
 - Disable NUMA balancing feature to avoid the Linux Kernel to swap pages during insertions: `echo 0 | sudo tee  /proc/sys/kernel/numa_balancing`
 - Python 3.5+ for downloading datasets (Or you can download manually)
+
+If you are root on an ubuntu machine, you can install the prerequisites via:
+```sh
+sudo apt install gcc-11 libnuma-dev cmake zlib1g-dev libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev
+```
 
 #### Configure
 
 After cloning this repository, initialise the sources and the configure script by:
 
-```
+```sh
 git submodule update --init
 mkdir build && cd build
 autoreconf -iv ..
@@ -36,8 +45,8 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "1c156c555ffd06ed4694313db8dec556ef46fe52".
-```shell
+We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "9eb7ed13a26ffbb33ab93240098526e50d5f6ca1".
+```sh
 cd library/radixgraph/RadixGraph
 git submodule update --init --recursive
 cmake -S . -DCMAKE_BUILD_TYPE=Release
@@ -45,12 +54,12 @@ make
 ```
 
 This would generate ``libRG.a``. Also, compute the dynamic programming optimizer:
-```shell
+```sh
 /path/to/compiler optimizer.cpp -o optimizer -O3
 ```
 
 Then move them to the root directory:
-```shell
+```sh
 mv libRG.a ../../../
 mv optimizer ../../../
 cd ../../../
@@ -58,17 +67,17 @@ cd ../../../
 
 Now you can configure the driver with:
 
-````````shell
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-radixgraph=../
-````````
+```
 
 ##### Stinger
 Use the branch `feature/gfe `, it contains additional patches w.r.t. 
 [upstream](https://github.com/stingergraph/stinger), from https://github.com/whatsthecraic/stinger.
 For the paper, we evaluated commit "2bcfac38785081c7140b0cd27f3aecace088d664"
 
-```
+```sh
 git clone https://github.com/whatsthecraic/stinger -b feature/gfe
 cd stinger
 mkdir build && cd build
@@ -79,7 +88,7 @@ If the build has been successful, it should at least create the executable `bin/
 
 Configure the GFE driver with:
 
-```
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-stinger=/path/to/stinger/build
 ```
@@ -92,7 +101,7 @@ Use the branch `feature/gfe `, it contains additional patches w.r.t.
 [upstream](https://github.com/the-data-lab/GraphOne), from https://github.com/whatsthecraic/GraphOne.
 For the paper, we evaluated "1475bf5887aaf37dd7aa47377e9f11a94aa0d880".
 
-```
+```sh
 git clone https://github.com/whatsthecraic/GraphOne -b feature/gfe
 cd GraphOne
 mkdir build && cd build
@@ -102,7 +111,7 @@ make -j
 If the build has been successful, it should at least create the executable `graphone64`.
 Then, configure the driver with:
 
-```
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-graphone=/path/to/graphone/build
 ```
@@ -113,9 +122,20 @@ Download the binary library from the [official repository](https://github.com/th
 In the paper, we evaluated version 20200829. You need to download `liblivegraph.tar.gz` and extract `liblivegraph.so` into a folder.
 Then configure the driver by pointing the path to where the library has been extracted:
 
-```
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-livegraph=/path/to/livegraph/lib
+```
+
+LiveGraph requires older version of TBB. You can install by:
+```sh
+sudo apt install libtbb2=2020.3-1
+sudo apt install libtbb-dev=2020.3-1
+```
+
+Alternatively, install the older versioned TBB locally and add following to the generated Makefile:
+```sh
+LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 ```
 
 ##### Teseo
@@ -123,7 +143,7 @@ cd build
 Use the branch `master` from https://github.com/cwida/teseo.
 In the paper, we evaluated version `14227577731d6369b5366613f3e4a679b1fd7694`.
 
-```
+```sh
 git clone https://github.com/cwida/teseo
 cd teseo
 autoreconf -iv
@@ -135,7 +155,7 @@ make -j
 If the build has been successful, it should at least create the archive `libteseo.a`.
 Then configure the driver with:
 
-```
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-teseo=/path/to/teseo/build   
 ```
@@ -147,7 +167,7 @@ For the paper, we evaluated commit "a32b8ac208bb889b518e14b1317957c9a8c466b6".
 Follow the instructions in the README of the repository to setup and build the library.
 Then configure the driver with:
 
-```
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-sortledton=/path/to/sortledton/build  
 ```
@@ -156,10 +176,15 @@ cd build
 
 Download the library `libBVGT_stable.a` from `https://github.com/Stardust-SJF/gfe_driver/releases/tag/v2.0.0` and rename it to `libBVGT.a`. Then you can configure the driver with:
 
-````````shell
+```sh
 cd build
 ../configure --enable-optimize --disable-debug --with-bvgt=/path/to/spruce/build/
-````````
+```
+
+Spruce requires [junction](https://github.com/preshing/junction). You need to compile a ``libjunction.a`` following the instructions. After you run the above commands and generate a ``Makefile`` in the ``build`` folder, add following to the Makefile:
+```
+LDFLAGS += -L/path/to/libjunction.a
+```
 
 ##### GTX
 Currently we use the branch 'master' from 'https://github.com/Jiboxiake/GTX-SIGMOD2025' . If GFE_DRIVER is used to reproduce the experiments for billion-edges grahs, please change the [USING_BIGDATA] flag to true in ./core/graph_global.hpp. Follow the instruction in REAME to build GTX. After GTX has been built, configure the driver with:
@@ -427,7 +452,7 @@ in your ``Makefile`` before running ``make clean && make -j``, where ``LIBCPP_PA
 export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
 ```
 
-For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring Spruce or GTX to GFE driver if your TBB version is incorrect, try installing the correct version of the TBB (2022.01) by compiling from source and linking the TBB library by adding following to ``build/Makefile``:
+For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring LiveGraph, Spruce or GTX to GFE driver if your TBB version is incorrect (since they require different TBB versions), try installing the correct version of the TBB (2020.3-1 for LiveGraph and 2022.01 for others) by compiling from source and linking the TBB library by adding following to ``build/Makefile``:
 ```sh
 LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 ```

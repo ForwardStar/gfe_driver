@@ -626,8 +626,7 @@ if ( test x"${with_radixgraph}" != x"" && test x"${with_radixgraph}" != "no" ); 
     path_radixgraph_library="${path_radixgraph}/libRG.a"
     AC_CHECK_FILE([${path_radixgraph_library}], [  ],  [ AC_MSG_ERROR([file not found: ${path_radixgraph_library}]) ])
 
-
-    AS_VAR_SET([LIBS], ["-L${path_radixgraph} -lRG ${LIBS} -ljunction"])
+    AS_VAR_SET([LIBS], ["-L${path_radixgraph} -lRG ${LIBS}"])
 
     AC_MSG_NOTICE([radixgraph support enabled])
     AS_VAR_APPEND([CPPFLAGS], [" -DHAVE_RG"])
