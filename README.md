@@ -45,7 +45,7 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "47ecbf3daf33c5c2a4b6e00afeb8de6f36197af0".
+We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "8cfefeea779573d6ed14a1b45165383fe14d915c".
 ```sh
 cd library/radixgraph/RadixGraph
 git submodule update --init --recursive
