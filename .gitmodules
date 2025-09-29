@@ -1,6 +1,6 @@
 [submodule "third-party/libcommon"]
 	path = third-party/libcommon
-	url = https://github.com/PerFuchs/libcommon
+	url = https://github.com/ForwardStar/libcommon.git
 	branch = master
 [submodule "library/radixgraph/RadixGraph"]
 	path = library/radixgraph/RadixGraph
