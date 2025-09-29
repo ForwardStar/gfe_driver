@@ -90,7 +90,6 @@ namespace gfe::library {
     }
 
     bool RadixGraphDriver::add_vertex(uint64_t vertex_id) {
-        // vertex_num = std::max((uint64_t)vertex_num, vertex_id + 1);
         G->vertex_index->InsertSimpleVertex(vertex_id);
         return true;
     }
@@ -385,5 +384,9 @@ namespace gfe::library {
             const auto& vertex_info = info[i];
             std::cout << "Node " << vertex_info.node << " Deg " << vertex_info.deg << " Total time " << vertex_info.t_total << " Compaction time " << vertex_info.t_compact << "\n";
         }
+    }
+
+    void RadixGraphDriver::set_max_vertex_id(uint64_t max_vertex_id) {
+        vertex_num = max_vertex_id + 1;
     }
 }

@@ -52,19 +52,21 @@ void InsertOnly::set_build_frequency(std::chrono::milliseconds millisecs){
 }
 
 // Execute an update at the time
-static void run_sequential(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
+static void run_sequential_insert_edge(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
     for(uint64_t pos = start; pos < end; pos++){
         auto edge = graph->get(pos);
-        if (configuration().is_insert_vertex_only()) {
-            [[maybe_unused]] bool result = interface->add_vertex(edge.m_source);
-            #if defined(HAVE_BVGT)
-                // BVGT does not support only inserting a vertex
-                result = interface->add_edge(edge);
-            #endif
-        }
-        else {
-            [[maybe_unused]] bool result = interface->add_edge_v2(edge);
-        }
+        [[maybe_unused]] bool result = interface->add_edge_v2(edge);
+    }
+}
+
+static void run_sequential_insert_vertex(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
+    for(uint64_t pos = start; pos < end; pos++){
+        auto edge = graph->get(pos);
+        [[maybe_unused]] bool result = interface->add_vertex(edge.m_source);
+        #if defined(HAVE_BVGT)
+            // BVGT does not support only inserting a vertex
+            result = interface->add_edge(edge);
+        #endif
     }
 }
 
@@ -80,7 +82,7 @@ static void run_sequential_get_two_hop_neighbors(library::UpdateInterface* inter
     }
 }
 
-static void run_sequential_delete(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
+static void run_sequential_delete_edge(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
     for(uint64_t pos = start; pos < end; pos++){
         auto edge = graph->get(pos);
         [[maybe_unused]] bool result = interface->remove_edge(edge);
@@ -98,7 +100,7 @@ void InsertOnly::execute_round_robin(){
         m_interface.get()->add_vertex(m_stream.get()->max_vertex_id() + 1);
     #endif
     #if defined(HAVE_RG)
-        m_interface.get()->add_vertex(m_stream.get()->max_vertex_id());
+        m_interface.get()->set_max_vertex_id(m_stream.get()->max_vertex_id());
     #endif
     for(int64_t i = 0; i < m_num_threads; i++){
         threads.emplace_back([this, &start_chunk_next, &tempp](int thread_id){
@@ -112,7 +114,12 @@ void InsertOnly::execute_round_robin(){
             interface->on_thread_init(thread_id);
             while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
                 uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
-                run_sequential(interface, graph, start, end);
+                if (configuration().is_insert_vertex_only()) {
+                    run_sequential_insert_vertex(interface, graph, start, end);
+                }
+                else {
+                    run_sequential_insert_edge(interface, graph, start, end);
+                }
             }
 
             interface->on_thread_destroy(thread_id);
@@ -211,7 +218,7 @@ void InsertOnly::execute_round_robin_delete(){
 
             while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
                 uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
-                run_sequential_delete(interface, graph, start, end);
+                run_sequential_delete_edge(interface, graph, start, end);
             }
 
             interface->on_thread_destroy(thread_id);
