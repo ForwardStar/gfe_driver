@@ -370,4 +370,17 @@ namespace gfe::library {
     void RadixGraphDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
         DeltaStep(G, source_vertex_id, 2.0, G->vertex_index->cnt, edge_num);
     }
+
+    void RadixGraphDriver::print_stats() {
+        auto info = G->GetDebugInfo();
+        // Sort by degree
+        std::sort(info.begin(), info.end(), [](const RadixGraph::DebugInfo& a, const RadixGraph::DebugInfo& b) {
+            return a.deg > b.deg;
+        });
+        std::cout << "Top 10 vertices by degree:\n";
+        for (size_t i = 0; i < std::min(info.size(), size_t(10)); ++i) {
+            const auto& vertex_info = info[i];
+            std::cout << "Node " << vertex_info.node << " Deg " << vertex_info.deg << " Total time " << vertex_info.t_total << " Compaction time " << vertex_info.t_compact << "\n";
+        }
+    }
 }

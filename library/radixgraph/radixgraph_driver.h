@@ -215,6 +215,8 @@ namespace gfe::library {
          * Retrieve the handle to the Teseo implementation
          */
         void* handle_impl();
+
+        virtual void print_stats();
     };
 }
 

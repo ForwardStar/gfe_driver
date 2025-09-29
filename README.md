@@ -45,7 +45,7 @@ For the rest of the configuration part, note that you need to reconfigure it for
 
 ##### RadixGraph
 
-We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "9eb7ed13a26ffbb33ab93240098526e50d5f6ca1".
+We added Git submodule of RadixGraph in ``library/radixgraph/RadixGraph``. You will need to fetch from [upstream](https://github.com/ForwardStar/RadixGraph) and compile the codes to a library. For this paper, we evaluated commit "d80d94f4f703d50851b34d85d663331ee7a7c4d2".
 ```sh
 cd library/radixgraph/RadixGraph
 git submodule update --init --recursive
@@ -408,6 +408,17 @@ which runs with with 4, 8, 16, 32 read/write threads.
 To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 164-171 in ``experiment/graphalytics.cpp`` and uncomment lines 174-182. Then execute the same command as above.
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+
+##### Log compaction time for RadixGraph
+Modify in ``library/radixgraph/RadixGraph/src/headers.h``:
+```cpp
+#define DEBUG_MODE true
+```
+
+and recompile. Then re-run the experiments. For example, if you want to measure the time for random insertions, simply re-run:
+```
+sh scripts/run_random.sh radixgraph
+```
 
 ##### Plotting Figures
 

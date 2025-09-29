@@ -192,6 +192,7 @@ private:
 public:
     virtual void set_mixed_workloads(bool is_mixed_workloads){}
     virtual void set_worker_thread_num(uint64_t new_num){}
+    virtual void print_stats(){}
     /**
      * Add the given vertex to the graph
      * @return true if the vertex has been inserted, false otherwise (that is, the vertex already exists)
