@@ -373,6 +373,9 @@ namespace gfe::library {
 
     void RadixGraphDriver::print_stats() {
         auto info = G->GetDebugInfo();
+        if (info.empty()) {
+            return;
+        }
         // Sort by degree
         std::sort(info.begin(), info.end(), [](const RadixGraph::DebugInfo& a, const RadixGraph::DebugInfo& b) {
             return a.deg > b.deg;
