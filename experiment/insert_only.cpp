@@ -76,7 +76,7 @@ static void run_sequential_query_vertex(library::UpdateInterface* interface, gra
         [[maybe_unused]] bool result = interface->has_vertex(edge.m_source);
         #if defined(HAVE_BVGT)
             // BVGT does not support only querying a vertex
-            result = interface->get_neighbours(edge.m_source);
+            result = interface->get_neighbors(edge.m_source);
         #endif
     }
 }
@@ -112,9 +112,6 @@ void InsertOnly::execute_round_robin(){
     #endif
     #if defined(HAVE_RG)
         m_interface.get()->set_max_vertex_id(m_stream.get()->max_vertex_id());
-        if (configuration().is_insert_vertex_only()) {
-            m_interface.get()->add_vertex(m_stream.get()->max_vertex_id());
-        }
     #endif
     for(int64_t i = 0; i < m_num_threads; i++){
         threads.emplace_back([this, &start_chunk_next, &tempp](int thread_id){

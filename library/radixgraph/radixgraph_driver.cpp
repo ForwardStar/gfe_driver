@@ -388,5 +388,6 @@ namespace gfe::library {
 
     void RadixGraphDriver::set_max_vertex_id(uint64_t max_vertex_id) {
         vertex_num = max_vertex_id + 1;
+        G->vertex_index->RetrieveVertex(max_vertex_id, true);
     }
 }
