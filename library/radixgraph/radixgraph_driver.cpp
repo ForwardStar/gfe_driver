@@ -60,8 +60,7 @@ namespace gfe::library {
     }
 
     bool RadixGraphDriver::has_vertex(uint64_t vertex_id) const {
-        auto u = G->vertex_index->RetrieveVertex(vertex_id);
-        return u != nullptr;
+        return G->vertex_index->CheckExistence(vertex_id);
     }
 
     double RadixGraphDriver::get_weight(uint64_t source, uint64_t destination) const {

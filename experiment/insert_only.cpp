@@ -70,6 +70,17 @@ static void run_sequential_insert_vertex(library::UpdateInterface* interface, gr
     }
 }
 
+static void run_sequential_query_vertex(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
+    for(uint64_t pos = start; pos < end; pos++){
+        auto edge = graph->get(pos);
+        [[maybe_unused]] bool result = interface->has_vertex(edge.m_source);
+        #if defined(HAVE_BVGT)
+            // BVGT does not support only querying a vertex
+            result = interface->get_neighbours(edge.m_source);
+        #endif
+    }
+}
+
 static void run_sequential_get_neighbors(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
     for(uint64_t pos = start; pos < end; pos++){
         [[maybe_unused]] bool result = interface->get_neighbors(pos);
@@ -197,6 +208,37 @@ void InsertOnly::execute_round_robin_get_neighbors(){
     for(auto& t : threads) t.join();
 }
 
+void InsertOnly::execute_round_robin_query(){
+    vector<thread> threads;
+    #if HAVE_GTX
+        m_interface.get()->set_worker_thread_num(m_num_threads);
+    #endif
+    atomic<uint64_t> start_chunk_next = 0;
+    atomic<int> tempp = m_stream.get()->num_edges()/100;
+    for(int64_t i = 0; i < m_num_threads; i++){
+        threads.emplace_back([this, &start_chunk_next, &tempp](int thread_id){
+            concurrency::set_thread_name("Worker #" + to_string(thread_id));
+            int64_t memllb = common::get_memory_footprint();
+            auto interface = m_interface.get();
+            auto graph = m_stream.get();
+            uint64_t start;
+            const uint64_t size = graph->num_edges();
+
+            interface->on_thread_init(thread_id);
+            while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
+                uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
+                run_sequential_query_vertex(interface, graph, start, end);
+            }
+
+            interface->on_thread_destroy(thread_id);
+
+        }, static_cast<int>(i));
+    }
+
+    // wait for all threads to complete
+    for(auto& t : threads) t.join();
+}
+
 void InsertOnly::execute_round_robin_delete(){
     vector<thread> threads;
     #if HAVE_GTX
@@ -271,7 +313,23 @@ chrono::microseconds InsertOnly::execute() {
     }
     m_num_build_invocations++;
 
-    LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+    if (configuration().is_insert_vertex_only()) {
+        // Query vertex in round robin
+        if((m_stream->max_vertex_id() + 1) / m_num_threads < m_scheduler_granularity){
+            m_scheduler_granularity = (m_stream->max_vertex_id() + 1) / m_num_threads;
+            if(m_scheduler_granularity == 0) m_scheduler_granularity = 1; // corner case
+            LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " vertex queries per thread");
+        }
+        timer.start();
+        BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
+        execute_round_robin_query();
+        build_service2.stop();
+        timer.stop();
+        LOG("Vertex queries performed with " << m_num_threads << " threads in " << timer);
+    }
+    else {
+        LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+    }
 
     m_interface->on_thread_destroy(0);
     m_interface->on_main_destroy();
