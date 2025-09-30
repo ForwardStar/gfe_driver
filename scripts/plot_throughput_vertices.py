@@ -62,7 +62,7 @@ def read_results(result_path, exp_type="vertices"):
                 lines = f.readlines()
                 m = 0
                 insert_time = 0
-                delete_time = 0
+                query_time = 0
                 for line in lines:
                     if line.startswith("Loaded"):
                         m = int(line.split()[1])
@@ -75,15 +75,35 @@ def read_results(result_path, exp_type="vertices"):
                             multiple *= 60
                         if line.split()[-1].strip("\n") == "ms":
                             insert_time /= 1000
+                    if line.startswith("Vertex"):
+                        time_str = line.split()[6]
+                        time_str = time_str.split(":")
+                        multiple = 1
+                        for i in range(len(time_str) - 1, -1, -1):
+                            query_time += float(time_str[i]) * multiple
+                            multiple *= 60
+                        if line.split()[-1].strip("\n") == "ms":
+                            query_time /= 1000
                 if insert_time == 0:
                     insert_throughputs[idx][idx2] = 0
                 else:
                     insert_throughputs[idx][idx2] = m / insert_time / 1e6
+                if query_time == 0:
+                    query_throughputs[idx][idx2] = 0
+                else:
+                    query_throughputs[idx][idx2] = m / insert_time / 1e6
                     
 # Example data
 datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 insert_throughputs = [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
+]
+query_throughputs = [
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
@@ -124,3 +144,4 @@ def plot(throughputs, output_path):
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
 plot(insert_throughputs, "./figures/insert_vertices.pdf")
+plot(query_throughputs, "./figures/query_vertices.pdf")

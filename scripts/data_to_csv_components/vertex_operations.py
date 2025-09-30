@@ -8,7 +8,7 @@ def read_results(result_path, exp_type="vertices"):
     global insert_throughputs
     methods = os.listdir(result_path)
     for method in methods:
-        # print("Processing", method)
+        print("Processing", method)
         method_path = os.path.join(result_path, method)
         method_path = os.path.join(method_path, exp_type)
         idx = 0
@@ -27,7 +27,7 @@ def read_results(result_path, exp_type="vertices"):
         for file in os.listdir(method_path):
             if file.endswith('sqlite3'):
                 continue
-            # print("Processing file", file)
+            print("Processing file", file)
             idx2 = 0
             if file.startswith("com-lj"):
                 idx2 = 0
@@ -47,7 +47,7 @@ def read_results(result_path, exp_type="vertices"):
                 lines = f.readlines()
                 m = 0
                 insert_time = 0
-                delete_time = 0
+                query_time = 0
                 for line in lines:
                     if line.startswith("Loaded"):
                         m = int(line.split()[1])
@@ -58,12 +58,25 @@ def read_results(result_path, exp_type="vertices"):
                         for i in range(len(time_str) - 1, -1, -1):
                             insert_time += float(time_str[i]) * multiple
                             multiple *= 60
-                        if line.split()[-1] == "ms":
+                        if line.split()[-1].strip("\n") == "ms":
                             insert_time /= 1000
+                    if line.startswith("Vertex"):
+                        time_str = line.split()[6]
+                        time_str = time_str.split(":")
+                        multiple = 1
+                        for i in range(len(time_str) - 1, -1, -1):
+                            query_time += float(time_str[i]) * multiple
+                            multiple *= 60
+                        if line.split()[-1].strip("\n") == "ms":
+                            query_time /= 1000
                 if insert_time == 0:
                     insert_throughputs[idx][idx2] = 0
                 else:
                     insert_throughputs[idx][idx2] = m / insert_time / 1e6
+                if query_time == 0:
+                    query_throughputs[idx][idx2] = 0
+                else:
+                    query_throughputs[idx][idx2] = m / insert_time / 1e6
                     
 # Example data
 datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
@@ -74,6 +87,13 @@ insert_throughputs = [
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
+]
+query_throughputs = [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 read_results("./results")
 
@@ -89,5 +109,15 @@ with open("./csv/vertex_insertion.csv", "w") as f:
         f.write(method + ",")
         for j in range(len(datasets)):
             f.write(f"{insert_throughputs[i][j]:.2f},")
+        f.write("\n")
+with open("./csv/vertex_query.csv", "w") as f:
+    f.write("Method,")
+    for d in datasets:
+        f.write(d + ",")
+    f.write("\n")
+    for i, method in enumerate(methods):
+        f.write(method + ",")
+        for j in range(len(datasets)):
+            f.write(f"{query_throughputs[i][j]:.2f},")
         f.write("\n")
 print("Done.")
