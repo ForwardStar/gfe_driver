@@ -95,6 +95,7 @@ namespace gfe::library {
 
     bool RadixGraphDriver::remove_vertex(uint64_t vertex_id) {
         return G->vertex_index->DeleteVertex(vertex_id);
+        return true;
     }
 
     bool RadixGraphDriver::get_neighbors(uint64_t vertex_id) {
