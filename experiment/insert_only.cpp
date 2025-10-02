@@ -312,6 +312,8 @@ chrono::microseconds InsertOnly::execute() {
         LOG("Build time: " << timer);
     }
     m_num_build_invocations++;
+    m_interface->on_thread_destroy(0);
+    m_interface->on_main_destroy();
 
     if (configuration().is_insert_vertex_only()) {
         // Query vertex in round robin
@@ -330,9 +332,6 @@ chrono::microseconds InsertOnly::execute() {
     else {
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
     }
-
-    m_interface->on_thread_destroy(0);
-    m_interface->on_main_destroy();
 
     //////////////////////////////////////
     // Get-neighbor and 2-hop neighbors here (When running graph analytics)
