@@ -76,7 +76,7 @@ def read_results(result_path, exp_type="vertices"):
                         if line.split()[-1].strip("\n") == "ms":
                             insert_time /= 1000
                     if line.startswith("Vertex"):
-                        time_str = line.split()[6]
+                        time_str = line.split()[7]
                         time_str = time_str.split(":")
                         multiple = 1
                         for i in range(len(time_str) - 1, -1, -1):
@@ -91,7 +91,7 @@ def read_results(result_path, exp_type="vertices"):
                 if query_time == 0:
                     query_throughputs[idx][idx2] = 0
                 else:
-                    query_throughputs[idx][idx2] = m / insert_time / 1e6
+                    query_throughputs[idx][idx2] = m / query_time / 1e6
                     
 # Example data
 datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
