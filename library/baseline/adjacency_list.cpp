@@ -804,6 +804,10 @@ void AdjacencyList::sssp(uint64_t source_vertex_id, const char* dump2file){
     }
 }
 
+void AdjacencyList::bc(uint64_t source_vertex_id, const char* dump2file){
+    RAISE_EXCEPTION(Error, "BC is not implemented yet for the AdjacencyList");
+}
+
 /*****************************************************************************
  *                                                                           *
  *  Dump                                                                     *

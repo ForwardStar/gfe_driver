@@ -1362,6 +1362,10 @@ void CSR::sssp(uint64_t source_vertex_id, const char* dump2file) {
         save_results(translation, dump2file);
 }
 
+void CSR::bc(uint64_t source_vertex_id, const char* dump2file) {
+    RAISE_EXCEPTION(Error, "BC is not implemented yet for the CSR format");
+}
+
 
 /*****************************************************************************
  *                                                                           *

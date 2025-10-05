@@ -85,6 +85,11 @@ GraphalyticsAlgorithms::GraphalyticsAlgorithms(const string& path) {
             sssp.m_source_vertex = stoull( props.get_property("sssp.source-vertex"));
         } else if(algorithm_name == "wcc"){
             wcc.m_enabled = true;
+        } else if(algorithm_name == "bc"){
+            bc.m_enabled = true;
+            bc.m_max_iterations = stoull( props.get_property("bc.max-iterations"));
+        } else {
+            ERROR("Unknown algorithm: " << algorithm_name);
         }
     }
 }
@@ -108,6 +113,9 @@ ostream& operator<<(std::ostream& out, const GraphalyticsAlgorithms& props){
     }
     if(props.wcc.m_enabled){
         out << " WCC;";
+    }
+    if (props.bc.m_enabled){
+        out << " BC max_iterations: " << props.bc.m_max_iterations << ";";
     }
     out << "]";
     return out;
@@ -384,6 +392,27 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
                 LOG(">> Validation failed: " << e.what());
                 m_validate_results.emplace_back("wcc", ValidationResult::FAILED);
                 m_properties.wcc.m_enabled = false;
+            }
+        }
+        if(m_properties.bc.m_enabled){
+            LOG("Execution " << (i+1) << "/" << m_num_repetitions << ": BC, max_iterations: " << m_properties.bc.m_max_iterations);
+            string path_tmp = get_temporary_path("bc", i);
+            const char* path_result = m_validate_output_enabled ? path_tmp.c_str() : nullptr;
+            try {
+                t_local.start();
+                interface->bc(m_properties.bc.m_max_iterations, path_result);
+                t_local.stop();
+                LOG(">> BC Execution time: " << t_local);
+                // Note: we don't store the execution times for BC
+                // m_exec_bc.push_back(t_local.microseconds());
+            } catch(library::TimeoutError& e){
+                LOG(">> BC TIMEOUT");
+                // m_exec_bc.push_back(-1);
+                m_properties.bc.m_enabled = false;
+            } catch(utility::GraphalyticsValidateError& e){
+                LOG(">> Validation failed: " << e.what());
+                m_validate_results.emplace_back("bc", ValidationResult::FAILED);
+                m_properties.bc.m_enabled = false;
             }
         }
     }

@@ -352,7 +352,7 @@ GraphalyticsReader::GraphalyticsReader(const std::string& path_properties) : m_r
             string value = matches[2];
 
             if(name.empty()){
-                size_t pos = key.find('.');
+                size_t pos = key.rfind('.');
                 if(pos == string::npos) ERROR("Cannot parse the name of the graph (expected to find graph.<GRAPH_NAME>.<PROPERTY_NAME>), key=graph." << key);
                 name = key.substr(0, pos);
                 COUT_DEBUG("name=" << name);

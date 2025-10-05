@@ -16,6 +16,7 @@
 #include "RadixGraph/src/GAPBS/cc_sv.h"
 #include "RadixGraph/src/GAPBS/sssp.h"
 #include "RadixGraph/src/GAPBS/tc.h"
+#include "RadixGraph/src/GAPBS/bc.h"
 
 namespace gfe::library {
 
@@ -210,6 +211,13 @@ namespace gfe::library {
          * @param dump2file if not null, dump the result in the given path, following the format expected by the benchmark specification
          */
         virtual void sssp(uint64_t source_vertex_id, const char* dump2file = nullptr);
+
+        /**
+         * Betweenness Centrality. Compute the betweenness centrality score for each vertex in the graph, using at most max_iterations iterations.
+         * @param max_iterations max number of iterations to perform
+         * @param dump2file if not null, dump the result in the given path, following the format expected by the benchmark specification
+         */
+        virtual void bc(uint64_t max_iterations, const char* dump2file = nullptr);
 
         /**
          * Retrieve the handle to the Teseo implementation

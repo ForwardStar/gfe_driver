@@ -140,7 +140,7 @@ namespace gfe::library {
     }
 
     void RadixGraphDriver::build() {
-        G->CreateSnapshots();
+        G->CreateSnapshots(true);
     }
 
     /*****************************************************************************
@@ -368,6 +368,10 @@ namespace gfe::library {
     // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     void RadixGraphDriver::sssp(uint64_t source_vertex_id, const char* dump2file) {
         DeltaStep(G, source_vertex_id, 2.0, G->vertex_index->cnt, edge_num);
+    }
+
+    void RadixGraphDriver::bc(uint64_t max_iterations, const char* dump2file) {
+        Brandes(G, max_iterations, G->vertex_index->cnt);
     }
 
     void RadixGraphDriver::print_stats() {

@@ -56,6 +56,10 @@ struct GraphalyticsAlgorithms {
     struct {
         bool m_enabled = false;
     } wcc;
+    struct {
+        bool m_enabled = false;
+        uint64_t m_max_iterations = 5;
+    } bc; // betweenness centrality
 
     /**
      * Load the properties of each algorithms from the given files

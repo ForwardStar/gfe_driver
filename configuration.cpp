@@ -506,6 +506,7 @@ void Configuration::blacklist(gfe::experiment::GraphalyticsAlgorithms& algorithm
     do_blacklist(algorithms.pagerank.m_enabled, "pagerank");
     do_blacklist(algorithms.sssp.m_enabled, "sssp");
     do_blacklist(algorithms.wcc.m_enabled, "wcc");
+    do_blacklist(algorithms.bc.m_enabled, "bc");
 }
 
 size_t Configuration::block_size() {

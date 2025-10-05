@@ -6,7 +6,7 @@ GFE Driver for RadixGraph
 The driver supports the following structures: [RadixGraph](https://github.com/ForwardStar/RadixGraph), [GTX](https://github.com/Jiboxiake/GTX-SIGMOD2025?tab=readme-ov-file), [Spruce](https://github.com/Stardust-SJF/gfe_driver/tree/v2.0.0), [Sortledton](https://gitlab.db.in.tum.de/per.fuchs/sortledton), [Teseo](https://github.com/cwida/teseo), [GraphOne](https://github.com/the-data-lab/GraphOne), 
 [Stinger](http://stingergraph.com/) and [LiveGraph](https://github.com/thu-pacman/LiveGraph-Binary). 
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
-execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC) and community detection through label propagation (CDLP).
+execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC), betweeness centrality (BC) and community detection through label propagation (CDLP).
 
 ### Build 
 
@@ -401,6 +401,12 @@ sh scripts/run_analytics.sh radixgraph [threads]
 ```
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+
+If you want to run "Betweenness Centrality" algorithm on `dota-league`, `graph500-24` and `uniform-24`, add the following lines to their corresponding property files:
+```
+graph.<graph-name>.algorithms = bfs, cdlp, lcc, pr, sssp, wcc, bc
+graph.<graph-name>.bc.max-iterations = 5
+```
 
 ##### Concurrent Reads and Writes
 

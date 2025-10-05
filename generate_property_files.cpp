@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    baseName = baseName.substr(baseName.find_last_of("/\\") + 1); // strip path
     foutP << "# Properties file describing the " << baseName << " dataset\n"
           << "# Filenames of graph on local filesystem\n"
           << "graph." << baseName << ".vertex-file = " << baseName << ".v\n"
@@ -96,7 +97,7 @@ int main(int argc, char* argv[]) {
           << "graph." << baseName << ".edge-properties.names = weight\n"
           << "graph." << baseName << ".edge-properties.types = real\n\n"
           << "# List of supported algorithms on the graph\n"
-          << "graph." << baseName << ".algorithms = bfs, cdlp, lcc, pr, sssp, wcc\n\n\n"
+          << "graph." << baseName << ".algorithms = bfs, cdlp, lcc, pr, sssp, wcc, bc\n\n\n"
           << "#\n# Per-algorithm properties describing the input parameters to each algorithm\n#\n\n"
           << "# Parameters for BFS\n"
           << "graph." << baseName << ".bfs.source-vertex = " << maxVertex << "\n\n"
@@ -109,7 +110,9 @@ int main(int argc, char* argv[]) {
           << "# Parameters for SSSP\n"
           << "graph." << baseName << ".sssp.weight-property = weight\n"
           << "graph." << baseName << ".sssp.source-vertex = " << maxVertex << "\n\n"
-          << "# No parameters for WCC\n";
+          << "# No parameters for WCC\n"
+          << "\n# Parameters for BC\n"
+          << "graph." << baseName << ".bc.max-iterations = 5\n";
 
     foutP.close();
 
