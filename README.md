@@ -237,6 +237,14 @@ GFE driver supports two types of graph formats:
    - `graph.v`: A list of unique vertices present in the graph, with each line in the file representing a unique vertex ID.
    - `graph.e`: A list of edges from the graph, with each line representing a edge in the format `from_node_id to_node_id`.
 
+To convert a plain edge list file ``.el`` to the separated format, you can use the provided script:
+```sh
+g++ generate_property_files.cpp -o generate_property_files -O3
+./generate_property_files /path/to/graph.el
+```
+
+This will generate corresponding ``.v``, ``.e`` and ``.properties`` files in the same directory as the input file.
+
 ### Executing the driver
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We noted that several graph systems can raise OOM exceptions on a 256GB machine.
@@ -379,7 +387,15 @@ Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-
 
 ##### Graph Analytics
 
-If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
+If you have downloaded the data via the ``downloader.py``, generate property files by:
+```sh
+g++ generate_property_files.cpp -o generate_property_files -O3
+./generate_property_files datasets/twitter-2010.el
+./generate_property_files datasets/com-lj.ungraph.el
+./generate_property_files datasets/com-orkut.ungraph.el
+```
+
+After you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
 sh scripts/run_analytics.sh radixgraph [threads]
 ```

@@ -53,6 +53,9 @@ results
 figures
 csv
 
+# Executables
+generate_property_files
+
 # Create Vertex Ops
 create_vertex_ops
 
