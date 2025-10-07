@@ -93,7 +93,7 @@ cd build
 ../configure --enable-optimize --disable-debug --with-stinger=/path/to/stinger/build
 ```
 
-It is noted that you can build stinger in any directory, and only need to set the corresponding build directory when cofiguring gfe_driver.
+It is noted that you can build stinger in any directory, and only need to set the corresponding build directory when cofiguring gfe_driver. **Stinger seems to only work on GCC 10 compiler. If you encounter errors when compiling with GCC 11+, refer to Troubleshooting (end of this README) for solutions.**
 
 ##### GraphOne
 
@@ -490,11 +490,45 @@ in your ``Makefile`` before running ``make clean && make -j``, where ``LIBCPP_PA
 export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
 ```
 
-For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring LiveGraph, Spruce or GTX to GFE driver if your TBB version is incorrect (since they require different TBB versions), try installing the correct version of the TBB (2020.3-1 for LiveGraph and 2022.01 for others) by compiling from source and linking the TBB library by adding following to ``build/Makefile``:
+For (2), you may encounter ``undefined reference to `tbb::detail::r1::throw_exception(tbb::detail::d0::exception_id)'`` when configuring **LiveGraph, Spruce or GTX** to GFE driver if your TBB version is incorrect (since they require different TBB versions), try installing the correct version of the TBB (2020.3-1 for LiveGraph and 2022.01 for others) by compiling from source and linking the TBB library by adding following to ``build/Makefile``:
 ```sh
 LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 ```
 
+There are also some specific errors for some systems. See below for details.
+
+##### Stinger
+We found evaluating Stinger with GCC 10.4.0 is fine, but following problem occurs when using GCC 11.4.0:
+```
+stinger/build/external/src/protobuf/src/google/protobuf/compiler/java/java_file.cc:97:54: required from here /usr/include/c++/11/bits/stl_tree.h:770:15: error: static assertion failed: comparison object must be invocable as const 770 | is_invocable_v<const _Compare&, const _Key&, const _Key&>, | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
+
+If you see this, in line 68 of ``/path/to/stinger/build/external/src/protobuf/src/google/protobuf/compiler/java/java_file.cc``, add a ``const`` after the function parentheses:
+```cpp
+bool operator ()(const FieldDescriptor* f1, const FieldDescriptor* f2) const { // line 68
+```
+
+##### Sortledton
+For some versions of CMake, you will encounter following error when preparing Sortledton library:
+```
+CMake Error at CMakeLists.txt:66 (add_library):
+  Target "sortledton" links to target "OpenMP::OpenMP_CXX" but the target was
+  not found.  Perhaps a find_package() call is missing for an IMPORTED
+  target, or an ALIAS target is missing?
+
+
+CMake Error at CMakeLists.txt:74 (add_executable):
+  Target "sortledton_bin" links to target "OpenMP::OpenMP_CXX" but the target
+  was not found.  Perhaps a find_package() call is missing for an IMPORTED
+  target, or an ALIAS target is missing?
+```
+
+The reason is that Sortledton's ``CMakeLists.txt`` is written incorrectly. Comment line 11 of ``CMakeLists.txt`` or revise it to:
+```
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBITS64")
+```
+
+##### GTX
 When compiling the library of GTX, you may also encounter ``error: invalid ‘static_cast’ from type ‘const std::thread::id’ to type ‘std::size_t’ {aka ‘long unsigned int’}`` if your TBB version is incorrect. Similarly, try installing the correct version of the TBB and add TBB path to ``CMakeLists.txt`` in GTX:
 ```sh
 set(CMAKE_PREFIX_PATH "/path/to/tbb")

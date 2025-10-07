@@ -2175,6 +2175,11 @@ void GraphOne::sssp(uint64_t source_vertex_id, const char* dump2file) { // GAPBS
     }
 }
 
+void GraphOne::bc(uint64_t max_iterations, const char* dump2file) {
+    // TODO
+    // Not implemented
+}
+
 } // namespace
 
 

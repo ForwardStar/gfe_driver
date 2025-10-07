@@ -584,5 +584,9 @@ void StingerRef::sssp(uint64_t source_external_id, const char* dump2file){
         save0(external_ids, dump2file);
 }
 
+void StingerRef::bc(uint64_t max_iterations, const char* dump2file) {
+    // TODO
+    // Not implemented
+}
 
 } // namespace

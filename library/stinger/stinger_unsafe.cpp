@@ -550,4 +550,9 @@ void Stinger::dump_ostream(ostream& out) const {
     std::flush(out);
 }
 
+void Stinger::bc(uint64_t max_iterations, const char* dump2file) {
+    // TODO
+    // Not implemented
+}
+
 } // namespace

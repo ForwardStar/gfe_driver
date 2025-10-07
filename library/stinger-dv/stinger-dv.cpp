@@ -576,5 +576,9 @@ void StingerDV::save(const T& data, uint64_t sz, const char* dump2file){
     handle.close();
 }
 
+void StingerDV::bc(uint64_t max_iterations, const char* dump2file) {
+    // TODO
+    // Not implemented
+}
 
 } // namespace
