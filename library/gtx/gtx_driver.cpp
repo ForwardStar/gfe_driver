@@ -2337,4 +2337,127 @@ more consistent performance for undirected graphs.
             save_results(external_ids, dump2file);*/
         //std::cout<<"sssp ran"<<std::endl;
     }
+
+    /*
+GAP Benchmark Suite
+Kernel: Betweenness Centrality (BC)
+Author: Scott Beamer
+
+Will return array of approx betweenness centrality scores for each vertex
+
+This BC implementation makes use of the Brandes [1] algorithm with
+implementation optimizations from Madduri et al. [2]. It is only approximate
+because it does not compute the paths from every start vertex, but only a small
+subset of them. Additionally, the scores are normalized to the range [0,1].
+
+As an optimization to save memory, this implementation uses a Bitmap to hold
+succ (list of successors) found during the BFS phase that are used in the back-
+propagation phase.
+
+[1] Ulrik Brandes. "A faster algorithm for betweenness centrality." Journal of
+    Mathematical Sociology, 25(2):163–177, 2001.
+
+[2] Kamesh Madduri, David Ediger, Karl Jiang, David A Bader, and Daniel
+    Chavarria-Miranda. "A faster parallel algorithm and efficient multithreaded
+    implementations for evaluating betweenness centrality on massive datasets."
+    International Symposium on Parallel & Distributed Processing (IPDPS), 2009.
+*/
+    void GTXDriver::bc(uint64_t max_iterations, const char* dump2file) {
+        gt::SharedROTransaction transaction = GTX->begin_shared_read_only_transaction();
+        uint64_t max_vertex_id = GTX->get_max_allocated_vid();
+        uint64_t num_vertices = m_num_vertices;
+        gapbs::pvector<float> scores(max_vertex_id, 0);
+        gapbs::pvector<double> path_counts(max_vertex_id);
+        gapbs::Bitmap succ(max_vertex_id);
+        std::vector<gapbs::SlidingQueue<uint32_t>::iterator> depth_index;
+        gapbs::SlidingQueue<uint32_t> queue(max_vertex_id);
+        uint32_t sp = 0;
+        for (uint32_t iter=0; iter < max_iterations; iter++) {
+            uint32_t source = sp++ % max_vertex_id;
+            path_counts.fill(0);
+            depth_index.resize(0);
+            queue.reset();
+            succ.reset();
+            
+            // PBFS
+            gapbs::pvector<uint32_t> depths(max_vertex_id, -1);
+            std::vector<std::atomic<bool>> occurred(max_vertex_id);
+            depths[source] = 0;
+            path_counts[source] = 1;
+            queue.push_back(source);
+            depth_index.push_back(queue.begin());
+            queue.slide_window();
+            #pragma omp parallel
+            {
+                uint32_t depth = 0;
+                gapbs::QueueBuffer<uint32_t> lqueue(queue);
+                while (!queue.empty()) {
+                    depth++;
+                    auto graph = transaction.get_graph();
+                    #pragma omp for schedule(dynamic, 64) nowait
+                    for (auto q_iter = queue.begin(); q_iter < queue.end(); q_iter++) {
+                        uint32_t u = *q_iter;
+                        uint8_t thread_id = graph->get_openmp_worker_thread_id();
+                        auto iterator = transaction.generate_edge_delta_iterator(thread_id);
+                        transaction.simple_get_edges(u, 1, thread_id, iterator);
+                        while (iterator.valid()) {
+                            uint64_t v = iterator.dst_id();
+                            if ((depths[v] == -1) &&
+                                (gapbs::compare_and_swap(depths[v], static_cast<uint32_t>(-1), depth))) {
+                                bool first_time = !occurred[v].exchange(true);
+                                if (first_time) {
+                                    // Yet normally this is unnecessary but I don't know the compare_and_swap sometimes works malfunctionally...
+                                    lqueue.push_back(v);
+                                }
+                            }
+                            if (depths[v] == depth) {
+                                succ.set_bit_atomic(v);
+                                #pragma omp atomic
+                                path_counts[v] += path_counts[u];
+                            }
+                        }
+                        iterator.close();
+                    }
+                    lqueue.flush();
+                    #pragma omp barrier
+                    #pragma omp single
+                    {
+                        depth_index.push_back(queue.begin());
+                        queue.slide_window();
+                    }
+                }
+            }
+            depth_index.push_back(queue.begin());
+
+            gapbs::pvector<float> deltas(max_vertex_id, 0);
+            for (int d=depth_index.size()-2; d >= 0; d--) {
+                auto graph = transaction.get_graph();
+                #pragma omp parallel for schedule(dynamic, 64)
+                for (auto it = depth_index[d]; it < depth_index[d+1]; it++) {
+                    uint32_t u = *it;
+                    float delta_u = 0;
+                    uint8_t thread_id = graph->get_openmp_worker_thread_id();
+                    auto iterator = transaction.generate_edge_delta_iterator(thread_id);
+                    transaction.simple_get_edges(u, 1, thread_id, iterator);
+                    while (iterator.valid()) {
+                        uint64_t v = iterator.dst_id();
+                        if (succ.get_bit(v)) {
+                            delta_u += (path_counts[u] / path_counts[v]) * (1 + deltas[v]);
+                        }
+                    }
+                    iterator.close();
+                    deltas[u] = delta_u;
+                    scores[u] += delta_u;
+                }
+            }
+        }
+        // normalize scores
+        float biggest_score = 0;
+        #pragma omp parallel for reduction(max : biggest_score)
+        for (uint32_t n=0; n < max_vertex_id; n++)
+            biggest_score = std::max(biggest_score, scores[n]);
+        #pragma omp parallel for
+        for (uint32_t n=0; n < max_vertex_id; n++)
+            scores[n] = scores[n] / biggest_score;
+    }
 }//namespace gfe::library
