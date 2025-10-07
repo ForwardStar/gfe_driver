@@ -441,8 +441,8 @@ which runs with with 4, 8, 16, 32 read/write threads.
 
 To execute updates and 2-hop neighbor queries concurrently, set in ``configuration.hpp``:
 ```cpp
-#define RUN_GET_NEIGHBORS 1
-#define RUN_TWO_HOP_NEIGHBORS 0
+#define RUN_GET_NEIGHBORS 0
+#define RUN_TWO_HOP_NEIGHBORS 1
 ```
 
 Then execute the same command as above.
