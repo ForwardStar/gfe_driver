@@ -66,10 +66,6 @@ dota-league.graphlog
 
 # Baselines
 libBVGT.a
-stinger
-GraphOne
-teseo
-sortledton
 GTX-SIGMOD2025
 liblivegraph.so
 libgtx.a

@@ -505,6 +505,129 @@ namespace gfe::library {
       tm.deregister_thread(0);
     }
 
+/*
+GAP Benchmark Suite
+Kernel: Betweenness Centrality (BC)
+Author: Scott Beamer
+
+Will return array of approx betweenness centrality scores for each vertex
+
+This BC implementation makes use of the Brandes [1] algorithm with
+implementation optimizations from Madduri et al. [2]. It is only approximate
+because it does not compute the paths from every start vertex, but only a small
+subset of them. Additionally, the scores are normalized to the range [0,1].
+
+As an optimization to save memory, this implementation uses a Bitmap to hold
+succ (list of successors) found during the BFS phase that are used in the back-
+propagation phase.
+
+[1] Ulrik Brandes. "A faster algorithm for betweenness centrality." Journal of
+    Mathematical Sociology, 25(2):163–177, 2001.
+
+[2] Kamesh Madduri, David Ediger, Karl Jiang, David A Bader, and Daniel
+    Chavarria-Miranda. "A faster parallel algorithm and efficient multithreaded
+    implementations for evaluating betweenness centrality on massive datasets."
+    International Symposium on Parallel & Distributed Processing (IPDPS), 2009.
+*/
+    void SortledtonDriver::bc(uint64_t max_iterations, const char* dump2file) {
+      tm.register_thread(0);
+      SnapshotTransaction tx = tm.getSnapshotTransaction(ds, false);
+      auto num_vertices = tx.vertex_count();
+      pvector<float> scores(num_vertices, 0);
+      pvector<double> path_counts(num_vertices);
+      Bitmap succ(num_vertices);
+      std::vector<SlidingQueue<uint32_t>::iterator> depth_index;
+      SlidingQueue<uint32_t> queue(num_vertices);
+      uint32_t sp = 0;
+      for (uint32_t iter=0; iter < max_iterations; iter++) {
+          uint32_t source = sp++ % num_vertices;
+          path_counts.fill(0);
+          depth_index.resize(0);
+          queue.reset();
+          succ.reset();
+          
+          // PBFS
+          pvector<uint32_t> depths(num_vertices, -1);
+          std::vector<std::atomic<bool>> occurred(num_vertices);
+          depths[source] = 0;
+          path_counts[source] = 1;
+          queue.push_back(source);
+          depth_index.push_back(queue.begin());
+          queue.slide_window();
+          #pragma omp parallel
+          {
+              uint32_t depth = 0;
+              QueueBuffer<uint32_t> lqueue(queue);
+              while (!queue.empty()) {
+                  depth++;
+                  #pragma omp for schedule(dynamic, 64) nowait
+                  for (auto q_iter = queue.begin(); q_iter < queue.end(); q_iter++) {
+                      uint32_t u = *q_iter;
+                      std::vector<std::pair<uint64_t, double>> u_neighbors;
+                      SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, u, v, w, end_iteration, {
+                        u_neighbors.emplace_back(v, w);
+                      });
+                      for (auto &e : u_neighbors) {
+                        uint32_t v = e.first;
+                        if ((depths[v] == -1) &&
+                            (compare_and_swap(depths[v], static_cast<uint32_t>(-1), depth))) {
+                            bool first_time = !occurred[v].exchange(true);
+                            if (first_time) {
+                                // Yet normally this is unnecessary but I don't know the compare_and_swap sometimes works malfunctionally...
+                                lqueue.push_back(v);
+                            }
+                        }
+                        if (depths[v] == depth) {
+                            succ.set_bit_atomic(v);
+                            #pragma omp atomic
+                            path_counts[v] += path_counts[u];
+                        }
+                      }
+                  }
+                  lqueue.flush();
+                  #pragma omp barrier
+                  #pragma omp single
+                  {
+                      depth_index.push_back(queue.begin());
+                      queue.slide_window();
+                  }
+              }
+          }
+          depth_index.push_back(queue.begin());
+
+          pvector<float> deltas(num_vertices, 0);
+          for (int d=depth_index.size()-2; d >= 0; d--) {
+              #pragma omp parallel for schedule(dynamic, 64)
+              for (auto it = depth_index[d]; it < depth_index[d+1]; it++) {
+                  uint32_t u = *it;
+                  float delta_u = 0;
+                  std::vector<std::pair<uint64_t, double>> g_out_neigh;
+                  SORTLEDTON_ITERATE_WITH_PROPERTIES_NAMED(tx, u, v, w, end_iteration, {
+                    g_out_neigh.emplace_back(v, w);
+                  });
+                  for (auto &e : g_out_neigh) {
+                      uint32_t v = e.first;
+                      if (succ.get_bit(v)) {
+                          delta_u += (path_counts[u] / path_counts[v]) * (1 + deltas[v]);
+                      }
+                  }
+                  deltas[u] = delta_u;
+                  scores[u] += delta_u;
+              }
+          }
+      }
+      // normalize scores
+      float biggest_score = 0;
+      #pragma omp parallel for reduction(max : biggest_score)
+      for (uint32_t n=0; n < num_vertices; n++)
+          biggest_score = std::max(biggest_score, scores[n]);
+      #pragma omp parallel for
+      for (uint32_t n=0; n < num_vertices; n++)
+          scores[n] = scores[n] / biggest_score;
+      tm.transactionCompleted(tx);
+      tm.deregister_thread(0);
+    }
+
     bool SortledtonDriver::can_be_validated() const {
       return true;
     }
