@@ -53,7 +53,6 @@ namespace gfe::experiment {
     #define COUT_DEBUG(msg)
 #endif
 
-
 /*****************************************************************************
  *                                                                           *
  *  GraphalyticsAlgorithms                                                   *
@@ -168,25 +167,29 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         }
         
         // Get neighbors
-        // #if defined(HAVE_GTX)
-        //     // GTX provides its own interface
-        //     interface->one_hop_neighbors(candidate_vertices);
-        // #else
-        //     #pragma omp parallel for
-        //     for (uint64_t i = 0; i < 1000; i++) {
-        //         interface->get_neighbors(candidate_vertices[i]);
-        //     }
-        // #endif
+        #if RUN_GET_NEIGHBORS
+            #if defined(HAVE_GTX)
+                // GTX provides its own interface
+                interface->one_hop_neighbors(candidate_vertices);
+            #else
+                #pragma omp parallel for
+                for (uint64_t i = 0; i < 1000; i++) {
+                    interface->get_neighbors(candidate_vertices[i]);
+                }
+            #endif
+        #endif
         
         // Get 2-hop neighbors
-        #if defined(HAVE_GTX)
-            // GTX provides its own interface
-            interface->two_hop_neighbors(candidate_vertices);
-        #else
-            #pragma omp parallel for
-            for (uint64_t i = 0; i < 1000; i++) {
-                interface->get_two_hop_neighbors(candidate_vertices[i]);
-            }
+        #if RUN_TWO_HOP_NEIGHBORS
+            #if defined(HAVE_GTX)
+                // GTX provides its own interface
+                interface->two_hop_neighbors(candidate_vertices);
+            #else
+                #pragma omp parallel for
+                for (uint64_t i = 0; i < 1000; i++) {
+                    interface->get_two_hop_neighbors(candidate_vertices[i]);
+                }
+            #endif
         #endif
     }
 

@@ -17,6 +17,9 @@
 
 #pragma once
 
+#define RUN_GET_NEIGHBORS 1
+#define RUN_TWO_HOP_NEIGHBORS 1
+
 #include <cinttypes>
 #include <iostream>
 #include <memory>

@@ -342,19 +342,23 @@ chrono::microseconds InsertOnly::execute() {
             LOG("InsertOnly: reset the scheduler granularity to " << m_scheduler_granularity << " neighbour queries per thread");
         }
 
-        timer.start();
-        BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
-        execute_round_robin_get_neighbors();
-        build_service2.stop();
-        timer.stop();
-        LOG("Get 1-hop neighbors performed with " << m_num_threads << " threads in " << timer);
+        #if RUN_GET_NEIGHBORS
+            timer.start();
+            BuildThread build_service2 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
+            execute_round_robin_get_neighbors();
+            build_service2.stop();
+            timer.stop();
+            LOG("Get 1-hop neighbors performed with " << m_num_threads << " threads in " << timer);
+        #endif
 
-        timer.start();
-        BuildThread build_service3 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
-        execute_round_robin_get_two_hop_neighbors();
-        build_service3.stop();
-        timer.stop();
-        LOG("Get 2-hop neighbors performed with " << m_num_threads << " threads in " << timer);
+        #if RUN_TWO_HOP_NEIGHBORS
+            timer.start();
+            BuildThread build_service3 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
+            execute_round_robin_get_two_hop_neighbors();
+            build_service3.stop();
+            timer.stop();
+            LOG("Get 2-hop neighbors performed with " << m_num_threads << " threads in " << timer);
+        #endif
     }
 
     //////////////////////////////////////

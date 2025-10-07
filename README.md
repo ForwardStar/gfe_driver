@@ -314,7 +314,11 @@ The option `--aging_release_memory=false` avoids releasing the memory used in th
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -R 5 -d output_results.sqlite3
 ```
 
-[TODO] Betweeness centrality (BC) algorithm is only implemented for Teseo, Sortledton, Spruce, GTX and RadixGraph. For other systems, if you run BC on them the algorithm will be skipped, but other tasks (either updates or other analytics) can process normally. Hop queries (1-hop and 2-hop neighbors) are also only verified for the above systems.
+[TODO] Betweeness centrality (BC) algorithm is only implemented for Teseo, Sortledton, Spruce, GTX and RadixGraph. For other systems, if you run BC on them the algorithm will be skipped, but other tasks (either updates or other analytics) can process normally. Hop queries (1-hop and 2-hop neighbors) are also only verified for the above systems. You can disable hop queries by setting in ``configuration.hpp``:
+```cpp
+#define RUN_GET_NEIGHBORS 0
+#define RUN_TWO_HOP_NEIGHBORS 0
+```
 
 Type `./gfe_driver -h` for the full list of options and for the libraries that can be evaluated (option `-l`). The driver spawns the number of threads given by the option `-w` to concurrently run all insertions or updates. For Graphalytics, it defaults to the total number of the physical threads in the machine. This setting can be changed with the option `-r <num_threads>`. Note that the numbers
 in the library codes (e.g. teseo.**6**, stinger**3**) are unrelated to the versions of the systems evaluated, they were only used
@@ -417,7 +421,13 @@ Generate the update log file with [graphlog](https://github.com/whatsthecraic/gr
 ./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/dota-league.properties /path/to/gfe_driver/dota-league.graphlog
 ```
 
-Execute updates and 1-hop neighbor queries concurrently:
+To execute updates and 1-hop neighbor queries concurrently, set in ``configuration.hpp``:
+```cpp
+#define RUN_GET_NEIGHBORS 1
+#define RUN_TWO_HOP_NEIGHBORS 0
+```
+
+and compile the gfe_driver. Then run:
 ```sh
 ./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l radixgraph -r [num_read_threads] -w [num_write_threads] --mixed_workload true
 ```
@@ -429,7 +439,13 @@ sh scripts/run_concurrent.sh radixgraph
 
 which runs with with 4, 8, 16, 32 read/write threads.
 
-To execute updates and 2-hop neighbor queries concurrently, firstly comment lines 164-171 in ``experiment/graphalytics.cpp`` and uncomment lines 174-182. Then execute the same command as above.
+To execute updates and 2-hop neighbor queries concurrently, set in ``configuration.hpp``:
+```cpp
+#define RUN_GET_NEIGHBORS 1
+#define RUN_TWO_HOP_NEIGHBORS 0
+```
+
+Then execute the same command as above.
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
