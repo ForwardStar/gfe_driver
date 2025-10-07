@@ -400,6 +400,122 @@ more consistent performance for undirected graphs.
             DeltaStep((SpruceTransVer::TopBlock*)top_block, source_vertex_id, 2.0, vertex_num, edge_num);
         }
 
+/*
+GAP Benchmark Suite
+Kernel: Betweenness Centrality (BC)
+Author: Scott Beamer
+
+Will return array of approx betweenness centrality scores for each vertex
+
+This BC implementation makes use of the Brandes [1] algorithm with
+implementation optimizations from Madduri et al. [2]. It is only approximate
+because it does not compute the paths from every start vertex, but only a small
+subset of them. Additionally, the scores are normalized to the range [0,1].
+
+As an optimization to save memory, this implementation uses a Bitmap to hold
+succ (list of successors) found during the BFS phase that are used in the back-
+propagation phase.
+
+[1] Ulrik Brandes. "A faster algorithm for betweenness centrality." Journal of
+    Mathematical Sociology, 25(2):163–177, 2001.
+
+[2] Kamesh Madduri, David Ediger, Karl Jiang, David A Bader, and Daniel
+    Chavarria-Miranda. "A faster parallel algorithm and efficient multithreaded
+    implementations for evaluating betweenness centrality on massive datasets."
+    International Symposium on Parallel & Distributed Processing (IPDPS), 2009.
+*/
+
+
+        void BVGTDriver::bc(uint64_t max_iterations, const char* dump2file) {
+            pvector<ScoreT> scores(vertex_num, 0);
+            pvector<double> path_counts(vertex_num);
+            Bitmap succ(vertex_num);
+            std::vector<SlidingQueue<NodeID>::iterator> depth_index;
+            SlidingQueue<NodeID> queue(vertex_num);
+            NodeID sp = 0;
+            for (NodeID iter=0; iter < max_iterations; iter++) {
+                NodeID source = sp++ % vertex_num;
+                path_counts.fill(0);
+                depth_index.resize(0);
+                queue.reset();
+                succ.reset();
+
+                // PBFS
+                pvector<NodeID> depths(vertex_num, -1);
+                std::vector<std::atomic<bool>> occurred(vertex_num);
+                depths[source] = 0;
+                path_counts[source] = 1;
+                queue.push_back(source);
+                depth_index.push_back(queue.begin());
+                queue.slide_window();
+                #pragma omp parallel
+                {
+                    NodeID depth = 0;
+                    QueueBuffer<NodeID> lqueue(queue);
+                    while (!queue.empty()) {
+                        depth++;
+                        #pragma omp for schedule(dynamic, 64) nowait
+                        for (auto q_iter = queue.begin(); q_iter < queue.end(); q_iter++) {
+                            NodeID u = *q_iter;
+                            std::vector<SpruceTransVer::WeightedOutEdgeSimple> u_neighbors;
+                            SpruceTransVer::get_neighbours((SpruceTransVer::TopBlock*)top_block, (uint32_t)u, u_neighbors);
+                            for (auto &e : u_neighbors) {
+                            NodeID v = e.des;
+                            if ((depths[v] == -1) &&
+                                (compare_and_swap(depths[v], static_cast<NodeID>(-1), depth))) {
+                                bool first_time = !occurred[v].exchange(true);
+                                if (first_time) {
+                                    // Yet normally this is unnecessary but I don't know the compare_and_swap sometimes works malfunctionally...
+                                    lqueue.push_back(v);
+                                }
+                            }
+                            if (depths[v] == depth) {
+                                succ.set_bit_atomic(v);
+                                #pragma omp atomic
+                                path_counts[v] += path_counts[u];
+                            }
+                            }
+                        }
+                        lqueue.flush();
+                        #pragma omp barrier
+                        #pragma omp single
+                        {
+                            depth_index.push_back(queue.begin());
+                            queue.slide_window();
+                        }
+                    }
+                }
+                depth_index.push_back(queue.begin());
+
+                pvector<ScoreT> deltas(vertex_num, 0);
+                for (int d=depth_index.size()-2; d >= 0; d--) {
+                    #pragma omp parallel for schedule(dynamic, 64)
+                    for (auto it = depth_index[d]; it < depth_index[d+1]; it++) {
+                        NodeID u = *it;
+                        ScoreT delta_u = 0;
+                        std::vector<SpruceTransVer::WeightedOutEdgeSimple> g_out_neigh;
+                        SpruceTransVer::get_neighbours((SpruceTransVer::TopBlock*)top_block, (uint32_t)u, g_out_neigh);
+                        for (auto &e : g_out_neigh) {
+                            NodeID v = e.des;
+                            if (succ.get_bit(v)) {
+                                delta_u += (path_counts[u] / path_counts[v]) * (1 + deltas[v]);
+                            }
+                        }
+                        deltas[u] = delta_u;
+                        scores[u] += delta_u;
+                    }
+                }
+            }
+            // normalize scores
+            ScoreT biggest_score = 0;
+            #pragma omp parallel for reduction(max : biggest_score)
+            for (NodeID n=0; n < vertex_num; n++)
+                biggest_score = std::max(biggest_score, scores[n]);
+            #pragma omp parallel for
+            for (NodeID n=0; n < vertex_num; n++)
+                scores[n] = scores[n] / biggest_score;
+        }
+
 /*****************************************************************************
  *                                                                           *
  *  LCC, sort-merge implementation                                           *
