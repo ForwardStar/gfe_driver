@@ -314,6 +314,8 @@ The option `--aging_release_memory=false` avoids releasing the memory used in th
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -R 5 -d output_results.sqlite3
 ```
 
+[TODO] Betweeness centrality (BC) algorithm is only implemented for Teseo, Sortledton, Spruce, GTX and RadixGraph. For other systems, if you run BC on them the algorithm will be skipped, but other tasks (either updates or other analytics) can process normally. Hop queries (1-hop and 2-hop neighbors) are also only verified for the above systems.
+
 Type `./gfe_driver -h` for the full list of options and for the libraries that can be evaluated (option `-l`). The driver spawns the number of threads given by the option `-w` to concurrently run all insertions or updates. For Graphalytics, it defaults to the total number of the physical threads in the machine. This setting can be changed with the option `-r <num_threads>`. Note that the numbers
 in the library codes (e.g. teseo.**6**, stinger**3**) are unrelated to the versions of the systems evaluated, they were only used
 internally for development purposes.
@@ -498,7 +500,7 @@ LDFLAGS += -I${TBB_PATH}/include -L${TBB_PATH}/lib -ltbb
 There are also some specific errors for some systems. See below for details.
 
 ##### Stinger
-We found evaluating Stinger with GCC 10.4.0 is fine, but following problem occurs when using GCC 11.4.0:
+We found evaluating Stinger with GCC 10.5.0 is fine, but following problem occurs when using GCC 11.4.0:
 ```
 stinger/build/external/src/protobuf/src/google/protobuf/compiler/java/java_file.cc:97:54: required from here /usr/include/c++/11/bits/stl_tree.h:770:15: error: static assertion failed: comparison object must be invocable as const 770 | is_invocable_v<const _Compare&, const _Key&, const _Key&>, | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
