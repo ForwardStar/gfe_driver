@@ -1970,107 +1970,125 @@ more consistent performance for undirected graphs.
         double* lcc = ptr_lcc.get();
         unique_ptr<uint32_t[]> ptr_degrees_out { new uint32_t[max_vertex_id] };
         uint32_t* __restrict degrees_out = ptr_degrees_out.get();
+        auto graph = transaction.get_graph();
 
         // precompute the degrees of the vertices
-#pragma omp parallel for schedule(dynamic, 4096)
-        for(uint64_t v = 1; v <= max_vertex_id; v++){
-            bool vertex_exists = !transaction.get_vertex(v).empty();
-            if(!vertex_exists){
-                lcc[v] = numeric_limits<double>::signaling_NaN();
-            } else {
-                { // out degree, restrict the scope
-                    uint32_t count = 0;
-                    auto iterator = transaction.simple_get_edges(v, 1);
-                    while(iterator.valid()){ count ++; //iterator.next();
+        #pragma omp parallel
+        {
+            uint8_t thread_id = graph->get_openmp_worker_thread_id();
+            auto iterator = transaction.generate_edge_delta_iterator(thread_id);
+            #pragma omp parallel for schedule(dynamic, 4096)
+            for(uint64_t v = 1; v <= max_vertex_id; v++){
+                bool vertex_exists = !transaction.get_vertex(v, thread_id).empty();
+                if(!vertex_exists){
+                    lcc[v - 1] = numeric_limits<double>::signaling_NaN();
+                    degrees_out[v - 1] = numeric_limits<uint32_t>::max();
+                } else {
+                    { // out degree, restrict the scope
+                        uint32_t count = 0;
+                        transaction.simple_get_edges(v, /* label */ 1, thread_id, iterator);
+                        while(iterator.valid()){ count ++; //iterator.next();
+                        }
+                        iterator.close();
+                        degrees_out[v - 1] = count;
+                    }
+                }
+            }
+            transaction.thread_on_openmp_section_finish(thread_id);
+        }
+        graph->on_openmp_section_finishing();
+        std::cout << "First phase finished" << std::endl;
+
+        #pragma omp parallel
+        {
+            uint8_t thread_id = graph->get_openmp_worker_thread_id();
+            auto iterator = transaction.generate_edge_delta_iterator(thread_id);
+            auto iterator1 = transaction.generate_edge_delta_iterator(thread_id);
+            auto iterator2 = transaction.generate_edge_delta_iterator(thread_id);
+            #pragma omp parallel for schedule(dynamic, 64)
+            for(uint64_t v = 1; v <= max_vertex_id; v++){
+                if(degrees_out[v - 1] == numeric_limits<uint32_t>::max()) continue; // the vertex does not exist
+
+                COUT_DEBUG_LCC("> Node " << v);
+                if(timer.is_timeout()) continue; // exhausted the budget of available time
+                lcc[v - 1] = 0.0;
+                uint64_t num_triangles = 0; // number of triangles found so far for the node v
+
+                // Cfr. Spec v.0.9.0 pp. 15: "If the number of neighbors of a vertex is less than two, its coefficient is defined as zero"
+                uint64_t v_degree_out = degrees_out[v - 1];
+                if(v_degree_out < 2) continue;
+
+                // Build the list of neighbours of v
+                unordered_set<uint64_t> neighbours;
+
+                { // Fetch the list of neighbours of v
+                    transaction.simple_get_edges(v, 1, thread_id, iterator);
+                    while(iterator.valid()){
+                        uint64_t u = iterator.dst_id();
+                        neighbours.insert(u);
                     }
                     iterator.close();
-                    degrees_out[v] = count;
                 }
-            }
-        }
 
-
-#pragma omp parallel for schedule(dynamic, 64)
-        for(uint64_t v = 1; v <= max_vertex_id; v++){
-            if(degrees_out[v] == numeric_limits<uint32_t>::max()) continue; // the vertex does not exist
-
-            COUT_DEBUG_LCC("> Node " << v);
-            if(timer.is_timeout()) continue; // exhausted the budget of available time
-            lcc[v] = 0.0;
-            uint64_t num_triangles = 0; // number of triangles found so far for the node v
-
-            // Cfr. Spec v.0.9.0 pp. 15: "If the number of neighbors of a vertex is less than two, its coefficient is defined as zero"
-            uint64_t v_degree_out = degrees_out[v];
-            if(v_degree_out < 2) continue;
-
-            // Build the list of neighbours of v
-            unordered_set<uint64_t> neighbours;
-
-            { // Fetch the list of neighbours of v
-                auto iterator1 = transaction.simple_get_edges(v, 1);
+                // again, visit all neighbours of v
+                // for directed graphs, edges1 contains the intersection of both the incoming and the outgoing edges
+                transaction.simple_get_edges(v, /* label */ 1, thread_id, iterator1);
                 while(iterator1.valid()){
                     uint64_t u = iterator1.dst_id();
-                    neighbours.insert(u);
-                    iterator1.next();
+                    COUT_DEBUG_LCC("[" << i << "/" << edges.size() << "] neighbour: " << u);
+                    assert(neighbours.count(u) == 1 && "The set `neighbours' should contain all neighbours of v");
+
+                    // For the Graphalytics spec v 0.9.0, only consider the outgoing edges for the neighbours u
+                    transaction.simple_get_edges(u, /* label */ 1, thread_id, iterator2);
+                    while(iterator2.valid()){
+                        uint64_t w = iterator2.dst_id();
+
+                        COUT_DEBUG_LCC("---> [" << j << "/" << /* degree */ (u_out_interval.second - u_out_interval.first) << "] neighbour: " << w);
+                        // check whether it's also a neighbour of v
+                        if(neighbours.count(w) == 1){
+                            COUT_DEBUG_LCC("Triangle found " << v << " - " << u << " - " << w);
+                            num_triangles++;
+                        }
+
+                        // iterator2.next();
+                    }
+                    iterator2.close();
+                    // iterator1.next();
                 }
                 iterator1.close();
+
+                // register the final score
+                uint64_t max_num_edges = v_degree_out * (v_degree_out -1);
+                lcc[v - 1] = static_cast<double>(num_triangles) / max_num_edges;
+                COUT_DEBUG_LCC("Score computed: " << (num_triangles) << "/" << max_num_edges << " = " << lcc[v - 1]);
             }
-
-            // again, visit all neighbours of v
-            // for directed graphs, edges1 contains the intersection of both the incoming and the outgoing edges
-            auto iterator1 = transaction.simple_get_edges(v, /* label */ 1);
-            while(iterator1.valid()){
-                uint64_t u = iterator1.dst_id();
-                COUT_DEBUG_LCC("[" << i << "/" << edges.size() << "] neighbour: " << u);
-                assert(neighbours.count(u) == 1 && "The set `neighbours' should contain all neighbours of v");
-
-                // For the Graphalytics spec v 0.9.0, only consider the outgoing edges for the neighbours u
-                auto iterator2 = transaction.simple_get_edges(u, /* label */ 1);
-                while(iterator2.valid()){
-                    uint64_t w = iterator2.dst_id();
-
-                    COUT_DEBUG_LCC("---> [" << j << "/" << /* degree */ (u_out_interval.second - u_out_interval.first) << "] neighbour: " << w);
-                    // check whether it's also a neighbour of v
-                    if(neighbours.count(w) == 1){
-                        COUT_DEBUG_LCC("Triangle found " << v << " - " << u << " - " << w);
-                        num_triangles++;
-                    }
-
-                    iterator2.next();
-                }
-                iterator2.close();
-                iterator1.next();
-            }
-            iterator1.close();
-
-            // register the final score
-            uint64_t max_num_edges = v_degree_out * (v_degree_out -1);
-            lcc[v] = static_cast<double>(num_triangles) / max_num_edges;
-            COUT_DEBUG_LCC("Score computed: " << (num_triangles) << "/" << max_num_edges << " = " << lcc[v]);
+            transaction.thread_on_openmp_section_finish(thread_id);
         }
+        graph->on_openmp_section_finishing();
+        std::cout << "Second phase finished" << std::endl;
 
         return ptr_lcc;
     }
     void GTXDriver::lcc(const char* dump2file) {
         if(m_is_directed) { ERROR("Implementation of LCC supports only undirected graphs"); }
+        if(lcc_timed_out){
+            // Previously already timed out, skipped
+            std::cout << "LCC timed out!" << std::endl;
+            return;
+        }
 
-        utility::TimeoutService timeout { m_timeout };
+        utility::TimeoutService timeout { 172800 }; // timeout: 48h, lcc's complexity is high so we use this to avoid overtime computations
         Timer timer; timer.start();
         gt::SharedROTransaction transaction = GTX->begin_shared_read_only_transaction();
         uint64_t max_vertex_id = GTX->get_max_allocated_vid();
 
         // Run the LCC algorithm
         unique_ptr<double[]> scores = do_lcc_undirected(transaction, max_vertex_id, timeout);
-        if(timeout.is_timeout()){ transaction.commit(); RAISE_EXCEPTION(TimeoutError, "Timeout occurred after " << timer);  }
-
-        // Translate the vertex IDs
-        auto external_ids = translate(&transaction, scores.get(), max_vertex_id);
-        transaction.commit(); // read-only transaction, abort == commit
-        if(timeout.is_timeout()){ RAISE_EXCEPTION(TimeoutError, "Timeout occurred after " << timer); }
-
-        // Store the results in the given file
-        if(dump2file != nullptr)
-            save_results(external_ids, dump2file);
+        transaction.commit();
+        if(timeout.is_timeout()){
+            lcc_timed_out = true;
+            std::cout << "LCC timed out!" << std::endl;
+        }
     }
 /*****************************************************************************
  *                                                                           *
@@ -2365,15 +2383,32 @@ propagation phase.
     void GTXDriver::bc(uint64_t max_iterations, const char* dump2file) {
         gt::SharedROTransaction transaction = GTX->begin_shared_read_only_transaction();
         uint64_t max_vertex_id = GTX->get_max_allocated_vid();
-        uint64_t num_vertices = m_num_vertices;
         gapbs::pvector<float> scores(max_vertex_id, 0);
         gapbs::pvector<double> path_counts(max_vertex_id);
         gapbs::Bitmap succ(max_vertex_id);
         std::vector<gapbs::SlidingQueue<uint32_t>::iterator> depth_index;
         gapbs::SlidingQueue<uint32_t> queue(max_vertex_id);
         uint32_t sp = 0;
+        auto graph = transaction.get_graph();
         for (uint32_t iter=0; iter < max_iterations; iter++) {
-            uint32_t source = sp++ % max_vertex_id;
+            sp = sp % max_vertex_id + 1;
+            #pragma omp parallel
+            {
+                uint8_t thread_id = graph->get_openmp_worker_thread_id();
+                while (true) {
+                    bool vertex_exists = !transaction.get_vertex(sp, thread_id).empty();
+                    if (!vertex_exists) {
+                        sp = sp % max_vertex_id + 1;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                transaction.thread_on_openmp_section_finish(thread_id);
+            }
+            graph->on_openmp_section_finishing();
+            uint32_t source = sp;
+            std::cout << "Iteration " << iter << ", source vertex id: " << source << std::endl;
             path_counts.fill(0);
             depth_index.resize(0);
             queue.reset();
@@ -2382,38 +2417,37 @@ propagation phase.
             // PBFS
             gapbs::pvector<uint32_t> depths(max_vertex_id, -1);
             std::vector<std::atomic<bool>> occurred(max_vertex_id);
-            depths[source] = 0;
-            path_counts[source] = 1;
+            depths[source - 1] = 0;
+            path_counts[source - 1] = 1;
             queue.push_back(source);
             depth_index.push_back(queue.begin());
             queue.slide_window();
             #pragma omp parallel
             {
+                uint8_t thread_id = graph->get_openmp_worker_thread_id();
+                auto iterator = transaction.generate_edge_delta_iterator(thread_id);
                 uint32_t depth = 0;
                 gapbs::QueueBuffer<uint32_t> lqueue(queue);
                 while (!queue.empty()) {
                     depth++;
-                    auto graph = transaction.get_graph();
                     #pragma omp for schedule(dynamic, 64) nowait
                     for (auto q_iter = queue.begin(); q_iter < queue.end(); q_iter++) {
                         uint32_t u = *q_iter;
-                        uint8_t thread_id = graph->get_openmp_worker_thread_id();
-                        auto iterator = transaction.generate_edge_delta_iterator(thread_id);
                         transaction.simple_get_edges(u, 1, thread_id, iterator);
                         while (iterator.valid()) {
                             uint64_t v = iterator.dst_id();
-                            if ((depths[v] == -1) &&
-                                (gapbs::compare_and_swap(depths[v], static_cast<uint32_t>(-1), depth))) {
-                                bool first_time = !occurred[v].exchange(true);
+                            if ((depths[v - 1] == -1) &&
+                                (gapbs::compare_and_swap(depths[v - 1], static_cast<uint32_t>(-1), depth))) {
+                                bool first_time = !occurred[v - 1].exchange(true);
                                 if (first_time) {
                                     // Yet normally this is unnecessary but I don't know the compare_and_swap sometimes works malfunctionally...
-                                    lqueue.push_back(v);
+                                    lqueue.push_back(v - 1);
                                 }
                             }
-                            if (depths[v] == depth) {
-                                succ.set_bit_atomic(v);
+                            if (depths[v - 1] == depth) {
+                                succ.set_bit_atomic(v - 1);
                                 #pragma omp atomic
-                                path_counts[v] += path_counts[u];
+                                path_counts[v - 1] += path_counts[u - 1];
                             }
                         }
                         iterator.close();
@@ -2426,38 +2460,50 @@ propagation phase.
                         queue.slide_window();
                     }
                 }
+                transaction.thread_on_openmp_section_finish(thread_id);
             }
+            graph->on_openmp_section_finishing();
             depth_index.push_back(queue.begin());
+            std::cout << "PBFS finished" << std::endl;
 
             gapbs::pvector<float> deltas(max_vertex_id, 0);
-            for (int d=depth_index.size()-2; d >= 0; d--) {
-                auto graph = transaction.get_graph();
-                #pragma omp parallel for schedule(dynamic, 64)
-                for (auto it = depth_index[d]; it < depth_index[d+1]; it++) {
-                    uint32_t u = *it;
-                    float delta_u = 0;
-                    uint8_t thread_id = graph->get_openmp_worker_thread_id();
-                    auto iterator = transaction.generate_edge_delta_iterator(thread_id);
-                    transaction.simple_get_edges(u, 1, thread_id, iterator);
-                    while (iterator.valid()) {
-                        uint64_t v = iterator.dst_id();
-                        if (succ.get_bit(v)) {
-                            delta_u += (path_counts[u] / path_counts[v]) * (1 + deltas[v]);
+            #pragma omp parallel
+            {
+                uint8_t thread_id = graph->get_openmp_worker_thread_id();
+                auto iterator = transaction.generate_edge_delta_iterator(thread_id);
+                for (int d=depth_index.size()-2; d >= 0; d--) {
+                    #pragma omp parallel for schedule(dynamic, 64)
+                    for (auto it = depth_index[d]; it < depth_index[d+1]; it++) {
+                        uint32_t u = *it;
+                        if (u <= 0 || u > max_vertex_id) {
+                            continue;
                         }
+                        float delta_u = 0;
+                        transaction.simple_get_edges(u, 1, thread_id, iterator);
+                        while (iterator.valid()) {
+                            uint64_t v = iterator.dst_id();
+                            if (succ.get_bit(v - 1)) {
+                                delta_u += (path_counts[u - 1] / path_counts[v - 1]) * (1 + deltas[v - 1]);
+                            }
+                        }
+                        iterator.close();
+                        deltas[u - 1] = delta_u;
+                        scores[u - 1] += delta_u;
                     }
-                    iterator.close();
-                    deltas[u] = delta_u;
-                    scores[u] += delta_u;
                 }
+                transaction.thread_on_openmp_section_finish(thread_id);
             }
+            graph->on_openmp_section_finishing();
+            std::cout << "Update score finished" << std::endl;
         }
         // normalize scores
         float biggest_score = 0;
         #pragma omp parallel for reduction(max : biggest_score)
-        for (uint32_t n=0; n < max_vertex_id; n++)
-            biggest_score = std::max(biggest_score, scores[n]);
+        for (uint32_t n=1; n <= max_vertex_id; n++)
+            biggest_score = std::max(biggest_score, scores[n - 1]);
         #pragma omp parallel for
-        for (uint32_t n=0; n < max_vertex_id; n++)
-            scores[n] = scores[n] / biggest_score;
+        for (uint32_t n=1; n <= max_vertex_id; n++)
+            scores[n - 1] = scores[n - 1] / biggest_score;
+        transaction.commit();
     }
 }//namespace gfe::library

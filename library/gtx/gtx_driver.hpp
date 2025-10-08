@@ -23,6 +23,7 @@ namespace gfe::library {
         GTXDriver& operator=(const GTXDriver&)= delete;
 
     protected:
+        bool lcc_timed_out = false;
         void* m_pImpl; // pointer to the GTX handle
         void* m_pHashMap; // pointer to the TBB HashMap to translate the vertex identifiers into the dense IDs for gtx
         const bool m_is_directed; // whether the underlying graph is directed or undirected

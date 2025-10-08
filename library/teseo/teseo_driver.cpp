@@ -1101,7 +1101,7 @@ void TeseoDriver::bc(uint64_t max_iterations, const char* dump2file) {
         queue.push_back(source);
         depth_index.push_back(queue.begin());
         queue.slide_window();
-        #pragma omp parallel
+        #pragma omp parallel firstprivate(openmp)
         {
             uint32_t depth = 0;
             QueueBuffer<uint32_t> lqueue(queue);
@@ -1139,7 +1139,7 @@ void TeseoDriver::bc(uint64_t max_iterations, const char* dump2file) {
 
         pvector<float> deltas(N, 0);
         for (int d=depth_index.size()-2; d >= 0; d--) {
-            #pragma omp parallel for schedule(dynamic, 64)
+            #pragma omp parallel for schedule(dynamic, 64) firstprivate(openmp)
             for (auto it = depth_index[d]; it < depth_index[d+1]; it++) {
                 uint32_t u = *it;
                 float delta_u = 0;
