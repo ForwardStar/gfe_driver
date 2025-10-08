@@ -32,14 +32,21 @@ def read_results(result_path):
         for file in os.listdir(method_path):
             # print("Processing file", file)
             idx2 = 0
-            if file.startswith("dota-league"):
+            if file.startswith("com-lj"):
                 idx2 = 0
-            elif file.startswith("graph500-24"):
+            elif file.startswith("dota-league"):
                 idx2 = 1
-            elif file.startswith("uniform-24"):
+            elif file.startswith("com-orkut"):
                 idx2 = 2
+            elif file.startswith("graph500-24"):
+                idx2 = 3
+            elif file.startswith("uniform-24"):
+                idx2 = 4
+            elif file.startswith("twitter"):
+                idx2 = 5
             else:
                 continue
+            lcc_timed_out = False
             with open(os.path.join(method_path, file), "r") as f:
                 lines = f.readlines()
                 n = 0
@@ -80,51 +87,76 @@ def read_results(result_path):
                     if line.startswith(">> WCC N:"):
                         tm = line.split()[5].rstrip(",")
                         wcc_latency[idx][idx2] = int(tm) / 1000
+                    if "LCC timed out" in line:
+                        lcc_timed_out = True
+                    if line.startswith(">> LCC N:"):
+                        if not lcc_timed_out:
+                            tm = line.split()[5].rstrip(",")
+                            lcc_latency[idx][idx2] = int(tm) / 1000
+                    if line.startswith(">> BC N"):
+                        tm = line.split()[5].rstrip(",")
+                        bc_latency[idx][idx2] = int(tm) / 1000
+
+
 
 # Example data
-datasets = ['dota', 'g24', 'u24']
+datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 get_neighbor_throughputs = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 two_hop_throughputs = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 bfs_latency = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 sssp_latency = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 pr_latency = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 wcc_latency = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0]
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
+]
+lcc_latency = [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
+]
+bc_latency = [
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ]
 read_results("./results")
 
@@ -190,5 +222,25 @@ with open("./csv/wcc_latency.csv", "w") as f:
         f.write(method + ",")
         for j in range(len(datasets)):
             f.write(f"{wcc_latency[i][j]:.2f},")
+        f.write("\n")
+with open("./csv/bc_latency.csv", "w") as f:
+    f.write("Method,")
+    for d in datasets:
+        f.write(d + ",")
+    f.write("\n")
+    for i, method in enumerate(methods):
+        f.write(method + ",")
+        for j in range(len(datasets)):
+            f.write(f"{bc_latency[i][j]:.2f},")
+        f.write("\n")
+with open("./csv/lcc_latency.csv", "w") as f:
+    f.write("Method,")
+    for d in datasets:
+        f.write(d + ",")
+    f.write("\n")
+    for i, method in enumerate(methods):
+        f.write(method + ",")
+        for j in range(len(datasets)):
+            f.write(f"{lcc_latency[i][j]:.2f},")
         f.write("\n")
 print("Done.")

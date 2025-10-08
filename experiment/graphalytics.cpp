@@ -406,11 +406,10 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
                 interface->bc(m_properties.bc.m_max_iterations, path_result);
                 t_local.stop();
                 LOG(">> BC Execution time: " << t_local);
-                // Note: we don't store the execution times for BC
-                // m_exec_bc.push_back(t_local.microseconds());
+                m_exec_bc.push_back(t_local.microseconds());
             } catch(library::TimeoutError& e){
                 LOG(">> BC TIMEOUT");
-                // m_exec_bc.push_back(-1);
+                m_exec_bc.push_back(-1);
                 m_properties.bc.m_enabled = false;
             } catch(utility::GraphalyticsValidateError& e){
                 LOG(">> Validation failed: " << e.what());
@@ -455,6 +454,11 @@ void GraphalyticsSequential::report(bool save_in_db){
         ExecStatistics stats { m_exec_wcc };
         cout << ">> WCC " << stats << "\n";
         if(save_in_db) stats.save("wcc");
+    }
+    if(!m_exec_bc.empty()){
+        ExecStatistics stats { m_exec_bc };
+        cout << ">> BC " << stats << "\n";
+        if(save_in_db) stats.save("bc");
     }
 
     if(!m_validate_results.empty()){

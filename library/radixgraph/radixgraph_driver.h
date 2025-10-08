@@ -10,7 +10,7 @@
 #include <vector>
 #include "library/interface.hpp"
 #include "RadixGraph/src/radixgraph.h"
-#include "RadixGraph/src/headers.h"
+#include "RadixGraph/src/utils.h"
 #include "RadixGraph/src/GAPBS/bfs.h"
 #include "RadixGraph/src/GAPBS/pr_spmv.h"
 #include "RadixGraph/src/GAPBS/cc_sv.h"

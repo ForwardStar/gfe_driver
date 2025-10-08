@@ -94,6 +94,7 @@ class GraphalyticsSequential{
     std::vector<int64_t> m_exec_pagerank;
     std::vector<int64_t> m_exec_sssp;
     std::vector<int64_t> m_exec_wcc;
+    std::vector<int64_t> m_exec_bc;
 
 private:
 

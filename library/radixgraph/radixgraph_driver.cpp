@@ -39,7 +39,7 @@ namespace gfe::library {
 
     void RadixGraphDriver::set_mixed_workloads(bool is_mixed_workloads) {
         G->is_mixed_workloads = is_mixed_workloads;
-        G->vertex_index->is_mixed_workloads = is_mixed_workloads;
+        global_info.is_mixed_workloads = is_mixed_workloads;
     }
 
     void* RadixGraphDriver::handle_impl() {
