@@ -312,10 +312,10 @@ chrono::microseconds InsertOnly::execute() {
         LOG("Build time: " << timer);
     }
     m_num_build_invocations++;
-    m_interface->on_thread_destroy(0);
-    m_interface->on_main_destroy();
 
     if (configuration().is_insert_vertex_only()) {
+        m_interface->on_thread_destroy(0);
+        m_interface->on_main_destroy();
         // Query vertex in round robin
         if((m_stream->max_vertex_id() + 1) / m_num_threads < m_scheduler_granularity){
             m_scheduler_granularity = (m_stream->max_vertex_id() + 1) / m_num_threads;
@@ -331,6 +331,8 @@ chrono::microseconds InsertOnly::execute() {
     }
     else {
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+        m_interface->on_thread_destroy(0);
+        m_interface->on_main_destroy();
     }
 
     //////////////////////////////////////

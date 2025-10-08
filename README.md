@@ -452,7 +452,7 @@ Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-
 ##### Log compaction time for RadixGraph
 Modify in ``library/radixgraph/RadixGraph/src/headers.h``:
 ```cpp
-#define DEBUG_MODE true
+#define DEBUG_MODE 1
 ```
 
 and recompile. Then re-run the experiments. For example, if you want to measure the time for random insertions, simply re-run:
@@ -503,7 +503,7 @@ For (1), you may get linking errors if you installed multiple versions of GCC. I
 LDFLAGS += -L{LIBCPP_PATH} -lstdc++
 ```
 
-in your ``Makefile`` before running ``make clean && make -j``, where ``LIBCPP_PATH`` is the path of ``libstdc++.so`` of GCC 10.5.0. Generally, it would be included in ``gcc/lib64`` of your manually installed GCC compiler. Also, remember to update your ``LD_LIBRARY_PATH`` by adding this to ``.bashrc``:
+in your ``Makefile`` before running ``make clean && make -j``, where ``LIBCPP_PATH`` is the path of ``libstdc++.so`` of GCC 11.4.0. Generally, it would be included in ``gcc/lib64`` of your manually installed GCC compiler. Also, remember to update your ``LD_LIBRARY_PATH`` by adding this to ``.bashrc``:
 ```sh
 export LD_LIBRARY_PATH=${LIBCPP_PATH}:$LD_LIBRARY_PATH
 ```
