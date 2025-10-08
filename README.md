@@ -314,11 +314,13 @@ The option `--aging_release_memory=false` avoids releasing the memory used in th
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -R 5 -d output_results.sqlite3
 ```
 
-[TODO] Betweeness centrality (BC) algorithm is only implemented for Teseo, Sortledton, Spruce, GTX and RadixGraph. For other systems, if you run BC on them the algorithm will be skipped, but other tasks (either updates or other analytics) can process normally. Hop queries (1-hop and 2-hop neighbors) are also only verified for the above systems. You can disable hop queries by setting in ``configuration.hpp``:
+[TODO] Betweeness centrality (BC) algorithm is only implemented and verified for Teseo, Sortledton, Spruce, GTX and RadixGraph. For other systems, if you run BC on them the algorithm will be skipped, but other tasks (either updates or other analytics) can process normally. Hop queries (1-hop and 2-hop neighbors) are implemented but only verified for the above systems. CDLP is not implemented for RadixGraph and not verified for GTX. You can disable hop queries by setting in ``configuration.hpp``:
 ```cpp
 #define RUN_GET_NEIGHBORS 0
 #define RUN_TWO_HOP_NEIGHBORS 0
 ```
+
+To disable specific algorithms other than hop queries, use the option ``--blacklist`` when executing gfe_driver.
 
 Type `./gfe_driver -h` for the full list of options and for the libraries that can be evaluated (option `-l`). The driver spawns the number of threads given by the option `-w` to concurrently run all insertions or updates. For Graphalytics, it defaults to the total number of the physical threads in the machine. This setting can be changed with the option `-r <num_threads>`. Note that the numbers
 in the library codes (e.g. teseo.**6**, stinger**3**) are unrelated to the versions of the systems evaluated, they were only used
