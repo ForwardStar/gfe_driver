@@ -20,7 +20,7 @@ if [ -n "$1" ]; then
         if [ "$1" = "radixgraph" ]; then
             ./optimizer datasets/dota-league.v 8 > settings
         fi
-        ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $1 -r $1 -R $3 --blacklist cdlp > results/$1/analytics/dota-league-analytics-$1
+        ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $2 -r $2 -R $3 --blacklist cdlp > results/$1/analytics/dota-league-analytics-$1
         if [ "$1" = "radixgraph" ]; then
             ./optimizer datasets/com-orkut.ungraph.v 8 > settings
         fi
@@ -45,7 +45,7 @@ if [ -n "$1" ]; then
         if [ "$1" = "radixgraph" ]; then
             ./optimizer datasets/dota-league.v 8 > settings
         fi
-        ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $1 -r $1 -R 5 --blacklist cdlp > results/$1/analytics/dota-league-analytics-$1
+        ./build/gfe_driver -G datasets/dota-league.properties -u -l $1 -w $2 -r $2 -R 5 --blacklist cdlp > results/$1/analytics/dota-league-analytics-$1
         if [ "$1" = "radixgraph" ]; then
             ./optimizer datasets/com-orkut.ungraph.v 8 > settings
         fi
