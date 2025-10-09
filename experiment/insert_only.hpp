@@ -46,8 +46,8 @@ class InsertOnly {
     // Execute the experiment with the round robin scheduler
     void execute_round_robin();
     void execute_round_robin_query();
-    void execute_round_robin_get_neighbors();
-    void execute_round_robin_get_two_hop_neighbors();
+    void execute_round_robin_get_neighbors(int skip_partial=1);
+    void execute_round_robin_get_two_hop_neighbors(int skip_partial=1);
     void execute_round_robin_delete();
 
 public:

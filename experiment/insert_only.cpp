@@ -81,14 +81,14 @@ static void run_sequential_query_vertex(library::UpdateInterface* interface, gra
     }
 }
 
-static void run_sequential_get_neighbors(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
-    for(uint64_t pos = start; pos < end; pos++){
+static void run_sequential_get_neighbors(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end, int skip_partial){
+    for(uint64_t pos = start; pos < end; pos += skip_partial){
         [[maybe_unused]] bool result = interface->get_neighbors(pos);
     }
 }
 
-static void run_sequential_get_two_hop_neighbors(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end){
-    for(uint64_t pos = start; pos < end; pos++){
+static void run_sequential_get_two_hop_neighbors(library::UpdateInterface* interface, graph::WeightedEdgeStream* graph, uint64_t start, uint64_t end, int skip_partial){
+    for(uint64_t pos = start; pos < end; pos += skip_partial){
         [[maybe_unused]] bool result = interface->get_two_hop_neighbors(pos);
     }
 }
@@ -142,7 +142,7 @@ void InsertOnly::execute_round_robin(){
     for(auto& t : threads) t.join();
 }
 
-void InsertOnly::execute_round_robin_get_two_hop_neighbors(){
+void InsertOnly::execute_round_robin_get_two_hop_neighbors(int skip_partial){
     vector<thread> threads;
     #if HAVE_GTX
         m_interface.get()->set_worker_thread_num(m_num_threads);
@@ -151,7 +151,7 @@ void InsertOnly::execute_round_robin_get_two_hop_neighbors(){
 
 
     for(int64_t i = 0; i < m_num_threads; i++){
-        threads.emplace_back([this, &start_chunk_next](int thread_id){
+        threads.emplace_back([this, &start_chunk_next](int thread_id, int skip_partial){
             concurrency::set_thread_name("Worker #" + to_string(thread_id));
 
             auto interface = m_interface.get();
@@ -163,19 +163,19 @@ void InsertOnly::execute_round_robin_get_two_hop_neighbors(){
 
             while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
                 uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
-                run_sequential_get_two_hop_neighbors(interface, graph, start, end);
+                run_sequential_get_two_hop_neighbors(interface, graph, start, end, skip_partial);
             }
 
             interface->on_thread_destroy(thread_id);
 
-        }, static_cast<int>(i));
+        }, static_cast<int>(i), skip_partial);
     }
 
     // wait for all threads to complete
     for(auto& t : threads) t.join();
 }
 
-void InsertOnly::execute_round_robin_get_neighbors(){
+void InsertOnly::execute_round_robin_get_neighbors(int skip_partial){
     vector<thread> threads;
     #if HAVE_GTX
         m_interface.get()->set_worker_thread_num(m_num_threads);
@@ -184,7 +184,7 @@ void InsertOnly::execute_round_robin_get_neighbors(){
 
 
     for(int64_t i = 0; i < m_num_threads; i++){
-        threads.emplace_back([this, &start_chunk_next](int thread_id){
+        threads.emplace_back([this, &start_chunk_next](int thread_id, int skip_partial){
             concurrency::set_thread_name("Worker #" + to_string(thread_id));
 
             auto interface = m_interface.get();
@@ -196,12 +196,12 @@ void InsertOnly::execute_round_robin_get_neighbors(){
 
             while( (start = start_chunk_next.fetch_add(m_scheduler_granularity)) < size ){
                 uint64_t end = std::min<uint64_t>(start + m_scheduler_granularity, size);
-                run_sequential_get_neighbors(interface, graph, start, end);
+                run_sequential_get_neighbors(interface, graph, start, end, skip_partial);
             }
 
             interface->on_thread_destroy(thread_id);
 
-        }, static_cast<int>(i));
+        }, static_cast<int>(i), skip_partial);
     }
 
     // wait for all threads to complete
@@ -310,6 +310,8 @@ chrono::microseconds InsertOnly::execute() {
     m_time_build = timer.microseconds();
     if(m_time_build > 0){
         LOG("Build time: " << timer);
+        auto after = common::get_memory_footprint();
+        LOG("Memory consumption after build: " << after - before << "MB");
     }
     m_num_build_invocations++;
 
@@ -350,16 +352,16 @@ chrono::microseconds InsertOnly::execute() {
             execute_round_robin_get_neighbors();
             build_service2.stop();
             timer.stop();
-            LOG("Get 1-hop neighbors performed with " << m_num_threads << " threads in " << timer);
+            LOG("Get 1-hop neighbors for " << m_stream->max_vertex_id() + 1 << " vertices performed with " << m_num_threads << " threads in " << timer);
         #endif
 
         #if RUN_TWO_HOP_NEIGHBORS
             timer.start();
             BuildThread build_service3 { m_interface , static_cast<int>(m_num_threads), m_build_frequency };
-            execute_round_robin_get_two_hop_neighbors();
+            execute_round_robin_get_two_hop_neighbors(1);
             build_service3.stop();
             timer.stop();
-            LOG("Get 2-hop neighbors performed with " << m_num_threads << " threads in " << timer);
+            LOG("Get 2-hop neighbors for " << m_stream->max_vertex_id() + 1 << " vertices performed with " << m_num_threads << " threads in " << timer);
         #endif
     }
 
@@ -380,22 +382,9 @@ chrono::microseconds InsertOnly::execute() {
         timer.stop();
         m_interface->updates_stop();
         LOG("Deletions performed with " << m_num_threads << " threads in " << timer);
-        m_time_insert = timer.microseconds();
-        m_num_build_invocations = build_service2.num_invocations();
-
-        m_interface->on_thread_init(0);
-        timer.start();
-        m_interface->build();
-        timer.stop();
-        m_time_build = timer.microseconds();
-        if(m_time_build > 0){
-            LOG("Build time: " << timer);
-        }
-        m_num_build_invocations++;
-
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (0 == m_interface->num_edges() ? "yes" : "no"));
     
-        // Delete finshed
+        // Delete finished
         m_interface->on_thread_destroy(0);
         m_interface->on_main_destroy();
     }
