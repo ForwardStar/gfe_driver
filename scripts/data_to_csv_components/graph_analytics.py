@@ -54,6 +54,10 @@ def read_results(result_path):
                     if line.startswith("Loaded"):
                         n = int(line.split()[6].rstrip('.')) + 1
                     if line.startswith("Get 1-hop"):
+                        try:
+                            n = int(line.split()[4])
+                        except:
+                            pass
                         tm = line.split()[8]
                         if line.split()[-1] == "ms":
                             get_neighbor_throughputs[idx][idx2] = int(tm) / 1000
@@ -65,6 +69,10 @@ def read_results(result_path):
                                 multiple *= 60
                         get_neighbor_throughputs[idx][idx2] = n / get_neighbor_throughputs[idx][idx2]
                     if line.startswith("Get 2-hop"):
+                        try:
+                            n = int(line.split()[4])
+                        except:
+                            pass
                         tm = line.split()[8]
                         if line.split()[-1] == "ms":
                             two_hop_throughputs[idx][idx2] = int(tm) / 1000
