@@ -261,6 +261,8 @@ There are three kinds of experiments that can be executed:
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3
 ```
 
+The ``<system_to_evaluate>`` parameter can be ``radixgraph``, ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` or ``gtx``.
+
 - **Sequential Insertions and Deletions**: add ``--is_timestamped true`` option to insert or delete the edges in a timestamped order.
 ```
 ./gfe_driver -G /path/to/input/graph.properties -u -l <system_to_evaluate> -w <num_threads> -d output_results.sqlite3 --is_timestamped true
@@ -339,7 +341,7 @@ If you have downloaded the data via the ``downloader.py``, after you compile ``g
 sh scripts/run_random.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Sequential Insertions and Deletions
 
@@ -365,7 +367,7 @@ Then run the corresponding scripts to execute gfe_driver with the generated vert
 sh scripts/run_vertex.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Memory Consumption
 
@@ -391,7 +393,7 @@ Then execute:
 sh scripts/run_mixed.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Graph Analytics
 
@@ -408,9 +410,9 @@ After you compile ``gfe_driver`` with the corresponding graph system, you can ru
 sh scripts/run_analytics.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
-If you want to run "Betweenness Centrality" algorithm on `dota-league`, `graph500-24` and `uniform-24`, add the following lines to their corresponding property files:
+To run "Betweenness Centrality" algorithm on `dota-league`, `graph500-24` and `uniform-24`, add the following lines to their corresponding property files:
 ```
 graph.<graph-name>.algorithms = bfs, cdlp, lcc, pr, sssp, wcc, bc
 graph.<graph-name>.bc.max-iterations = 5
@@ -451,38 +453,20 @@ Then execute the same command as above.
 
 Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
-##### Log compaction time for RadixGraph
-Modify in ``library/radixgraph/RadixGraph/src/headers.h``:
-```cpp
-#define DEBUG_MODE 1
-```
-
-and recompile. Then re-run the experiments. For example, if you want to measure the time for random insertions, simply re-run:
-```
-sh scripts/run_random.sh radixgraph
-```
-
-##### Plotting Figures
-
-After executing above scripts, run the Python files in ``scripts`` folder like:
-```sh
-python3 scripts/plot_legends.py
-python3 scripts/plot_updates.py
-python3 scripts/plot_mixed.py
-python3 scripts/plot_updates_vertices.py
-python3 scripts/plot_memory.py
-python3 scripts/plot_memory_vertex.py
-python3 scripts/plot_analytics.py
-```
-
-The generated figures will be placed in the ``figures`` folder.
-
 ##### Summarize data
 
 To collect data to CSV files, after you execute all experiments, run:
 ```sh
 python3 scripts/data_to_csv.py
 ```
+
+The generated csv files will be placed in the ``csv`` folder.
+
+##### Plotting Figures
+
+After executing above scripts, run the Python files in ``scripts`` folder to plot the figures.
+
+The generated figures will be placed in the ``figures`` folder.
 
 ### Troubleshooting
 
