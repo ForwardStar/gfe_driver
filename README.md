@@ -8,9 +8,9 @@ The driver supports the following structures: [RadixGraph](https://github.com/Fo
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
 execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC), betweeness centrality (BC) and community detection through label propagation (CDLP).
 
+## Table of Contents
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 - [Build](#build)
   - [Requisites](#requisites)
   - [Configure](#configure)
