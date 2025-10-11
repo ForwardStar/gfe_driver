@@ -8,6 +8,41 @@ The driver supports the following structures: [RadixGraph](https://github.com/Fo
 It can run several kinds experiments: insert/delete all edges in a random permuted order from an input graph, 
 execute the updates specified by a [graphlog file](https://github.com/whatsthecraic/graphlog) and run the kernels of the Graphalytics suite: BFS, PageRank (PR), local triangle counting (LCC), weighted shortest paths (SSSP), weakly connected components (WCC), betweeness centrality (BC) and community detection through label propagation (CDLP).
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Build](#build)
+  - [Requisites](#requisites)
+  - [Configure](#configure)
+    - [RadixGraph](#radixgraph)
+    - [Stinger](#stinger)
+    - [GraphOne](#graphone)
+    - [LiveGraph](#livegraph)
+    - [Teseo](#teseo)
+    - [Sortledton](#sortledton)
+    - [Spruce](#spruce)
+    - [GTX](#gtx)
+  - [Compile](#compile)
+- [Datasets](#datasets)
+  - [About dataset format:](#about-dataset-format)
+- [Executing the driver](#executing-the-driver)
+- [Repeating the experiments](#repeating-the-experiments)
+    - [Random Insertions and Deletions](#random-insertions-and-deletions)
+    - [Sequential Insertions and Deletions](#sequential-insertions-and-deletions)
+    - [Vertex Insertions Only](#vertex-insertions-only)
+    - [Memory Consumption](#memory-consumption)
+    - [Mixed Updates](#mixed-updates)
+    - [Graph Analytics](#graph-analytics)
+    - [Concurrent Reads and Writes](#concurrent-reads-and-writes)
+    - [Summarize data](#summarize-data)
+    - [Plotting Figures](#plotting-figures)
+- [Troubleshooting](#troubleshooting)
+    - [Stinger](#stinger-1)
+    - [Sortledton](#sortledton-1)
+    - [GTX](#gtx-1)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ### Build 
 
 #### Requisites 
@@ -41,7 +76,7 @@ mkdir build && cd build
 autoreconf -iv ..
 ```
 
-For the rest of the configuration part, note that you need to reconfigure it for each time you evaluate a different method.
+For the rest of the configuration part, follow **only the part of your system to evaluate** to configure and then compile. Therefore, you need to reconfigure and recompile each time you evaluate a different method.
 
 ##### RadixGraph
 
