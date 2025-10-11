@@ -451,7 +451,7 @@ To execute updates and 2-hop neighbor queries concurrently, set in ``configurati
 
 Then execute the same command as above.
 
-Repeat the process by replacing ``radixgraph`` to ``stinger7-ref``, ``g1_v6-ref-ignore-build``, ``livegraph3_ro``, ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
 ##### Summarize data
 
