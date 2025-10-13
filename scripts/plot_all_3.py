@@ -27,31 +27,37 @@ colors = ['steelblue', 'orange', 'green', 'red', 'purple']
 hatches = ['/', '\\', 'x', '-', 'o']
 
 captions = [
-    "(a) Edge insertion throughput",
-    "(b) Edge deletion throughput",
-    "(c) Memory usage of the graph",
-    "(d) Vertex insertion throughput",
-    "(e) Vertex query throughput",
-    "(f) Memory usage of vertices"
+    "(a) 1-hop neighbor queries",
+    "(b) 2-hop neighbor queries",
+    "(c) BFS latency",
+    "(d) SSSP latency",
+    "(e) PR latency",
+    "(f) WCC latency",
+    "(g) TC latency",
+    "(h) BC latency"
 ]
 
 # ==================================
 # Load CSVs
 # ==================================
-edge_insertion_throughput_df = pd.read_csv("csv/edge_insertion.csv")
-edge_deletion_throughput_df = pd.read_csv("csv/edge_deletion.csv")
-vertex_insertion_throughput_df = pd.read_csv("csv/vertex_insertion.csv")
-vertex_query_throughput_df = pd.read_csv("csv/vertex_query.csv")
-edge_memory_df = pd.read_csv("csv/memory.csv")
-vertex_memory_df = pd.read_csv("csv/vertex_memory.csv")
+get_neighbor_throughput_df = pd.read_csv("csv/get_neighbor_throughput.csv")
+two_hop_neighbor_throughput = pd.read_csv("csv/two_hop_throughput.csv")
+bfs_latency = pd.read_csv("csv/bfs_latency.csv")
+sssp_latency = pd.read_csv("csv/sssp_latency.csv")
+pr_latency = pd.read_csv("csv/pr_latency.csv")
+wcc_latency = pd.read_csv("csv/wcc_latency.csv")
+tc_latency = pd.read_csv("csv/lcc_latency.csv")
+bc_latency = pd.read_csv("csv/bc_latency.csv")
 
 # Drop last nan column
-edge_insertion_throughput_data = edge_insertion_throughput_df.iloc[:, 1:-1].values  # shape: (num_methods, num_datasets)
-edge_deletion_throughput_data = edge_deletion_throughput_df.iloc[:, 1:-1].values
-vertex_insertion_throughput_data = vertex_insertion_throughput_df.iloc[:, 1:-1].values
-vertex_query_throughput_data = vertex_query_throughput_df.iloc[:, 1:-1].values
-edge_memory_data = edge_memory_df.iloc[:, 1:-1].values
-vertex_memory_data = vertex_memory_df.iloc[:, 1:-1].values
+get_neighbor_throughput_data = get_neighbor_throughput_df.iloc[:, 1:-1].values  # shape: (num_methods, num_datasets)
+two_hop_neighbor_throughput_data = two_hop_neighbor_throughput.iloc[:, 1:-1].values
+bfs_latency_data = bfs_latency.iloc[:, 1:-1].values
+sssp_latency_data = sssp_latency.iloc[:, 1:-1].values
+pr_latency_data = pr_latency.iloc[:, 1:-1].values
+wcc_latency_data = wcc_latency.iloc[:, 1:-1].values
+tc_latency_data = tc_latency.iloc[:, 1:-1].values
+bc_latency_data = bc_latency.iloc[:, 1:-1].values
 
 # ==================================
 # Plot helpers
@@ -77,24 +83,28 @@ def plot(ax, data, ylabel, log=False):
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
 # ==================================
-# Make 2×3 plots
+# Make 2×4 plots
 # ==================================
-fig, axes = plt.subplots(2, 3, figsize=(30, 10), sharey=False)
+fig, axes = plt.subplots(2, 4, figsize=(30, 10), sharey=False)
 axes = axes.flatten()
 
 for idx, (ax, caption) in enumerate(zip(axes, captions), start=1):
-    if idx == 1:  # edge insertion
-        plot(ax, edge_insertion_throughput_data, ylabel="Throughput (mops)", log=False)
-    elif idx == 2:  # edge deletion
-        plot(ax, edge_deletion_throughput_data, ylabel="Throughput (mops)", log=False)
-    elif idx == 3:  # edge memory
-        plot(ax, edge_memory_data, ylabel="Memory (MB)", log=True)
-    elif idx == 4:  # vertex insertion
-        plot(ax, vertex_insertion_throughput_data, ylabel="Throughput (mops)", log=False)
-    elif idx == 5:  # vertex query
-        plot(ax, vertex_query_throughput_data, ylabel="Throughput (mops)", log=False)
-    elif idx == 6:  # vertex memory
-        plot(ax, vertex_memory_data, ylabel="Memory (MB)", log=True)
+    if idx == 1:  # 1-hop neighbor
+        plot(ax, get_neighbor_throughput_data, ylabel="Throughput (qops)", log=True)
+    elif idx == 2:  # 2-hop neighbor
+        plot(ax, two_hop_neighbor_throughput_data, ylabel="Throughput (qops)", log=True)
+    elif idx == 3:  # bfs
+        plot(ax, bfs_latency_data, ylabel="Latency (ms)", log=True)
+    elif idx == 4:  # sssp
+        plot(ax, sssp_latency_data, ylabel="Latency (ms)", log=True)
+    elif idx == 5:  # pr
+        plot(ax, pr_latency_data, ylabel="Latency (ms)", log=True)
+    elif idx == 6:  # wcc
+        plot(ax, wcc_latency_data, ylabel="Latency (ms)", log=True)
+    elif idx == 7:  # tc
+        plot(ax, tc_latency_data, ylabel="Latency (ms)", log=True)
+    elif idx == 8:  # bc
+        plot(ax, bc_latency_data, ylabel="Latency (ms)", log=True)
     ax.set_xlabel(caption, fontsize=30, fontweight="bold", labelpad=15)
 
 # Shared legend at top
@@ -104,4 +114,4 @@ fig.legend(handles, labels,
            ncol=len(methods), fontsize=35)
 
 plt.tight_layout(rect=[0, 0, 1, 0.85])  # leave space for the legend
-plt.savefig("figures/combined_plots1.pdf")
+plt.savefig("figures/combined_plots3.pdf")

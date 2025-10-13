@@ -58,7 +58,7 @@ def read_results(result_path):
                             n = int(line.split()[4])
                         except:
                             pass
-                        tm = line.split()[8]
+                        tm = line.split()[11]
                         if line.split()[-1] == "ms":
                             get_neighbor_throughputs[idx][idx2] = int(tm) / 1000
                         else:
@@ -73,7 +73,7 @@ def read_results(result_path):
                             n = int(line.split()[4])
                         except:
                             pass
-                        tm = line.split()[8]
+                        tm = line.split()[11]
                         if line.split()[-1] == "ms":
                             two_hop_throughputs[idx][idx2] = int(tm) / 1000
                         else:
