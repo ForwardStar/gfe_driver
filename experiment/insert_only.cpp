@@ -310,8 +310,6 @@ chrono::microseconds InsertOnly::execute() {
     m_time_build = timer.microseconds();
     if(m_time_build > 0){
         LOG("Build time: " << timer);
-        auto after = common::get_memory_footprint();
-        LOG("Memory consumption after build: " << after - before << "MB");
     }
     m_num_build_invocations++;
 
