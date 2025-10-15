@@ -419,9 +419,14 @@ Generate the update log file with [graphlog](https://github.com/whatsthecraic/gr
 ```sh
 ./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/graph500-24.properties /path/to/gfe_driver/graph500-24-1.0.graphlog
 ./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/uniform-24.properties /path/to/gfe_driver/uniform-24-1.0.graphlog
+./graphlog -a 10 -e 1 -v 1 /path/to/gfe_driver/datasets/twitter-2010.properties /path/to/gfe_driver/twitter-2010.graphlog
 ```
 
-This will generate 10x operations of #edges of the original dataset, but the final built graph is still the same as the original graph.
+This will generate 10x operations of #edges of the original dataset, but the final built graph is still the same as the original graph. Note that for twitter-2010, you need to firstly generate its property file by:
+```sh
+g++ generate_property_files.cpp -o generate_property_files -O3
+./generate_property_files datasets/twitter-2010.el
+```
 
 Then execute:
 ```sh
