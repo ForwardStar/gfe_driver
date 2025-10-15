@@ -22,12 +22,8 @@ def read_results(result_path):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
     
-    global throughput_g500
-    global throughput_u24
-    global throughput_lj
-    global throughput_orkut
-    global throughput_dota
-    global throughput_twitter
+    global mixed_u24
+    global mixed_g500
     methods = os.listdir(result_path)
     for method in methods:
         print("Processing", method)
@@ -91,56 +87,20 @@ def read_results(result_path):
                         break
 
             if file.startswith("graph500-24"):
-                throughput_g500[idx] = result[:]
+                mixed_g500[idx] = result[:]
             elif file.startswith("uniform-24"):
-                throughput_u24[idx] = result[:]
-            elif file.startswith("lj"):
-                throughput_lj[idx] = result[:]
-            elif file.startswith("orkut"):
-                throughput_orkut[idx] = result[:]
-            elif file.startswith("dota"):
-                throughput_dota[idx] = result[:]
-            elif file.startswith("twitter"):
-                throughput_twitter[idx] = result[:]
+                mixed_u24[idx] = result[:]
             # Close DB connection
             conn.close()
 
-throughput_lj = [
+mixed_g500 = [
     [],
     [],
     [],
     [],
     []
 ]
-throughput_orkut = [
-    [],
-    [],
-    [],
-    [],
-    []
-]
-throughput_dota = [
-    [],
-    [],
-    [],
-    [],
-    []
-]
-throughput_g500 = [
-    [],
-    [],
-    [],
-    [],
-    []
-]
-throughput_u24 = [
-    [],
-    [],
-    [],
-    [],
-    []
-]
-throughput_twitter = [
+mixed_u24 = [
     [],
     [],
     [],
@@ -171,35 +131,31 @@ def plot(ax, throughput):
             markeredgewidth=1.5,
             linewidth=2
         )
-    ax.set_xlabel("Progress (%)", fontsize=35, fontweight='bold')
-    ax.set_ylabel("Time (s)", fontsize=35, fontweight='bold')
+    ax.set_xlabel("Progress (%)", fontsize=30, fontweight='bold')
+    ax.set_ylabel("Time (s)", fontsize=30, fontweight='bold')
     x_ticks = ['', '20%', '', '40%', '', '60%', '', '80%', '', '100%']
     ax.set_xticks(np.arange(len(x_ticks)))
-    ax.set_xticklabels(x_ticks, fontsize=35)
-    ax.tick_params(axis='y', labelsize=35)
+    ax.set_xticklabels(x_ticks, fontsize=25)
+    ax.tick_params(axis='y', labelsize=25)
 
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
 # ==================================
 # Make 2×3 plots
 # ==================================
-fig, axes = plt.subplots(2, 3, figsize=(30, 10), sharey=False)
+fig, axes = plt.subplots(2, 2, figsize=(15, 10), sharey=False)
 axes = axes.flatten()
 
-plot(axes[0], throughput_lj)
-axes[0].set_xlabel("(a) Updates on lj", fontsize=35, fontweight='bold')
-plot(axes[1], throughput_orkut)
-axes[1].set_xlabel("(b) Updates on orkut", fontsize=35, fontweight='bold')
-plot(axes[2], throughput_dota)
-axes[2].set_xlabel("(c) Updates on dota", fontsize=35, fontweight='bold')
-plot(axes[3], throughput_g500)
-axes[3].set_xlabel("(d) Updates on g24", fontsize=35, fontweight='bold')
-plot(axes[4], throughput_u24)
-axes[4].set_xlabel("(e) Updates on u24", fontsize=35, fontweight='bold')
-plot(axes[5], throughput_twitter)
-axes[5].set_xlabel("(f) Updates on twitter", fontsize=35, fontweight='bold')
+plot(axes[0], mixed_g500)
+axes[0].set_xlabel("(a) Updates on g24", fontsize=35, fontweight='bold')
+plot(axes[1], mixed_u24)
+axes[1].set_xlabel("(b) Updates on u24", fontsize=35, fontweight='bold')
+axes[2].set_xlabel("(c) Deletes on u24", fontsize=35, fontweight='bold')
+axes[3].set_xlabel("(d) Deletes on g24", fontsize=35, fontweight='bold')
 
 handles, labels = axes[0].get_legend_handles_labels()
 fig.legend(handles, labels,
            loc="upper center",           # center horizontally
-           ncol=5, fontsize=35)
+           ncol=3, fontsize=35)
+plt.tight_layout(rect=[0, 0, 1, 0.8])  # leave space for the legend
+plt.savefig("./figures/combined_plots2.pdf", bbox_inches='tight')
