@@ -150,8 +150,8 @@ plot(axes[0], mixed_g500)
 axes[0].set_xlabel("(a) Updates on g24", fontsize=35, fontweight='bold')
 plot(axes[1], mixed_u24)
 axes[1].set_xlabel("(b) Updates on u24", fontsize=35, fontweight='bold')
-axes[2].set_xlabel("(c) Deletes on u24", fontsize=35, fontweight='bold')
-axes[3].set_xlabel("(d) Deletes on g24", fontsize=35, fontweight='bold')
+axes[2].set_xlabel("(c) Deletes on g24", fontsize=35, fontweight='bold')
+axes[3].set_xlabel("(d) Deletes on u24", fontsize=35, fontweight='bold')
 
 handles, labels = axes[0].get_legend_handles_labels()
 fig.legend(handles, labels,
