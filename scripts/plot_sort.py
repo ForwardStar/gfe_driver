@@ -29,7 +29,7 @@ hatches = ['.', '*', '+', '|', '//']
 methods = ["Updated", "Trailing", "vEB"]
 
 def plot1(x, y, output_path):
-    fig, ax = plt.subplots(figsize=(7, 6))
+    fig, ax = plt.subplots(figsize=(6, 6))
     for i in range(len(y)):
         ax.step(
             x,
@@ -43,13 +43,13 @@ def plot1(x, y, output_path):
             linewidth=2,
             where='post'
         )
-    ax.set_xlabel("Value of n", fontsize=35, fontweight='bold')
-    ax.set_ylabel("Fanout", fontsize=35, fontweight='bold')
+    ax.set_xlabel("Value of n", fontsize=30, fontweight='bold')
+    ax.set_ylabel("Fanout", fontsize=30, fontweight='bold')
     ax.set_xscale('log')
-    ax.tick_params(axis='y', labelsize=35)
-    ax.tick_params(axis='x', labelsize=35)
-    ax.legend(loc='lower center', bbox_to_anchor=(0.4, 1.02), handlelength=1.0, handletextpad=0.3, columnspacing=0.5, fontsize=35, ncol=5)
-    plt.tight_layout()
+    ax.tick_params(axis='y', labelsize=25)
+    ax.tick_params(axis='x', labelsize=25)
+    fig.legend(loc='upper center', handlelength=1.0, handletextpad=0.3, columnspacing=0.5, fontsize=30, ncol=5)
+    plt.tight_layout(rect=[0, 0, 1, 0.85])
     plt.savefig(output_path)
 
 def plot2(datasets, memory, output_path):
@@ -58,7 +58,7 @@ def plot2(datasets, memory, output_path):
     colors = ['indigo', 'darkorange', 'mediumseagreen']
     width = 0.15  # Width of each bar
 
-    fig, ax = plt.subplots(figsize=(7, 6))
+    fig, ax = plt.subplots(figsize=(6, 6))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
@@ -66,16 +66,16 @@ def plot2(datasets, memory, output_path):
         ax.bar(x + offset, memory[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    ax.set_ylabel('Memory (MB)', fontsize=35, fontweight='bold')
-    ax.set_xlabel('Value of n', fontsize=35, fontweight='bold')
+    ax.set_ylabel('Memory (MB)', fontsize=30, fontweight='bold')
+    ax.set_xlabel('Value of n', fontsize=30, fontweight='bold')
     # ax.set_yscale('log')
     ax.set_xticks(x)
-    ax.tick_params(axis='y', labelsize=35)
-    ax.set_xticklabels(datasets, fontsize=35)
-    ax.legend(loc='lower center', bbox_to_anchor=(0.4, 1.02), handlelength=1.0, handletextpad=0.3, columnspacing=0.5, fontsize=35, ncol=5)
+    ax.tick_params(axis='y', labelsize=25)
+    ax.set_xticklabels(datasets, fontsize=25)
+    fig.legend(loc='upper center', handlelength=1.0, handletextpad=0.3, columnspacing=0.5, fontsize=30, ncol=5)
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.85])
     plt.savefig(output_path)
 
 if not os.path.exists("./figures"):
