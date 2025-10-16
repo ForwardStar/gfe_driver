@@ -18,7 +18,7 @@ for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
             'font.family': font_name
         })
 
-def read_results(result_path):
+def read_results_mixed(result_path):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
     
@@ -93,6 +93,53 @@ def read_results(result_path):
             # Close DB connection
             conn.close()
 
+def read_results_delete(result_path):
+    if not os.path.exists(result_path):
+        raise FileNotFoundError("Experimental results not found!")
+    global delete_u24
+    global delete_g500
+    methods = os.listdir(result_path)
+    for method in methods:
+        # print("Processing", method)
+        method_path = os.path.join(result_path, method)
+        method_path = os.path.join(method_path, "random")
+        idx = 0
+        if method == 'teseo.13':
+            idx = 0
+        elif method == 'sortledton.4':
+            idx = 1
+        elif method == 'bvgt':
+            idx = 2
+        elif method == 'gtx':
+            idx = 3
+        elif method == 'radixgraph':
+            idx = 4
+        else:
+            continue
+        for file in os.listdir(method_path):
+            # print("Processing file", file)
+            idx2 = 0
+            if file.startswith("com-lj"):
+                idx2 = 0
+            elif file.startswith("dota-league"):
+                idx2 = 1
+            elif file.startswith("com-orkut"):
+                idx2 = 2
+            elif file.startswith("graph500-24"):
+                idx2 = 3
+            elif file.startswith("uniform-24"):
+                idx2 = 4
+            elif file.startswith("twitter-2010"):
+                idx2 = 5
+            else:
+                continue
+            with open(os.path.join(method_path, file), "r") as f:
+                lines = f.readlines()
+                memory_before = 0
+                for line in lines:
+                    if line.startswith("Memory before:"):
+                        memory_before = int(line.split()[2])
+
 mixed_g500 = [
     [],
     [],
@@ -107,7 +154,21 @@ mixed_u24 = [
     [],
     []
 ]
-read_results("./results")
+delete_g500 = [
+    [],
+    [],
+    [],
+    [],
+    []
+]
+delete_u24 = [
+    [],
+    [],
+    [],
+    [],
+    [] 
+]
+read_results_mixed("./results")
 
 legend_labels = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 colors = ['steelblue', 'orange', 'green', 'red', 'purple']

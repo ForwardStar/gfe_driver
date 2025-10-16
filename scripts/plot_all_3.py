@@ -23,7 +23,8 @@ datasets = ['lj', 'dota', 'orkut', 'g24', 'u24', 'twitter']
 methods = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 
 # Colors and hatch patterns for each method
-colors = ['steelblue', 'orange', 'green', 'red', 'purple']
+cs = plt.colormaps['tab10']
+colors = [cs(i) for i in range(len(methods))]
 hatches = ['/', '\\', 'x', '-', 'o']
 
 captions = [
