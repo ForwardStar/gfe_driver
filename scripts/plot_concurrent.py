@@ -17,16 +17,17 @@ for font in fm.findSystemFonts(fontpaths=None, fontext='ttf'):
             'font.family': font_name
         })
 
-def read_results(result_path):
+def read_results(result_path, folder_name, one_hop=True):
     if not os.path.exists(result_path):
         raise FileNotFoundError("Experimental results not found!")
-    global read_throughputs
+    global one_hop_throughputs
+    global two_hop_throughputs
     global write_throughputs
     methods = os.listdir(result_path)
     for method in methods:
         print("Processing", method)
         method_path = os.path.join(result_path, method)
-        method_path = os.path.join(method_path, 'concurrent')
+        method_path = os.path.join(method_path, folder_name)
         idx = 0
         if method == 'gtx':
             idx = 0
@@ -59,7 +60,10 @@ def read_results(result_path):
                         tm = float(line.split()[-2])
                         op = int(line.split()[-7])
                         op *= 1000
-                        read_throughputs[idx][idx2] = op / tm
+                        if one_hop:
+                            one_hop_throughputs[idx][idx2] = op / tm
+                        else:
+                            two_hop_throughputs[idx][idx2] = op / tm
                     if "write-threads" in file and line.startswith("[Aging2] Updates performed"):
                         time_str = line.split()[-2]
                         time_str = time_str.split(":")
@@ -75,7 +79,11 @@ def read_results(result_path):
 # Example data
 num_thread = ['4', '8', '16', '32']
 methods = ['GTX', 'RadixGraph']
-read_throughputs = [
+one_hop_throughputs = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+]
+two_hop_throughputs = [
     [0, 0, 0, 0],
     [0, 0, 0, 0]
 ]
@@ -83,18 +91,16 @@ write_throughputs = [
     [0, 0, 0, 0],
     [0, 0, 0, 0]
 ]
-read_results("./results")
 
 # Colors and hatch patterns for each method
-colors = ['red', 'purple']
+cs = plt.colormaps['tab10']
+colors = [cs(3), cs(4)]
 hatches = ['-', 'o']
 
-def plot(throughputs, output_path, yaxis):
+def plot(ax, throughputs, yaxis, float=False):
     # Plotting setup
     x_base = np.array([0, 0.5, 1, 1.5])
     width = 0.2  # Width of each bar
-
-    fig, ax = plt.subplots(figsize=(6, 6))
 
     # Plot each method's bars
     for i, (method, color, hatch) in enumerate(zip(methods, colors, hatches)):
@@ -102,23 +108,43 @@ def plot(throughputs, output_path, yaxis):
         ax.bar(x_base + offset, throughputs[i], width, label=method, color=color, hatch=hatch, edgecolor='black')
 
     # Axes labels and ticks
-    # ax.set_ylabel(yaxis, fontsize=35, fontweight='bold')
-    ax.set_xlabel('Number of threads', fontsize=35, fontweight='bold')
+    ax.set_ylabel(yaxis, fontsize=30, fontweight='bold')
+    ax.set_xlabel('Number of threads', fontsize=30, fontweight='bold')
     ax.set_xticks(x_base)
-    ax.tick_params(axis='y', labelsize=35)
-    ax.set_xticklabels(num_thread, fontsize=35)
-    # ax.legend(loc='lower center', bbox_to_anchor=(0.5, 1.02), columnspacing=0.5, fontsize=25, ncol=5)
-    # ax.yaxis.get_offset_text().set_fontsize(35)
-    # ax.yaxis.offsetText.set_visible(False)  # Hide automatic 1e6
-    # ax.text(-0.25, 2.5e6, '1e6', fontsize=35,
-    #     va='top', ha='left')
+    ax.tick_params(axis='y', labelsize=25)
+    ax.set_xticklabels(num_thread, fontsize=25)
+    if float:
+        ax.yaxis.get_offset_text().set_fontsize(35)
+        ax.yaxis.offsetText.set_visible(False)  # Hide automatic 1e6
+        ax.text(-0.25, 2.5e6, '1e6', fontsize=35,
+            va='top', ha='left')
     ax.grid(True, axis='y', linestyle='--', alpha=0.7)
-
-    plt.tight_layout()
-    plt.subplots_adjust(left=0.15)
-    plt.savefig(output_path)
 
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
-plot(read_throughputs, "./figures/concurrent_read.pdf", 'Throughput (qops)')
-plot(write_throughputs, "./figures/concurrent_write.pdf", 'Throughput (mops)')
+# ==================================
+# Make 1×3 plots
+# ==================================
+fig, axes = plt.subplots(1, 3, figsize=(18, 7), sharey=False)
+axes = axes.flatten()
+print("Please enter the path to the concurrent one-hop neighbor results.")
+print("E.g., if the path is 'results/radixgraph/concurrent-1-hop', just enter 'concurrent-1-hop'.")
+one_hop_folder = input("Enter the folder name for one-hop neighbor results: ").strip()
+print("Please enter the path to the concurrent two-hop neighbor results.")
+print("E.g., if the path is 'results/radixgraph/concurrent-2-hop', just enter 'concurrent-2-hop'.")
+two_hop_folder = input("Enter the folder name for two-hop neighbor results: ").strip()
+read_results("./results", one_hop_folder, one_hop=True)
+read_results("./results", two_hop_folder, one_hop=False)
+plot(axes[0], one_hop_throughputs, yaxis="Throughput (qops)", float=True)
+axes[0].set_xlabel("(a) 1-HN", fontsize=35, fontweight='bold')
+plot(axes[1], two_hop_throughputs, yaxis="Throughput (qops)")
+axes[1].set_xlabel("(b) 2-HN", fontsize=35, fontweight='bold')
+plot(axes[2], write_throughputs, yaxis="Throughput (mops)")
+axes[2].set_xlabel("(c) Updates", fontsize=35, fontweight='bold')
+
+handles, labels = axes[0].get_legend_handles_labels()
+fig.legend(handles, labels,
+           loc="upper center",           # center horizontally
+           ncol=len(methods), fontsize=35)
+plt.tight_layout(rect=[0, 0, 1, 0.8])  # leave space for the legend
+plt.savefig("figures/combined_plots4.pdf")
