@@ -237,6 +237,9 @@ void Aging2Master::do_run_experiment(){
 
     // init the build service (the one that creates the new snapshots/deltas)
     BuildThread build_service { parameters().m_library , static_cast<int>(parameters().m_num_threads) + 2, parameters().m_build_frequency };
+    if (configuration().is_delete_all()) {
+        LOG("[Aging2] Memory before: " << common::get_memory_footprint() << " MB");
+    }
 
     auto start_time = chrono::steady_clock::now();
     Timer timer; timer.start();

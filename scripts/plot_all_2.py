@@ -93,6 +93,64 @@ def read_results_mixed(result_path):
             # Close DB connection
             conn.close()
 
+def read_results_delete(result_path):
+    if not os.path.exists(result_path):
+        raise FileNotFoundError("Experimental results not found!")
+    
+    global mixed_u24
+    global mixed_g500
+    methods = os.listdir(result_path)
+    for method in methods:
+        print("Processing", method)
+        method_path = os.path.join(result_path, method)
+        method_path = os.path.join(method_path, 'delete-only')
+        idx = 0
+        if method == 'teseo.13':
+            idx = 0
+        elif method == 'sortledton.4':
+            idx = 1
+        elif method == 'bvgt':
+            idx = 2
+        elif method == 'gtx':
+            idx = 3
+        elif method == 'radixgraph':
+            idx = 4
+        else:
+            continue
+
+        if not os.path.exists(method_path):
+            continue
+
+        for file in os.listdir(method_path):
+            print("Processing file", file)
+            with open(os.path.join(method_path, file), "r") as f:
+                lines = f.readlines()
+                memory_before = 0
+                start_delete = False
+                for line in lines:
+                    if line.startswith("[Aging2] Memory before:"):
+                        memory_before = float(line.split()[3])
+                    if "Progress: 50%" in line:
+                        start_delete = True
+                    if start_delete and line.startswith("Memory consumption:"):
+                        memory_after = int(line.split()[2])
+                        memory_consumption = memory_after - memory_before
+                        if memory_consumption > 0:
+                            if file.startswith("graph500-24"):
+                                delete_g500[idx].append(memory_consumption)
+                            elif file.startswith("uniform-24"):
+                                delete_u24[idx].append(memory_consumption)
+            
+    # Only keep 10 points (10% to 100%)
+    for i in range(len(delete_g500)):
+        ten_percent = len(delete_g500[i]) // 10
+        if ten_percent > 0:
+            delete_g500[i] = delete_g500[i][::ten_percent][:10]
+        ten_percent = len(delete_u24[i]) // 10
+        if ten_percent > 0:
+            delete_u24[i] = delete_u24[i][::ten_percent][:10]
+
+
 mixed_g500 = [
     [],
     [],
@@ -122,6 +180,9 @@ delete_u24 = [
     [] 
 ]
 read_results_mixed("./results")
+read_results_delete("./results")
+print(delete_g500)
+print(delete_u24)
 
 legend_labels = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 cs = plt.colormaps['tab10']

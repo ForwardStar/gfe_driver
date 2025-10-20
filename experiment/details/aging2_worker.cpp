@@ -262,6 +262,10 @@ void Aging2Worker::main_execute_updates(){
                 m_master.m_last_progress_reported = 100.0 * num_ops_done/num_total_ops;
                 if(!m_master.m_stop_experiment){
                     LOG("[thread: " << ::common::concurrency::get_thread_id() << ", worker_id: " << m_worker_id << "] Progress: " << static_cast<int>(100.0 * num_ops_done/num_total_ops) << "%");
+                    if (configuration().is_delete_all()) {
+                        // Record delete memory footprint
+                        LOG("Memory consumption: " << common::get_memory_footprint() << " MB");
+                    }
                 }
             }
 
