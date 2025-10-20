@@ -189,7 +189,7 @@ void Aging2Master::load_edges(){
         // }
 
         m_results.m_num_operations_total *= 2;
-        m_results.m_num_edges_final_graph = 0;
+        m_results.m_num_edges_load = 0;
     }
 
     timer.stop();
