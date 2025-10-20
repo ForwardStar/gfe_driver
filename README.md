@@ -31,6 +31,7 @@ execute the updates specified by a [graphlog file](https://github.com/whatsthecr
     - [Sequential Insertions and Deletions](#sequential-insertions-and-deletions)
     - [Vertex Insertions Only](#vertex-insertions-only)
     - [Memory Consumption](#memory-consumption)
+    - [Delete Memory Footprint](#delete-memory-footprint)
     - [Mixed Updates](#mixed-updates)
     - [Graph Analytics](#graph-analytics)
     - [Concurrent Reads and Writes](#concurrent-reads-and-writes)
@@ -413,6 +414,21 @@ Reconfigure the graph systems with ``--enable-mem-analysis`` option. For example
 
 Then run ``run_random.sh`` with the same procedure.
 
+##### Delete Memory Footprint
+
+To record the memory footprint during the deletion process, generate the log file that loads the whole graph with [graphlog](https://github.com/whatsthecraic/graphlog) and move them to the folder of ``gfe_driver``:
+```sh
+./graphlog -a 1 -e 1 -v 1 /path/to/gfe_driver/datasets/graph500-24.properties /path/to/gfe_driver/graph500-24-delete.graphlog
+./graphlog -a 1 -e 1 -v 1 /path/to/gfe_driver/datasets/uniform-24.properties /path/to/gfe_driver/uniform-24-delete.graphlog
+```
+
+Then execute the GFE driver's "Updates" commands with ``--delete_all true``. Or simply execute:
+```sh
+sh scripts/run_delete_memfp.sh radixgraph [threads]
+```
+
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+
 ##### Mixed Updates
 
 Generate the update log file with [graphlog](https://github.com/whatsthecraic/graphlog) and move them to the folder of ``gfe_driver``:
@@ -484,7 +500,7 @@ To execute updates and 2-hop neighbor queries concurrently, set in ``configurati
 #define RUN_TWO_HOP_NEIGHBORS 1
 ```
 
-Then execute the same command as above.
+Then execute the same command as above. Note: they will both generate a ``concurrent`` folder in ``results/[method_name]``. You should rename the folder before re-run (e.g., renaming ``concurrent`` to ``concurrent-1-hop``).
 
 Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 

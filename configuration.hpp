@@ -98,6 +98,7 @@ class Configuration {
     bool m_is_mixed_workload = false;
     bool m_is_timestamped_graph = false;
     bool m_insert_vertex_only = false;
+    bool m_delete_all = false;
 
     void set_aging_cooloff_seconds(uint64_t value);
     void set_aging_memfp_threshold(uint64_t bytes);
@@ -117,6 +118,7 @@ class Configuration {
     void set_block_size(size_t block_size);
     void set_is_timestamped(bool timestamped);
     void set_insert_vertex_only(bool insert_vertex_only);
+    void set_delete_all(bool delete_all);
 
     // Set the path to the database
     void set_database_path(const std::string& path){ m_database_path = path; }
@@ -251,6 +253,8 @@ public:
     bool is_timestamped_graph() const;
 
     bool is_insert_vertex_only() const;
+
+    bool is_delete_all() const;
 };
 
 } // namespace

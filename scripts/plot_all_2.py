@@ -93,53 +93,6 @@ def read_results_mixed(result_path):
             # Close DB connection
             conn.close()
 
-def read_results_delete(result_path):
-    if not os.path.exists(result_path):
-        raise FileNotFoundError("Experimental results not found!")
-    global delete_u24
-    global delete_g500
-    methods = os.listdir(result_path)
-    for method in methods:
-        # print("Processing", method)
-        method_path = os.path.join(result_path, method)
-        method_path = os.path.join(method_path, "random")
-        idx = 0
-        if method == 'teseo.13':
-            idx = 0
-        elif method == 'sortledton.4':
-            idx = 1
-        elif method == 'bvgt':
-            idx = 2
-        elif method == 'gtx':
-            idx = 3
-        elif method == 'radixgraph':
-            idx = 4
-        else:
-            continue
-        for file in os.listdir(method_path):
-            # print("Processing file", file)
-            idx2 = 0
-            if file.startswith("com-lj"):
-                idx2 = 0
-            elif file.startswith("dota-league"):
-                idx2 = 1
-            elif file.startswith("com-orkut"):
-                idx2 = 2
-            elif file.startswith("graph500-24"):
-                idx2 = 3
-            elif file.startswith("uniform-24"):
-                idx2 = 4
-            elif file.startswith("twitter-2010"):
-                idx2 = 5
-            else:
-                continue
-            with open(os.path.join(method_path, file), "r") as f:
-                lines = f.readlines()
-                memory_before = 0
-                for line in lines:
-                    if line.startswith("Memory before:"):
-                        memory_before = int(line.split()[2])
-
 mixed_g500 = [
     [],
     [],
@@ -171,7 +124,8 @@ delete_u24 = [
 read_results_mixed("./results")
 
 legend_labels = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
-colors = ['steelblue', 'orange', 'green', 'red', 'purple']
+cs = plt.colormaps['tab10']
+colors = [cs(i) for i in range(len(legend_labels))]
 markers = ['o', 's', '^', 'D', 'v']
 
 def plot(ax, throughput):
@@ -196,15 +150,15 @@ def plot(ax, throughput):
     ax.set_ylabel("Time (s)", fontsize=30, fontweight='bold')
     x_ticks = ['', '20%', '', '40%', '', '60%', '', '80%', '', '100%']
     ax.set_xticks(np.arange(len(x_ticks)))
-    ax.set_xticklabels(x_ticks, fontsize=25)
-    ax.tick_params(axis='y', labelsize=25)
+    ax.set_xticklabels(x_ticks, fontsize=30)
+    ax.tick_params(axis='y', labelsize=30)
 
 if not os.path.exists("./figures"):
     os.makedirs("./figures")
 # ==================================
-# Make 2×3 plots
+# Make 1×4 plots
 # ==================================
-fig, axes = plt.subplots(2, 2, figsize=(15, 10), sharey=False)
+fig, axes = plt.subplots(1, 4, figsize=(25, 7), sharey=False)
 axes = axes.flatten()
 
 plot(axes[0], mixed_g500)
@@ -217,6 +171,6 @@ axes[3].set_xlabel("(d) Deletes on u24", fontsize=35, fontweight='bold')
 handles, labels = axes[0].get_legend_handles_labels()
 fig.legend(handles, labels,
            loc="upper center",           # center horizontally
-           ncol=3, fontsize=35)
+           ncol=5, fontsize=40)
 plt.tight_layout(rect=[0, 0, 1, 0.8])  # leave space for the legend
 plt.savefig("./figures/combined_plots2.pdf", bbox_inches='tight')

@@ -144,6 +144,8 @@ public:
     uint64_t memory_footprint() const;
 
     bool is_in_library_code() const;
+
+    int worker_id() const { return m_worker_id; }
 };
 
 } // namespace

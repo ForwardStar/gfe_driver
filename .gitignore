@@ -60,12 +60,7 @@ generate_property_files
 create_vertex_ops
 
 # Update log
-graph500-24-1.0.graphlog
-uniform-24-1.0.graphlog
-dota-league.graphlog
-twitter-2010.graphlog
-com-lj.ungraph.graphlog
-com-orkut.ungraph.graphlog
+*.graphlog
 
 # Baselines
 libBVGT.a
