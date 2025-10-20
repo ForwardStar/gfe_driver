@@ -422,12 +422,12 @@ To record the memory footprint during the deletion process, generate the log fil
 ./graphlog -a 1 -e 1 -v 1 /path/to/gfe_driver/datasets/uniform-24.properties /path/to/gfe_driver/uniform-24-delete.graphlog
 ```
 
-Then execute the GFE driver's "Updates" commands with ``--delete_all true``. Or simply execute:
+Then execute the GFE driver's "Updates" commands with ``--delete_all true`` and ``--aging_release_memory false``. Or simply execute:
 ```sh
 sh scripts/run_delete_memfp.sh radixgraph [threads]
 ```
 
-Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
+Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``. Note that under this case, the number of threads should not be too large. Otherwise, some threads may start deletions while others are still inserting.
 
 ##### Mixed Updates
 

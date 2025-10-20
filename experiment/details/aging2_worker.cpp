@@ -240,6 +240,7 @@ void Aging2Worker::main_execute_updates(){
     // reports_per_ops only affects how often a report is saved in the db, not the report to the stdout
     const double reports_per_ops = m_master.parameters().m_num_reports_per_operations;
     int lastset_coeff = 0;
+    bool delete_start = false;
 
     for(uint64_t i = 0, end = m_updates.size(); i < end; i++){
         // if we're release the driver's memory, always fetch the first. Otherwise follow the index.
@@ -264,7 +265,13 @@ void Aging2Worker::main_execute_updates(){
                     LOG("[thread: " << ::common::concurrency::get_thread_id() << ", worker_id: " << m_worker_id << "] Progress: " << static_cast<int>(100.0 * num_ops_done/num_total_ops) << "%");
                     if (configuration().is_delete_all()) {
                         // Record delete memory footprint
-                        LOG("Memory consumption: " << common::get_memory_footprint() << " MB");
+                        auto mem_footprint = common::get_memory_footprint();
+                        // mem_footprint -= m_updates_mem_usage / (1024 * 1024); // in MB
+                        LOG("Memory consumption: " << mem_footprint << " MB");
+                        if (!delete_start && operations->data()[start].m_weight < 0) {
+                            LOG("[thread: " << ::common::concurrency::get_thread_id() << ", worker_id: " << m_worker_id << "] Delete started.");
+                            delete_start = true;
+                        }
                     }
                 }
             }
@@ -291,7 +298,9 @@ void Aging2Worker::main_execute_updates(){
             }
 
             COUT_DEBUG("Memory footprint: " << m_updates_mem_usage << " bytes");
-            delete m_updates[0];
+            // There is a bug in this project that release_memory is always true even if we set ``--aging_release_memory false``
+            // In deletion memory footprint, this will result in incorrect memory consumption calculation, so we disable it.
+            if (!configuration().is_delete_all()) delete m_updates[0];
             m_updates.pop();
         }
     }
