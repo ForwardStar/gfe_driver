@@ -19,7 +19,7 @@ if [ -n "$1" ]; then
         while [ $ATTEMPT -le $MAX_RETRIES ]; do
             echo "Attempt $ATTEMPT..."
             
-            ./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l $1 -r $a -w 32 --mixed_workload true > results/$1/concurrent/dota-league-$a-read-threads-$1
+            ./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l $1 -r $a -w 32 --aging_release_memory true --mixed_workload true > results/$1/concurrent/dota-league-$a-read-threads-$1
             EXIT_CODE=$?
 
             # 139 is segmentation fault, but you can include other codes if needed
@@ -40,7 +40,7 @@ if [ -n "$1" ]; then
         while [ $ATTEMPT -le $MAX_RETRIES ]; do
             echo "Attempt $ATTEMPT..."
             
-            ./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l $1 -r 32 -w $a --mixed_workload true > results/$1/concurrent/dota-league-$a-write-threads-$1
+            ./build/gfe_driver -G datasets/dota-league.properties -u --log ./dota-league.graphlog --aging_timeout 48h -l $1 -r 32 -w $a --aging_release_memory true --mixed_workload true > results/$1/concurrent/dota-league-$a-write-threads-$1
             EXIT_CODE=$?
 
             # 139 is segmentation fault, but you can include other codes if needed

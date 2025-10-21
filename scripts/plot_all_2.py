@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import numpy as np
+import math
 
 plt.rcParams.update({
     'font.family': 'Times New Roman'
@@ -126,13 +127,19 @@ def read_results_delete(result_path):
             with open(os.path.join(method_path, file), "r") as f:
                 lines = f.readlines()
                 memory_before = 0
-                start_delete = False
+                memory_after = 0
+                delete_started = False
                 for line in lines:
-                    if line.startswith("[Aging2] Memory before:"):
-                        memory_before = float(line.split()[3])
-                    if "Progress: 50%" in line:
-                        start_delete = True
-                    if start_delete and line.startswith("Memory consumption:"):
+                    # if line.startswith("[Aging2] Memory before:"):
+                    #     memory_before = float(line.split()[3])
+                    if "Delete started." in line:
+                        delete_started = True
+                        # Start record when all threads start deleting
+                        if file.startswith("graph500-24"):
+                            delete_g500[idx].clear()
+                        elif file.startswith("uniform-24"):
+                            delete_u24[idx].clear()
+                    if delete_started and line.startswith("Memory consumption:"):
                         memory_after = int(line.split()[2])
                         memory_consumption = memory_after - memory_before
                         if memory_consumption > 0:
@@ -140,15 +147,35 @@ def read_results_delete(result_path):
                                 delete_g500[idx].append(memory_consumption)
                             elif file.startswith("uniform-24"):
                                 delete_u24[idx].append(memory_consumption)
+                    if line.startswith("[Aging2] Memory after:"):
+                        memory_after = int(line.split()[3])
+                        if file.startswith("graph500-24"):
+                            delete_g500[idx].append(memory_after)
+                        elif file.startswith("uniform-24"):
+                            delete_u24[idx].append(memory_after)
             
     # Only keep 10 points (10% to 100%)
     for i in range(len(delete_g500)):
-        ten_percent = len(delete_g500[i]) // 10
+        ten_percent = len(delete_g500[i]) / 10
+        data = []
         if ten_percent > 0:
-            delete_g500[i] = delete_g500[i][::ten_percent][:10]
-        ten_percent = len(delete_u24[i]) // 10
+            j = 0
+            while j < len(delete_g500[i]):
+                data.append(delete_g500[i][int(j)])
+                j += ten_percent
+            while len(data) > 10:
+                data.pop(0)
+            delete_g500[i] = data[:]
+        ten_percent = len(delete_u24[i]) / 10
+        data = []
         if ten_percent > 0:
-            delete_u24[i] = delete_u24[i][::ten_percent][:10]
+            j = 0
+            while j < len(delete_u24[i]):
+                data.append(delete_u24[i][int(j)])
+                j += ten_percent
+            while len(data) > 10:
+                data.pop(0)
+            delete_u24[i] = data[:]
 
 
 mixed_g500 = [
@@ -181,15 +208,13 @@ delete_u24 = [
 ]
 read_results_mixed("./results")
 read_results_delete("./results")
-print(delete_g500)
-print(delete_u24)
 
 legend_labels = ['Teseo', 'Sortledton', 'Spruce', 'GTX', 'RadixGraph']
 cs = plt.colormaps['tab10']
 colors = [cs(i) for i in range(len(legend_labels))]
 markers = ['o', 's', '^', 'D', 'v']
 
-def plot(ax, throughput):
+def plot(ax, throughput, ylabel):
     for i in range(len(throughput)):
         x = ['10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%']
         x = x[:len(throughput[i])]
@@ -208,7 +233,7 @@ def plot(ax, throughput):
             linewidth=2
         )
     ax.set_xlabel("Progress (%)", fontsize=30, fontweight='bold')
-    ax.set_ylabel("Time (s)", fontsize=30, fontweight='bold')
+    ax.set_ylabel(ylabel, fontsize=30, fontweight='bold')
     x_ticks = ['', '20%', '', '40%', '', '60%', '', '80%', '', '100%']
     ax.set_xticks(np.arange(len(x_ticks)))
     ax.set_xticklabels(x_ticks, fontsize=30)
@@ -222,11 +247,13 @@ if not os.path.exists("./figures"):
 fig, axes = plt.subplots(1, 4, figsize=(25, 7), sharey=False)
 axes = axes.flatten()
 
-plot(axes[0], mixed_g500)
+plot(axes[0], mixed_g500, "Time (s)")
 axes[0].set_xlabel("(a) Updates on g24", fontsize=35, fontweight='bold')
-plot(axes[1], mixed_u24)
+plot(axes[1], mixed_u24, "Time (s)")
 axes[1].set_xlabel("(b) Updates on u24", fontsize=35, fontweight='bold')
+plot(axes[2], delete_g500, "Memory (MB)")
 axes[2].set_xlabel("(c) Deletes on g24", fontsize=35, fontweight='bold')
+plot(axes[3], delete_u24, "Memory (MB)")
 axes[3].set_xlabel("(d) Deletes on u24", fontsize=35, fontweight='bold')
 
 handles, labels = axes[0].get_legend_handles_labels()
