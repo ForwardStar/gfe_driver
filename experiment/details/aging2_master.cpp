@@ -248,6 +248,9 @@ void Aging2Master::do_run_experiment(){
     m_experiment_running = true;
     wait_and_record();
     build_service.stop();
+    if (configuration().is_delete_all()) {
+        LOG("[Aging2] Memory after: " << common::get_memory_footprint() << " MB.");
+    }
     // m_parameters.m_library->build(); // flush last changes
     m_parameters.m_library->updates_stop();
     timer.stop();
