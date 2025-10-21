@@ -248,7 +248,7 @@ void Aging2Master::do_run_experiment(){
     m_experiment_running = true;
     wait_and_record();
     build_service.stop();
-    m_parameters.m_library->build(); // flush last changes
+    // m_parameters.m_library->build(); // flush last changes
     m_parameters.m_library->updates_stop();
     timer.stop();
     LOG("[Aging2] Experiment completed!");

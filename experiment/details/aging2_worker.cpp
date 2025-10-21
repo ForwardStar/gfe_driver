@@ -298,9 +298,7 @@ void Aging2Worker::main_execute_updates(){
             }
 
             COUT_DEBUG("Memory footprint: " << m_updates_mem_usage << " bytes");
-            // There is a bug in this project that release_memory is always true even if we set ``--aging_release_memory false``
-            // In deletion memory footprint, this will result in incorrect memory consumption calculation, so we disable it.
-            if (!configuration().is_delete_all()) delete m_updates[0];
+            delete m_updates[0];
             m_updates.pop();
         }
     }
