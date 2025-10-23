@@ -49,13 +49,14 @@ jobs:
           cd build
           ../configure --enable-optimize --disable-debug --with-radixgraph=../
           make clean && make -j2
+          mv gfe_driver ../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gfe-radixgraph-build
           path: |
-            build/gfe_driver
+            gfe_driver
             optimizer
             libRG.a
           if-no-files-found: error
@@ -100,9 +101,9 @@ jobs:
         run: |
           chmod +x gfe_driver optimizer
           ./optimizer datasets/com-lj.ungraph.el 8 > settings
-          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
+          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
           ./optimizer datasets/com-lj.ungraph.v 8 > settings
-          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
+          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
