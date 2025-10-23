@@ -291,7 +291,7 @@ Aging2Result Aging2Master::execute(){
     load_edges();
     if(parameters().m_measure_latency) prepare_latencies();
     do_run_experiment();
-    remove_vertices();
+    // remove_vertices();
 
     store_results();
     log_num_vtx_edges();

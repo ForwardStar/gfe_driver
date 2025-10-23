@@ -28,12 +28,16 @@ jobs:
 
       - name: Configure
         run: |
+          export CC=gcc-11
+          export CXX=g++-11
           git submodule update --init
           mkdir build && cd build
           autoreconf -iv ..
 
       - name: Build GFE Driver for RadixGraph
         run: |
+          export CC=gcc-11
+          export CXX=g++-11
           cd library/radixgraph/RadixGraph
           git submodule update --init --recursive
           cmake -S . -DCMAKE_BUILD_TYPE=Release
