@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y gcc-11 libnuma-dev cmake zlib1g-dev libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev
+          sudo apt-get install -y gcc-11 g++-11 libnuma-dev cmake zlib1g-dev libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev
 
       - name: Configure
         run: |
@@ -48,4 +48,4 @@ jobs:
           cd ../../../
           cd build
           ../configure --enable-optimize --disable-debug --with-radixgraph=../
-          make clean && make -j
+          make clean && make -jobs

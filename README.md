@@ -64,7 +64,7 @@ execute the updates specified by a [graphlog file](https://github.com/whatsthecr
 
 If you are root on an ubuntu machine, you can install the prerequisites via:
 ```sh
-sudo apt install gcc-11 libnuma-dev cmake zlib1g-dev libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev
+sudo apt install gcc-11 g++-11 libnuma-dev cmake zlib1g-dev libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev
 ```
 
 #### Configure
