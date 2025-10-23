@@ -49,6 +49,8 @@ jobs:
       
       - name: Build GFE Driver for RadixGraph
         run: |
+          export CC=gcc-11
+          export CXX=g++-11
           cd build
           ../configure --enable-optimize --disable-debug --with-radixgraph=../
           make clean && make -j2
