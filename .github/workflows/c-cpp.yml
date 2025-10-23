@@ -34,7 +34,7 @@ jobs:
           mkdir build && cd build
           autoreconf -iv ..
 
-      - name: Build GFE Driver for RadixGraph
+      - name: Compile RadixGraph library
         run: |
           export CC=gcc-11
           export CXX=g++-11
@@ -46,6 +46,30 @@ jobs:
           mv libRG.a ../../../
           mv optimizer ../../../
           cd ../../../
+      
+      - name: Build GFE Driver for RadixGraph
+        run: |
           cd build
           ../configure --enable-optimize --disable-debug --with-radixgraph=../
-          make clean && make -jobs
+          make clean && make -j2
+      
+      - name: Download LiveJournal dataset
+        run: |
+          mkdir datasets
+          cd datasets
+          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
+          gunzip com-lj.ungraph.txt.gz
+          cd ..
+      
+      - name: Generate graph properties for LiveJournal dataset
+        run: |
+          g++ generate_property_files.cpp -o generate_property_files
+          ./generate_property_files datasets/com-lj.ungraph.txt
+      
+      - name: Random insertions and deletions on LiveJournal dataset with RadixGraph
+        run: |
+          sh scripts/run_random.sh radixgraph
+      
+      - name: Graphalytics benchmarks on LiveJournal dataset with RadixGraph
+        run: |
+          sh scripts/run_analytics.sh radixgraph
