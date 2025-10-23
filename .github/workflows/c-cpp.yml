@@ -62,16 +62,21 @@ jobs:
           wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
           gunzip com-lj.ungraph.txt.gz
           cd ..
+          sed -i '/^#/d' datasets/*.txt
+          sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+          mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
       
       - name: Generate graph properties for LiveJournal dataset
         run: |
           g++ generate_property_files.cpp -o generate_property_files
-          ./generate_property_files datasets/com-lj.ungraph.txt
+          ./generate_property_files datasets/com-lj.ungraph.el
       
       - name: Random insertions and deletions on LiveJournal dataset with RadixGraph
         run: |
-          sh scripts/run_random.sh radixgraph
+          ./optimizer datasets/com-lj.ungraph.el 8 > settings
+          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
       
       - name: Graphalytics benchmarks on LiveJournal dataset with RadixGraph
         run: |
-          sh scripts/run_analytics.sh radixgraph
+          ./optimizer datasets/com-lj.ungraph.v 8 > settings
+          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
