@@ -1,0 +1,47 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc]
+        include:
+          - compiler: gcc
+            c_compiler: gcc
+            cpp_compiler: g++
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gcc-11 libnuma-dev cmake zlib1g-dev libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev
+
+      - name: Configure
+        run: |
+          git submodule update --init
+          mkdir build && cd build
+          autoreconf -iv ..
+
+      - name: Build GFE Driver for RadixGraph
+        run: |
+          cd library/radixgraph/RadixGraph
+          git submodule update --init --recursive
+          cmake -S . -DCMAKE_BUILD_TYPE=Release
+          make
+          g++ optimizer.cpp -o optimizer
+          mv libRG.a ../../../
+          mv optimizer ../../../
+          cd ../../../
+          cd build
+          ../configure --enable-optimize --disable-debug --with-radixgraph=../
+          make clean && make -j
