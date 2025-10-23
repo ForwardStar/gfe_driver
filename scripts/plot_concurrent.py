@@ -125,7 +125,7 @@ if not os.path.exists("./figures"):
 # ==================================
 # Make 1×3 plots
 # ==================================
-fig, axes = plt.subplots(1, 3, figsize=(18, 7), sharey=False)
+fig, axes = plt.subplots(1, 3, figsize=(22, 7), sharey=False)
 axes = axes.flatten()
 print("Please enter the path to the concurrent one-hop neighbor results.")
 print("E.g., if the path is 'results/radixgraph/concurrent-1-hop', just enter 'concurrent-1-hop'.")

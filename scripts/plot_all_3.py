@@ -86,7 +86,7 @@ if not os.path.exists("./figures"):
 # ==================================
 # Make 2×4 plots
 # ==================================
-fig, axes = plt.subplots(2, 4, figsize=(30, 10), sharey=False)
+fig, axes = plt.subplots(2, 4, figsize=(35, 10), sharey=False)
 axes = axes.flatten()
 
 for idx, (ax, caption) in enumerate(zip(axes, captions), start=1):
