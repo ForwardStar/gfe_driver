@@ -73,7 +73,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gfe-radixgraph-build
-          path: build
+          path: .
 
       - name: Install runtime dependencies
         run: |
@@ -98,11 +98,11 @@ jobs:
 
       - name: Random insertions and deletions (RadixGraph)
         run: |
-          chmod +x build/gfe_driver optimizer
+          chmod +x gfe_driver optimizer
           ./optimizer datasets/com-lj.ungraph.el 8 > settings
-          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
+          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
           ./optimizer datasets/com-lj.ungraph.v 8 > settings
-          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
+          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
