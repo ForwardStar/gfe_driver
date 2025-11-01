@@ -367,12 +367,17 @@ internally for development purposes.
 The database `output_results.sqlite3` will contain the final results. 
 
 ### Repeating the experiments
+Following are the full commands to repeat the experiments in the paper. Datasets will be downloaded to ``datasets`` folder and experimental results are logged into the ``results`` folder.
 
-These are the full commands to repeat the experiments in the paper:
+##### Prepare datasets
+Simply run:
+```sh
+sh scripts/prepare_datasets.sh
+```
 
 ##### Random Insertions and Deletions
 
-If you have downloaded the data via the ``downloader.py``, after you compile ``gfe_driver`` with the corresponding graph system, you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
+Firstly compile ``gfe_driver`` with the corresponding graph system (check the previous configure & compile sections), then you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
 ```sh
 sh scripts/run_random.sh radixgraph [threads]
 ```
@@ -448,7 +453,7 @@ Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``
 
 ##### Graph Analytics
 
-If you have downloaded the data via the ``downloader.py``, generate property files by:
+Generate property files by:
 ```sh
 g++ generate_property_files.cpp -o generate_property_files -O3
 ./generate_property_files datasets/twitter-2010.el
