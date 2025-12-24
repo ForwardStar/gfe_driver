@@ -96,6 +96,7 @@ jobs:
 
       - name: Random insertions and deletions (RadixGraph)
         run: |
+          chmod +x gfe_driver
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
 
       - name: Graphalytics benchmarks (RadixGraph)
@@ -192,6 +193,7 @@ jobs:
 
       - name: Random insertions and deletions (Teseo)
         run: |
+          chmod +x gfe_driver
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l teseo.13 -w 4
 
       - name: Graphalytics benchmarks (Teseo)
@@ -288,6 +290,7 @@ jobs:
 
       - name: Random insertions and deletions (Sortledton)
         run: |
+          chmod +x gfe_driver
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l sortledton.4 -w 4
 
       - name: Graphalytics benchmarks (Sortledton)
