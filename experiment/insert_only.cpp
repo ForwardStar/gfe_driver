@@ -326,7 +326,9 @@ chrono::microseconds InsertOnly::execute() {
         LOG("Vertex queries performed with " << m_num_threads << " threads in " << timer);
     }
     else {
+        m_interface->on_thread_init(0);
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+        m_interface->on_thread_destroy(0);
     }
 
     //////////////////////////////////////
@@ -374,7 +376,9 @@ chrono::microseconds InsertOnly::execute() {
         timer.stop();
         m_interface->updates_stop();
         LOG("Deletions performed with " << m_num_threads << " threads in " << timer);
+        m_interface->on_thread_init(0);
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (0 == m_interface->num_edges() ? "yes" : "no"));
+        m_interface->on_thread_destroy(0);
     }
     
     m_interface->on_main_destroy();
