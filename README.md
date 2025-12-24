@@ -282,7 +282,7 @@ The driver takes as input a list of options together with a graph, and emits the
 
 For RadixGraph, we need to compute the SORT configuration, so you need to execute optimizer before running the gfe_driver:
 ```sh
-./optimizer <dataset-path>.<v/el/txt> <#layers> > settings
+./optimizer <dataset-path>.<v/el/txt> <#layers>
 ```
 
 There are three kinds of experiments that can be executed:

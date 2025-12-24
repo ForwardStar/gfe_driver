@@ -60,3 +60,7 @@ libBVGT.a
 GTX-SIGMOD2025
 liblivegraph.so
 libgtx.a
+
+# SORT optimizer
+optimizer
+settings.txt
