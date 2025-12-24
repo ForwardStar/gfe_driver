@@ -100,12 +100,12 @@ jobs:
       - name: Random insertions and deletions (RadixGraph)
         run: |
           chmod +x gfe_driver optimizer
-          ./optimizer datasets/com-lj.ungraph.el 8 > settings
+          ./optimizer datasets/com-lj.ungraph.el 8
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
-          ./optimizer datasets/com-lj.ungraph.el 8 > settings
+          ./optimizer datasets/com-lj.ungraph.el 8
           ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
     
   build_teseo:

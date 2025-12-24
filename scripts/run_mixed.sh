@@ -10,7 +10,7 @@ if [ -n "$1" ]; then
     fi
     if [ -n "$2" ]; then
         if [ "$1" = "radixgraph" ]; then
-            ./optimizer datasets/graph500-24.v 8 > settings
+            ./optimizer datasets/graph500-24.v 8 
         fi
         if [ "$1" = "gtx" ]; then # If your machine memory is large enough, comment this
             mv graph500-24-1.0.graphlog graph500-24-1.0.graphlog-original
@@ -21,7 +21,7 @@ if [ -n "$1" ]; then
             mv graph500-24-1.0.graphlog-original graph500-24-1.0.graphlog
         fi
         if [ "$1" = "radixgraph" ]; then
-            ./optimizer datasets/uniform-24.v 8 > settings
+            ./optimizer datasets/uniform-24.v 8 
         fi
         if [ "$1" = "gtx" ]; then # If your machine memory is large enough, comment this
             mv uniform-24-1.0.graphlog uniform-24-1.0.graphlog-original
@@ -33,7 +33,7 @@ if [ -n "$1" ]; then
         fi
     else
         if [ "$1" = "radixgraph" ]; then
-            ./optimizer datasets/graph500-24.v 8 > settings
+            ./optimizer datasets/graph500-24.v 8 
         fi
         if [ "$1" = "gtx" ]; then # If your machine memory is large enough, comment this
             mv graph500-24-1.0.graphlog graph500-24-1.0.graphlog-original
@@ -44,7 +44,7 @@ if [ -n "$1" ]; then
             mv graph500-24-1.0.graphlog-original graph500-24-1.0.graphlog
         fi
         if [ "$1" = "radixgraph" ]; then
-            ./optimizer datasets/uniform-24.v 8 > settings
+            ./optimizer datasets/uniform-24.v 8 
         fi
         if [ "$1" = "gtx" ]; then # If your machine memory is large enough, comment this
             mv uniform-24-1.0.graphlog uniform-24-1.0.graphlog-original
@@ -56,6 +56,6 @@ if [ -n "$1" ]; then
         fi
     fi
     if [ "$1" = "radixgraph" ]; then
-        rm settings
+        rm settings.txt
     fi
 fi

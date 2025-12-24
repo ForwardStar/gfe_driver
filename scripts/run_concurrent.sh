@@ -11,7 +11,7 @@ if [ -n "$1" ]; then
         mkdir "results/$1/concurrent"
     fi
     if [ "$1" = "radixgraph" ]; then
-        ./optimizer datasets/dota-league.v 8 > settings
+        ./optimizer datasets/dota-league.v 8
     fi
     for a in 4 8 16 32
     do
@@ -58,7 +58,7 @@ if [ -n "$1" ]; then
         # done
     done
     # if [ "$1" = "radixgraph" ]; then
-    #     ./optimizer datasets/graph500-24.v 8 > settings
+    #     ./optimizer datasets/graph500-24.v 8
     # fi
     # for a in 4 8 16 32
     # do
@@ -105,6 +105,6 @@ if [ -n "$1" ]; then
     #     done
     # done
     if [ "$1" = "radixgraph" ]; then
-        rm settings
+        rm settings.txt
     fi
 fi
