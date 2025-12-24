@@ -134,7 +134,7 @@ namespace gfe::library {
     }
 
     void RadixGraphDriver::build() {
-        G->CreateSnapshots(true, true);
+        G->CreateSnapshots(true, false);
     }
 
     /*****************************************************************************
