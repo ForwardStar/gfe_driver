@@ -37,9 +37,7 @@ jobs:
           git submodule update --init --recursive
           cmake -S . -DCMAKE_BUILD_TYPE=Release
           make -j2
-          g++ optimizer.cpp -o optimizer
           mv libRG.a ../../../
-          mv optimizer ../../../
           cd ../../../
 
       - name: Build GFE Driver for RadixGraph
@@ -57,12 +55,11 @@ jobs:
           name: gfe-radixgraph-build
           path: |
             gfe_driver
-            optimizer
             libRG.a
           if-no-files-found: error
 
   test_radixgraph:
-    name: Test GFE Driver on LiveJournal Dataset
+    name: Test GFE Driver on LiveJournal Dataset (RadixGraph)
     runs-on: ubuntu-latest
     needs: build_radixgraph
 
@@ -99,13 +96,10 @@ jobs:
 
       - name: Random insertions and deletions (RadixGraph)
         run: |
-          chmod +x gfe_driver optimizer
-          ./optimizer datasets/com-lj.ungraph.el 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
-          ./optimizer datasets/com-lj.ungraph.v 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
     
   build_teseo:
@@ -157,12 +151,11 @@ jobs:
           name: gfe-teseo-build
           path: |
             gfe_driver
-            optimizer
             teseo/build/libteseo.a
           if-no-files-found: error
 
   test_teseo:
-    name: Test GFE Driver on LiveJournal Dataset
+    name: Test GFE Driver on LiveJournal Dataset (Teseo)
     runs-on: ubuntu-latest
     needs: build_teseo
 
@@ -199,13 +192,10 @@ jobs:
 
       - name: Random insertions and deletions (Teseo)
         run: |
-          chmod +x gfe_driver optimizer
-          ./optimizer datasets/com-lj.ungraph.el 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l teseo.13 -w 4
 
       - name: Graphalytics benchmarks (Teseo)
         run: |
-          ./optimizer datasets/com-lj.ungraph.v 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l teseo.13 -w 4 -r 4 -R 4 --blacklist cdlp
   
   build_sortledton:
@@ -257,12 +247,11 @@ jobs:
           name: gfe-sortledton-build
           path: |
             gfe_driver
-            optimizer
             sortledton/build/libsortledton.a
           if-no-files-found: error
 
   test_sortledton:
-    name: Test GFE Driver on LiveJournal Dataset
+    name: Test GFE Driver on LiveJournal Dataset (Sortledton)
     runs-on: ubuntu-latest
     needs: build_sortledton
 
@@ -299,11 +288,8 @@ jobs:
 
       - name: Random insertions and deletions (Sortledton)
         run: |
-          chmod +x gfe_driver optimizer
-          ./optimizer datasets/com-lj.ungraph.el 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.el -u -l sortledton.4 -w 4
 
       - name: Graphalytics benchmarks (Sortledton)
         run: |
-          ./optimizer datasets/com-lj.ungraph.v 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l sortledton.4 -w 4 -r 4 -R 4 --blacklist cdlp
