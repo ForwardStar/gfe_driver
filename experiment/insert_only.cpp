@@ -296,9 +296,6 @@ chrono::microseconds InsertOnly::execute() {
     m_interface->updates_stop();
     LOG("Insertions performed with " << m_num_threads << " threads in " << timer);
 
-    #if HAVE_RG
-        m_interface->print_stats();
-    #endif
     m_time_insert = timer.microseconds();
     m_num_build_invocations = build_service.num_invocations();
 
