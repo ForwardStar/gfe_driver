@@ -38,13 +38,6 @@ datasets.tar.gz
 # VSCode project files
 .vscode
 
-# Optimized Trie setting
-setting
-
-# Lib and optimizer
-libRG.a
-optimizer
-
 # Datasets
 datasets
 
