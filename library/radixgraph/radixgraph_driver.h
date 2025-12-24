@@ -224,8 +224,8 @@ namespace gfe::library {
          */
         void* handle_impl();
 
-        virtual void print_stats();
         virtual void set_max_vertex_id(uint64_t max_vertex_id);
+        virtual void set_expand_rate(double rate);
     };
 }
 

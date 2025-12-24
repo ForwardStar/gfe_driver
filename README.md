@@ -89,23 +89,13 @@ cmake -S . -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-This would generate ``libRG.a``. Also, compile the dynamic programming optimizer:
-```sh
-/path/to/compiler optimizer.cpp -o optimizer -O3
-```
-
-Then move them to the root directory:
-```sh
-mv libRG.a ../../../
-mv optimizer ../../../
-cd ../../../
-```
+This would generate ``libRG.a``.
 
 Now you can configure the driver with:
 
 ```sh
 cd build
-../configure --enable-optimize --disable-debug --with-radixgraph=../
+../configure --enable-optimize --disable-debug --with-radixgraph=../library/radixgraph/RadixGraph
 ```
 
 ##### Stinger
@@ -284,11 +274,6 @@ This will generate corresponding ``.v``, ``.e`` and ``.properties`` files in the
 ### Executing the driver
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We noted that several graph systems can raise OOM exceptions on a 256GB machine.
-
-For `RadixGraph`, we need to compute an optimal setting for the radix tree, so you need to execute `optimizer` before running the gfe_driver:
-```
-./optimizer <dataset-path>.<v/el/txt> <#layers> > settings
-```
 
 There are three kinds of experiments that can be executed:
 

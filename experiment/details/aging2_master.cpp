@@ -228,6 +228,11 @@ void Aging2Master::prepare_latencies(){
 void Aging2Master::do_run_experiment(){
     if (configuration().is_delete_all()) {
         LOG("[Aging2] Memory before: " << common::get_memory_footprint() << " MB. Release memory: " << (parameters().m_release_driver_memory ? "yes" : "no"));
+        #if defined(HAVE_RG)
+            // Reason: if strictly setting len(snapshot) == len(log), RG may not do log compaction during deletions,
+            // since the log segment will never be full. Setting expand rate to 1.5 is more practical for this extremely delete-heavy workload.
+            parameters().m_library->set_expand_rate(1.5);
+        #endif
     }
     LOG("[Aging2] Experiment started ...");
     if (configuration().is_mixed_workload()) {

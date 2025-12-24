@@ -12,12 +12,7 @@ namespace gfe::library {
      *                                                                           *
      *****************************************************************************/
     RadixGraphDriver::RadixGraphDriver(bool is_directed) : m_is_directed(is_directed), vertex_num(1), edge_num(0) {
-        std::ifstream fin("settings");
-        int d;
-        fin >> d;
-        std::vector<int> a(d);
-        for (auto& i : a) fin >> i;
-        G = new RadixGraph(d, a, _num_threads);
+        G = new RadixGraph(8, 32, _num_threads);
     }
 
     RadixGraphDriver::~RadixGraphDriver() {
@@ -34,11 +29,10 @@ namespace gfe::library {
 
     void RadixGraphDriver::on_main_init(int num_threads) {
         _num_threads = num_threads;
-        if (G) G->Init(_num_threads);
+        if (G) G->SetNumThreads(_num_threads);
     }
 
     void RadixGraphDriver::set_mixed_workloads(bool is_mixed_workloads) {
-        G->is_mixed_workloads = is_mixed_workloads;
         global_info.is_mixed_workloads = is_mixed_workloads;
     }
 
@@ -107,10 +101,10 @@ namespace gfe::library {
     bool RadixGraphDriver::get_two_hop_neighbors(uint64_t vertex_id) {
         std::vector<WeightedEdge> neighbors;
         int t = G->GetGlobalTimestamp(); // Get timestamp for consistency (1-hop and 2-hop neighbors should be in the same graph snapshot)
-        G->GetNeighbours(vertex_id, neighbors, false, t);
+        G->GetNeighbours((NodeID)vertex_id, neighbors, t);
         for (auto e : neighbors) {
             std::vector<WeightedEdge> neighbors2;
-            G->GetNeighboursByOffset(e.idx, neighbors2, false, t);
+            G->GetNeighboursByOffset(e.idx, neighbors2, t);
         }
         return true;
     }
@@ -374,24 +368,12 @@ namespace gfe::library {
         Brandes(G, max_iterations, G->vertex_index->cnt);
     }
 
-    void RadixGraphDriver::print_stats() {
-        auto info = G->GetDebugInfo();
-        if (info.empty()) {
-            return;
-        }
-        // Sort by degree
-        std::sort(info.begin(), info.end(), [](const RadixGraph::DebugInfo& a, const RadixGraph::DebugInfo& b) {
-            return a.deg > b.deg;
-        });
-        std::cout << "Top 10 vertices by degree:\n";
-        for (size_t i = 0; i < std::min(info.size(), size_t(10)); ++i) {
-            const auto& vertex_info = info[i];
-            std::cout << "Node " << vertex_info.node << " Deg " << vertex_info.deg << " Total time " << vertex_info.t_total << " Compaction time " << vertex_info.t_compact << "\n";
-        }
-    }
-
     void RadixGraphDriver::set_max_vertex_id(uint64_t max_vertex_id) {
         vertex_num = max_vertex_id + 1;
         G->vertex_index->RetrieveVertex(max_vertex_id, true);
+    }
+
+    void RadixGraphDriver::set_expand_rate(double rate) {
+        G->SetExpandRate(rate);
     }
 }
