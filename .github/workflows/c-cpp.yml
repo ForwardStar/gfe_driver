@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+  build_radixgraph:
     name: Build GFE Driver for RadixGraph
     runs-on: ubuntu-latest
 
@@ -61,10 +61,10 @@ jobs:
             libRG.a
           if-no-files-found: error
 
-  test:
+  test_radixgraph:
     name: Test GFE Driver on LiveJournal Dataset
     runs-on: ubuntu-latest
-    needs: build
+    needs: build_radixgraph
 
     steps:
       - name: Checkout repository
@@ -107,3 +107,205 @@ jobs:
         run: |
           ./optimizer datasets/com-lj.ungraph.v 8 > settings
           ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
+    
+  build_teseo:
+    name: Build GFE Driver for Teseo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gcc-11 g++-11 libnuma-dev cmake zlib1g-dev \
+            libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev autoconf automake
+
+      - name: Configure
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git submodule update --init
+          mkdir build && cd build
+          autoreconf -iv ..
+
+      - name: Compile Teseo library
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git clone https://github.com/cwida/teseo
+          cd teseo
+          autoreconf -iv
+          mkdir build
+          cd build
+          ../configure --enable-optimize --disable-debug
+          make -j2
+          mv teseo ../..
+
+      - name: Build GFE Driver for Teseo
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          cd build
+          ../configure --enable-optimize --disable-debug --with-teseo=../
+          make clean && make -j2
+          mv gfe_driver ../
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gfe-teseo-build
+          path: |
+            gfe_driver
+            optimizer
+            libteseo.a
+          if-no-files-found: error
+
+  test_teseo:
+    name: Test GFE Driver on LiveJournal Dataset
+    runs-on: ubuntu-latest
+    needs: build_teseo
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gfe-teseo-build
+          path: .
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+
+      - name: Download LiveJournal dataset
+        run: |
+          mkdir datasets
+          cd datasets
+          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
+          gunzip com-lj.ungraph.txt.gz
+          cd ..
+          sed -i '/^#/d' datasets/*.txt
+          sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+          mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
+
+      - name: Generate graph properties
+        run: |
+          g++ generate_property_files.cpp -o generate_property_files -O2
+          ./generate_property_files datasets/com-lj.ungraph.el
+
+      - name: Random insertions and deletions (Teseo)
+        run: |
+          chmod +x gfe_driver optimizer
+          ./optimizer datasets/com-lj.ungraph.el 8 > settings
+          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l teseo.13 -w 4
+
+      - name: Graphalytics benchmarks (Teseo)
+        run: |
+          ./optimizer datasets/com-lj.ungraph.v 8 > settings
+          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l teseo.13 -w 4 -r 4 -R 4 --blacklist cdlp
+  
+  build_sortledton:
+    name: Build GFE Driver for SortLedton
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gcc-11 g++-11 libnuma-dev cmake zlib1g-dev \
+            libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev autoconf automake
+
+      - name: Configure
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git submodule update --init
+          mkdir build && cd build
+          autoreconf -iv ..
+
+      - name: Compile Sortledton library
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git clone https://gitlab.db.in.tum.de/per.fuchs/sortledton
+          cd sortledton
+          sed -i '11d' CMakeLists.txt
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make sortledton
+          mv libsortledton.a ../..
+
+      - name: Build GFE Driver for Sortledton
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          cd build
+          ../configure --enable-optimize --disable-debug --with-sortledton=../
+          make clean && make -j2
+          mv gfe_driver ../
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gfe-sortledton-build
+          path: |
+            gfe_driver
+            optimizer
+            libsortledton.a
+          if-no-files-found: error
+
+  test_sortledton:
+    name: Test GFE Driver on LiveJournal Dataset
+    runs-on: ubuntu-latest
+    needs: build_sortledton
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gfe-sortledton-build
+          path: .
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+
+      - name: Download LiveJournal dataset
+        run: |
+          mkdir datasets
+          cd datasets
+          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
+          gunzip com-lj.ungraph.txt.gz
+          cd ..
+          sed -i '/^#/d' datasets/*.txt
+          sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+          mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
+
+      - name: Generate graph properties
+        run: |
+          g++ generate_property_files.cpp -o generate_property_files -O2
+          ./generate_property_files datasets/com-lj.ungraph.el
+
+      - name: Random insertions and deletions (Sortledton)
+        run: |
+          chmod +x gfe_driver optimizer
+          ./optimizer datasets/com-lj.ungraph.el 8 > settings
+          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l sortledton.4 -w 4
+
+      - name: Graphalytics benchmarks (Sortledton)
+        run: |
+          ./optimizer datasets/com-lj.ungraph.v 8 > settings
+          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l sortledton.4 -w 4 -r 4 -R 4 --blacklist cdlp

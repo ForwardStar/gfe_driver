@@ -308,6 +308,7 @@ chrono::microseconds InsertOnly::execute() {
     if(m_time_build > 0){
         LOG("Build time: " << timer);
     }
+    m_interface->on_thread_destroy(0);
     m_num_build_invocations++;
 
     if (configuration().is_insert_vertex_only()) {
@@ -376,7 +377,6 @@ chrono::microseconds InsertOnly::execute() {
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (0 == m_interface->num_edges() ? "yes" : "no"));
     }
     
-    m_interface->on_thread_destroy(0);
     m_interface->on_main_destroy();
 
     return chrono::microseconds{ m_time_insert + m_time_build };
