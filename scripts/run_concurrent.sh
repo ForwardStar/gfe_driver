@@ -10,6 +10,9 @@ if [ -n "$1" ]; then
     if [ ! -d "results/$1/concurrent" ]; then
         mkdir "results/$1/concurrent"
     fi
+    if [ "$1" = "radixgraph" ]; then
+        ./optimizer datasets/dota-league.v 8 > settings
+    fi
     for a in 4 8 16 32
     do
         # ATTEMPT=1
@@ -101,4 +104,7 @@ if [ -n "$1" ]; then
     #         sleep $RETRY_DELAY
     #     done
     # done
+    if [ "$1" = "radixgraph" ]; then
+        rm settings
+    fi
 fi

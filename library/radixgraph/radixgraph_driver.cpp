@@ -12,7 +12,12 @@ namespace gfe::library {
      *                                                                           *
      *****************************************************************************/
     RadixGraphDriver::RadixGraphDriver(bool is_directed) : m_is_directed(is_directed), vertex_num(1), edge_num(0) {
-        G = new RadixGraph(8, 32, _num_threads);
+        std::ifstream fin("settings");
+        int d;
+        fin >> d;
+        std::vector<int> a(d);
+        for (auto& i : a) fin >> i;
+        G = new RadixGraph(a, _num_threads);
     }
 
     RadixGraphDriver::~RadixGraphDriver() {

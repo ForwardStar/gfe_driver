@@ -89,7 +89,12 @@ cmake -S . -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
-This would generate ``libRG.a``.
+This would generate ``libRG.a``. Also, compile the SORT optimizer:
+```sh
+g++ optimizer.cpp -o optimizer -O3
+mv optimizer ../../../
+cd ../../../
+```
 
 Now you can configure the driver with:
 
@@ -274,6 +279,11 @@ This will generate corresponding ``.v``, ``.e`` and ``.properties`` files in the
 ### Executing the driver
 
 The driver takes as input a list of options together with a graph, and emits the results into a sqlite3 database. We noted that several graph systems can raise OOM exceptions on a 256GB machine.
+
+For RadixGraph, we need to compute the SORT configuration, so you need to execute optimizer before running the gfe_driver:
+```sh
+./optimizer <dataset-path>.<v/el/txt> <#layers> > settings
+```
 
 There are three kinds of experiments that can be executed:
 
