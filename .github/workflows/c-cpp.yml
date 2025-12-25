@@ -454,7 +454,7 @@ jobs:
           name: gfe-gtx-build
           path: |
             gfe_driver
-            GTX-SIGMOD2025/build/libGTX.so
+            GTX-SIGMOD2025/build/libgtx.so
           if-no-files-found: error
 
   test_gtx:
