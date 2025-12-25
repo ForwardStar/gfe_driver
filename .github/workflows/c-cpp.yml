@@ -301,3 +301,205 @@ jobs:
       - name: Graphalytics benchmarks (Sortledton)
         run: |
           ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l sortledton.4 -w 4 -r 4 -R 4 --blacklist cdlp
+      
+  build_spruce:
+    name: Build GFE Driver for Spruce
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gcc-11 g++-11 libnuma-dev cmake zlib1g-dev \
+            libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev autoconf automake
+
+      - name: Configure
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git submodule update --init
+          mkdir build && cd build
+          autoreconf -iv ..
+
+      - name: Download Spruce library
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          wget -c https://github.com/Stardust-SJF/gfe_driver/releases/download/v2.0.0/libBVGT_stable.a
+          mv libBVGT_stable.a libBVGT.a
+      
+      - name: Build junction dependency
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git clone https://github.com/preshing/junction.git
+          git clone https://github.com/preshing/turf.git
+          cd junction
+          mkdir build && cd build
+          cmake -DJUNCTION_WITH_SAMPLES=OFF ..
+          sudo make install
+
+      - name: Build GFE Driver for Spruce
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          cd build
+          ../configure --enable-optimize --disable-debug --with-bvgt=../
+          make clean && make -j2
+          mv gfe_driver ../
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gfe-spruce-build
+          path: |
+            gfe_driver
+            libBVGT.a
+          if-no-files-found: error
+
+  test_spruce:
+    name: Test GFE Driver on LiveJournal Dataset (Spruce)
+    runs-on: ubuntu-latest
+    needs: build_spruce
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gfe-spruce-build
+          path: .
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+
+      - name: Download LiveJournal dataset
+        run: |
+          mkdir datasets
+          cd datasets
+          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
+          gunzip com-lj.ungraph.txt.gz
+          cd ..
+          sed -i '/^#/d' datasets/*.txt
+          sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+          mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
+
+      - name: Generate graph properties
+        run: |
+          g++ generate_property_files.cpp -o generate_property_files -O2
+          ./generate_property_files datasets/com-lj.ungraph.el
+
+      - name: Random insertions and deletions (Spruce)
+        run: |
+          chmod +x gfe_driver
+          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l bvgt -w 4
+
+      - name: Graphalytics benchmarks (Spruce)
+        run: |
+          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l bvgt -w 4 -r 4 -R 4 --blacklist cdlp
+    
+  build_gtx:
+    name: Build GFE Driver for GTX
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gcc-11 g++-11 libnuma-dev cmake zlib1g-dev \
+            libpapi-dev libjemalloc-dev python3 libtbb-dev libevent-dev libboost-all-dev autoconf automake
+
+      - name: Configure
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git submodule update --init
+          mkdir build && cd build
+          autoreconf -iv ..
+
+      - name: Compile GTX library
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          git clone https://github.com/Jiboxiake/GTX-SIGMOD2025
+          cd GTX-SIGMOD2025
+          git submodule update --init --recursive
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j
+
+      - name: Build GFE Driver for GTX
+        run: |
+          export CC=gcc-11
+          export CXX=g++-11
+          cd build
+          ../configure --enable-optimize --disable-debug --with-gtx=../GTX-SIGMOD2025/build
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../GTX-SIGMOD2025/build
+          make clean && make -j2
+          mv gfe_driver ../
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gfe-gtx-build
+          path: |
+            gfe_driver
+            GTX-SIGMOD2025/build/libGTX.so
+          if-no-files-found: error
+
+  test_gtx:
+    name: Test GFE Driver on LiveJournal Dataset (GTX)
+    runs-on: ubuntu-latest
+    needs: build_gtx
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: gfe-gtx-build
+          path: .
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+
+      - name: Download LiveJournal dataset
+        run: |
+          mkdir datasets
+          cd datasets
+          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
+          gunzip com-lj.ungraph.txt.gz
+          cd ..
+          sed -i '/^#/d' datasets/*.txt
+          sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
+          mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
+
+      - name: Generate graph properties
+        run: |
+          g++ generate_property_files.cpp -o generate_property_files -O2
+          ./generate_property_files datasets/com-lj.ungraph.el
+
+      - name: Random insertions and deletions (GTX)
+        run: |
+          chmod +x gfe_driver
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../GTX-SIGMOD2025/build
+          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l gtx -w 4
+
+      - name: Graphalytics benchmarks (GTX)
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../GTX-SIGMOD2025/build
+          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l gtx -w 4 -r 4 -R 4 --blacklist cdlp
