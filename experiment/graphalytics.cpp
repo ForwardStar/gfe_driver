@@ -146,41 +146,47 @@ std::chrono::microseconds GraphalyticsSequential::execute(){
         // * And we run neighbor queries here.
         uint64_t max_vertex_id = 0;
         auto dataset = configuration().get_path_graph();
-        if (dataset.find("graph500") != std::string::npos) {
+        if (dataset.find("graph500-24") != std::string::npos) {
             max_vertex_id = 16777215;
         }
-        if (dataset.find("uniform") != std::string::npos) {
+        if (dataset.find("uniform-24") != std::string::npos) {
             max_vertex_id = 13306413;
         }
         if (dataset.find("dota-league") != std::string::npos) {
             max_vertex_id = 317727;
         }
-
-        // Sample vertices to be queried
-        if (candidate_vertices.size() == 0) {
-            candidate_vertices.resize(1000);
-            std::mt19937 rng(42);
-            std::uniform_int_distribution<uint64_t> dist(0, max_vertex_id);
-            for (int i = 0; i < 1000; i++) {
-                candidate_vertices[i] = dist(rng);
-            }
-        }
         
         // Get neighbors
         #if RUN_GET_NEIGHBORS
             #if defined(HAVE_GTX)
+                if (candidate_vertices.size() == 0) {
+                    candidate_vertices.resize(max_vertex_id + 1);
+                    for (uint64_t i = 0; i <= max_vertex_id; i++) {
+                        candidate_vertices[i] = i;
+                    }
+                }
                 // GTX provides its own interface
                 interface->one_hop_neighbors(candidate_vertices);
             #else
                 #pragma omp parallel for
-                for (uint64_t i = 0; i < 1000; i++) {
-                    interface->get_neighbors(candidate_vertices[i]);
+                for (uint64_t i = 0; i <= max_vertex_id; i++) {
+                    interface->get_neighbors(i);
                 }
             #endif
         #endif
         
         // Get 2-hop neighbors
         #if RUN_TWO_HOP_NEIGHBORS
+            // 2-hop query is too expensive, so we only sample 1000 vertices to query
+            if (candidate_vertices.size() == 0) {
+                candidate_vertices.resize(1000);
+                std::mt19937 rng(42);
+                std::uniform_int_distribution<uint64_t> dist(0, max_vertex_id);
+                for (int i = 0; i < 1000; i++) {
+                    candidate_vertices[i] = dist(rng);
+                }
+            }
+
             #if defined(HAVE_GTX)
                 // GTX provides its own interface
                 interface->two_hop_neighbors(candidate_vertices);

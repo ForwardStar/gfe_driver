@@ -59,7 +59,10 @@ def read_results(result_path, folder_name, one_hop=True):
                     if "read-threads" in file and line.startswith("Graphaltyics finished."):
                         tm = float(line.split()[-2])
                         op = int(line.split()[-7])
-                        op *= 1000
+                        if not one_hop:
+                            op *= 1000
+                        else:
+                            op *= 317727
                         if one_hop:
                             one_hop_throughputs[idx][idx2] = op / tm
                         else:
