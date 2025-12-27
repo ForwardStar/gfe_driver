@@ -97,16 +97,19 @@ jobs:
       - name: Edge insertions and deletions (RadixGraph)
         run: |
           chmod +x build/gfe_driver optimizer
+          ./optimizer datasets/com-lj.ungraph.el 8
           ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
       
       - name: Vertex insertions and deletions (RadixGraph)
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
+          ./optimizer datasets/com-lj.ungraph.vertices.el 8
           ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l radixgraph -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
+          ./optimizer datasets/com-lj.ungraph.v 8
           ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
     
   build_teseo:
@@ -510,6 +513,7 @@ jobs:
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./GTX-SIGMOD2025/build
           ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l gtx -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (GTX)
