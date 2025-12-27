@@ -91,19 +91,23 @@ jobs:
 
       - name: Generate graph properties
         run: |
-          g++ generate_property_files.cpp -o generate_property_files -O2
+          g++ scripts/generate_property_files.cpp -o generate_property_files -O2
           ./generate_property_files datasets/com-lj.ungraph.el
 
-      - name: Random insertions and deletions (RadixGraph)
+      - name: Edge insertions and deletions (RadixGraph)
         run: |
           chmod +x gfe_driver optimizer
-          ./optimizer datasets/com-lj.ungraph.el 8
-          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
+          sh scripts/run_random.sh radixgraph 4
+      
+      - name: Vertex insertions and deletions (RadixGraph)
+        run: |
+          g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
+          ./create_vertex_ops
+          sh scripts/run_vertex.sh radixgraph 4
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
-          ./optimizer datasets/com-lj.ungraph.el 8
-          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
+          sh scripts/run_analytics.sh radixgraph 4 4
     
   build_teseo:
     name: Build GFE Driver for Teseo
@@ -187,17 +191,23 @@ jobs:
 
       - name: Generate graph properties
         run: |
-          g++ generate_property_files.cpp -o generate_property_files -O2
+          g++ scripts/generate_property_files.cpp -o generate_property_files -O2
           ./generate_property_files datasets/com-lj.ungraph.el
 
-      - name: Random insertions and deletions (Teseo)
+      - name: Edge insertions and deletions (Teseo)
         run: |
           chmod +x gfe_driver
-          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l teseo.13 -w 4
+          sh scripts/run_random.sh teseo.13 4
+      
+      - name: Vertex insertions and deletions (Teseo)
+        run: |
+          g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
+          ./create_vertex_ops
+          sh scripts/run_vertex.sh teseo.13 4
 
       - name: Graphalytics benchmarks (Teseo)
         run: |
-          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l teseo.13 -w 4 -r 4 -R 4 --blacklist cdlp
+          sh scripts/run_analytics.sh teseo.13 4 4
   
   build_sortledton:
     name: Build GFE Driver for Sortledton
@@ -281,17 +291,23 @@ jobs:
 
       - name: Generate graph properties
         run: |
-          g++ generate_property_files.cpp -o generate_property_files -O2
+          g++ scripts/generate_property_files.cpp -o generate_property_files -O2
           ./generate_property_files datasets/com-lj.ungraph.el
 
-      - name: Random insertions and deletions (Sortledton)
+      - name: Edge insertions and deletions (Sortledton)
         run: |
           chmod +x gfe_driver
-          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l sortledton.4 -w 4
+          sh scripts/run_random.sh sortledton.4 4
+      
+      - name: Vertex insertions and deletions (Sortledton)
+        run: |
+          g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
+          ./create_vertex_ops
+          sh scripts/run_vertex.sh sortledton.4 4
 
       - name: Graphalytics benchmarks (Sortledton)
         run: |
-          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l sortledton.4 -w 4 -r 4 -R 4 --blacklist cdlp
+          sh scripts/run_analytics.sh sortledton.4 4 4
       
   build_spruce:
     name: Build GFE Driver for Spruce
@@ -381,17 +397,23 @@ jobs:
 
       - name: Generate graph properties
         run: |
-          g++ generate_property_files.cpp -o generate_property_files -O2
+          g++ scripts/generate_property_files.cpp -o generate_property_files -O2
           ./generate_property_files datasets/com-lj.ungraph.el
 
-      - name: Random insertions and deletions (Spruce)
+      - name: Edge insertions and deletions (Spruce)
         run: |
           chmod +x gfe_driver
-          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l bvgt -w 4
+          sh scripts/run_random.sh bvgt 4
+      
+      - name: Vertex insertions and deletions (Spruce)
+        run: |
+          g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
+          ./create_vertex_ops
+          sh scripts/run_vertex.sh bvgt 4
 
       - name: Graphalytics benchmarks (Spruce)
         run: |
-          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l bvgt -w 4 -r 4 -R 4 --blacklist cdlp
+          sh scripts/run_analytics.sh bvgt 4 4
     
   build_gtx:
     name: Build GFE Driver for GTX
@@ -475,16 +497,22 @@ jobs:
 
       - name: Generate graph properties
         run: |
-          g++ generate_property_files.cpp -o generate_property_files -O2
+          g++ scripts/generate_property_files.cpp -o generate_property_files -O2
           ./generate_property_files datasets/com-lj.ungraph.el
 
-      - name: Random insertions and deletions (GTX)
+      - name: Edge insertions and deletions (GTX)
         run: |
           chmod +x gfe_driver
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./GTX-SIGMOD2025/build
-          ./gfe_driver -G datasets/com-lj.ungraph.el -u -l gtx -w 4
+          sh scripts/run_random.sh gtx 4
+      
+      - name: Vertex insertions and deletions (GTX)
+        run: |
+          g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
+          ./create_vertex_ops
+          sh scripts/run_vertex.sh gtx 4
 
       - name: Graphalytics benchmarks (GTX)
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./GTX-SIGMOD2025/build
-          ./gfe_driver -G datasets/com-lj.ungraph.properties -u -l gtx -w 4 -r 4 -R 4 --blacklist cdlp
+          sh scripts/run_analytics.sh gtx 4 4

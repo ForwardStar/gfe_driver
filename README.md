@@ -267,7 +267,7 @@ mv datasets/com-orkut.ungraph.txt datasets/com-orkut.ungraph.el
 
 Also, remove duplicate edges in `twitter` dataset by:
 ```sh
-g++ remove_duplicate_edges.cpp -o remove_duplicate_edges -O3
+g++ scripts/remove_duplicate_edges.cpp -o remove_duplicate_edges -O3
 ./remove_duplicate_edges datasets/twitter-2010.el
 ```
 
@@ -281,7 +281,7 @@ GFE driver supports two types of graph formats:
 
 To convert a plain edge list file ``.el`` to the separated format, you can use the provided script:
 ```sh
-g++ generate_property_files.cpp -o generate_property_files -O3
+g++ scripts/generate_property_files.cpp -o generate_property_files -O3
 ./generate_property_files /path/to/graph.el
 ```
 
@@ -381,6 +381,12 @@ Simply run:
 sh scripts/prepare_datasets.sh
 ```
 
+Remove duplicate edges in `twitter` dataset by:
+```sh
+g++ scripts/remove_duplicate_edges.cpp -o remove_duplicate_edges -O3
+./remove_duplicate_edges datasets/twitter-2010.el
+```
+
 ##### Random Insertions and Deletions
 
 Firstly compile ``gfe_driver`` with the corresponding graph system (check the previous configure & compile sections), then you can run the corresponding scripts to reproduce the results. For ``RadixGraph``, simply run:
@@ -461,7 +467,7 @@ Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``
 
 Generate property files by:
 ```sh
-g++ generate_property_files.cpp -o generate_property_files -O3
+g++ scripts/generate_property_files.cpp -o generate_property_files -O3
 ./generate_property_files datasets/twitter-2010.el
 ./generate_property_files datasets/com-lj.ungraph.el
 ./generate_property_files datasets/com-orkut.ungraph.el

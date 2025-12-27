@@ -68,6 +68,10 @@ int main() {
         } else if (file_path.find(".el") != std::string::npos) {
             edges = readEdgesFile(file_path);
         }
+        if (edges.empty()) {
+            // Skipped
+            continue;
+        }
         // Substitute .v to .el, add .vertices before .el
         std::string output_file = file_path;
         if (output_file.find(".v") != std::string::npos) {
