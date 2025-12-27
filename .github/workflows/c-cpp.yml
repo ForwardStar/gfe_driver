@@ -97,17 +97,17 @@ jobs:
       - name: Edge insertions and deletions (RadixGraph)
         run: |
           chmod +x build/gfe_driver optimizer
-          sh scripts/run_random.sh radixgraph 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l radixgraph -w 4
       
       - name: Vertex insertions and deletions (RadixGraph)
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
-          sh scripts/run_vertex.sh radixgraph 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l radixgraph -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (RadixGraph)
         run: |
-          sh scripts/run_analytics.sh radixgraph 4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l radixgraph -w 4 -r 4 -R 4 --blacklist cdlp
     
   build_teseo:
     name: Build GFE Driver for Teseo
@@ -197,17 +197,17 @@ jobs:
       - name: Edge insertions and deletions (Teseo)
         run: |
           chmod +x build/gfe_driver
-          sh scripts/run_random.sh teseo.13 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l teseo.13 -w 4
       
       - name: Vertex insertions and deletions (Teseo)
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
-          sh scripts/run_vertex.sh teseo.13 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l teseo.13 -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (Teseo)
         run: |
-          sh scripts/run_analytics.sh teseo.13 4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l teseo.13 -w 4 -r 4 -R 4 --blacklist cdlp
   
   build_sortledton:
     name: Build GFE Driver for Sortledton
@@ -297,17 +297,17 @@ jobs:
       - name: Edge insertions and deletions (Sortledton)
         run: |
           chmod +x build/gfe_driver
-          sh scripts/run_random.sh sortledton.4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l sortledton.4 -w 4
       
       - name: Vertex insertions and deletions (Sortledton)
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
-          sh scripts/run_vertex.sh sortledton.4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l sortledton.4 -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (Sortledton)
         run: |
-          sh scripts/run_analytics.sh sortledton.4 4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l sortledton.4 -w 4 -r 4 -R 4 --blacklist cdlp
       
   build_spruce:
     name: Build GFE Driver for Spruce
@@ -403,17 +403,17 @@ jobs:
       - name: Edge insertions and deletions (Spruce)
         run: |
           chmod +x build/gfe_driver
-          sh scripts/run_random.sh bvgt 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l bvgt -w 4
       
       - name: Vertex insertions and deletions (Spruce)
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
-          sh scripts/run_vertex.sh bvgt 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l bvgt -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (Spruce)
         run: |
-          sh scripts/run_analytics.sh bvgt 4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l bvgt -w 4 -r 4 -R 4 --blacklist cdlp
     
   build_gtx:
     name: Build GFE Driver for GTX
@@ -504,15 +504,15 @@ jobs:
         run: |
           chmod +x build/gfe_driver
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./GTX-SIGMOD2025/build
-          sh scripts/run_random.sh gtx 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.el -u -l gtx -w 4
       
       - name: Vertex insertions and deletions (GTX)
         run: |
           g++ scripts/create_vertex_ops.cpp -o create_vertex_ops -O3
           ./create_vertex_ops
-          sh scripts/run_vertex.sh gtx 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.vertices.el -u -l gtx -w 4 --insert_vertex_only true
 
       - name: Graphalytics benchmarks (GTX)
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./GTX-SIGMOD2025/build
-          sh scripts/run_analytics.sh gtx 4 4
+          ./build/gfe_driver -G datasets/com-lj.ungraph.properties -u -l gtx -w 4 -r 4 -R 4 --blacklist cdlp
