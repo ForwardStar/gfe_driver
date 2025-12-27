@@ -96,7 +96,7 @@ jobs:
 
       - name: Edge insertions and deletions (RadixGraph)
         run: |
-          chmod +x gfe_driver optimizer
+          chmod +x build/gfe_driver optimizer
           sh scripts/run_random.sh radixgraph 4
       
       - name: Vertex insertions and deletions (RadixGraph)
@@ -196,7 +196,7 @@ jobs:
 
       - name: Edge insertions and deletions (Teseo)
         run: |
-          chmod +x gfe_driver
+          chmod +x build/gfe_driver
           sh scripts/run_random.sh teseo.13 4
       
       - name: Vertex insertions and deletions (Teseo)
@@ -296,7 +296,7 @@ jobs:
 
       - name: Edge insertions and deletions (Sortledton)
         run: |
-          chmod +x gfe_driver
+          chmod +x build/gfe_driver
           sh scripts/run_random.sh sortledton.4 4
       
       - name: Vertex insertions and deletions (Sortledton)
@@ -402,7 +402,7 @@ jobs:
 
       - name: Edge insertions and deletions (Spruce)
         run: |
-          chmod +x gfe_driver
+          chmod +x build/gfe_driver
           sh scripts/run_random.sh bvgt 4
       
       - name: Vertex insertions and deletions (Spruce)
@@ -502,7 +502,7 @@ jobs:
 
       - name: Edge insertions and deletions (GTX)
         run: |
-          chmod +x gfe_driver
+          chmod +x build/gfe_driver
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./GTX-SIGMOD2025/build
           sh scripts/run_random.sh gtx 4
       

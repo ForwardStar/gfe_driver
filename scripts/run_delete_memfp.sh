@@ -28,6 +28,8 @@ if [ -n "$1" ]; then
         ./build/gfe_driver -G datasets/uniform-24.properties -u --log ./uniform-24-delete.graphlog -l $1 -w $(nproc) --aging_timeout 48h --aging_memfp --aging_memfp_physical --aging_release_memory false --delete_all true > results/$1/delete-only/uniform-24-mixed-$1
     fi
     if [ "$1" = "radixgraph" ]; then
-        rm settings.txt
+        if [ -e "settings.txt" ]; then
+            rm settings.txt
+        fi
     fi
 fi

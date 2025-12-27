@@ -396,13 +396,6 @@ sh scripts/run_random.sh radixgraph [threads]
 
 Repeat the process by replacing ``radixgraph`` to ``teseo.13``, ``sortledton.4``, ``bvgt`` and ``gtx``.
 
-##### Sequential Insertions and Deletions
-
-Repeat the same procedure with ``run_sequential.sh``:
-```sh
-sh scripts/run_sequential.sh radixgraph [threads]
-```
-
 ##### Vertex Insertions Only
 
 To generate vertex operations, compile:

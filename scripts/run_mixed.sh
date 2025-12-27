@@ -56,6 +56,8 @@ if [ -n "$1" ]; then
         fi
     fi
     if [ "$1" = "radixgraph" ]; then
-        rm settings.txt
+        if [ -e "settings.txt" ]; then
+            rm settings.txt
+        fi
     fi
 fi
