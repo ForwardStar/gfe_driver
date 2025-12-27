@@ -79,15 +79,11 @@ jobs:
       - name: Install runtime dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev python3
 
       - name: Download LiveJournal dataset
         run: |
-          mkdir datasets
-          cd datasets
-          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
-          gunzip com-lj.ungraph.txt.gz
-          cd ..
+          python3 downloader.py --download-lj-only
           sed -i '/^#/d' datasets/*.txt
           sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
           mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
@@ -178,15 +174,11 @@ jobs:
       - name: Install runtime dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev python3
 
       - name: Download LiveJournal dataset
         run: |
-          mkdir datasets
-          cd datasets
-          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
-          gunzip com-lj.ungraph.txt.gz
-          cd ..
+          python3 downloader.py --download-lj-only
           sed -i '/^#/d' datasets/*.txt
           sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
           mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
@@ -275,15 +267,11 @@ jobs:
       - name: Install runtime dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev python3
 
       - name: Download LiveJournal dataset
         run: |
-          mkdir datasets
-          cd datasets
-          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
-          gunzip com-lj.ungraph.txt.gz
-          cd ..
+          python3 downloader.py --download-lj-only
           sed -i '/^#/d' datasets/*.txt
           sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
           mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
@@ -378,15 +366,11 @@ jobs:
       - name: Install runtime dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev python3
 
       - name: Download LiveJournal dataset
         run: |
-          mkdir datasets
-          cd datasets
-          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
-          gunzip com-lj.ungraph.txt.gz
-          cd ..
+          python3 downloader.py --download-lj-only
           sed -i '/^#/d' datasets/*.txt
           sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
           mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
@@ -475,15 +459,11 @@ jobs:
       - name: Install runtime dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev
+          sudo apt-get install -y g++-11 wget libnuma-dev libtbb-dev libpapi-dev libjemalloc-dev python3
 
       - name: Download LiveJournal dataset
         run: |
-          mkdir datasets
-          cd datasets
-          wget https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz
-          gunzip com-lj.ungraph.txt.gz
-          cd ..
+          python3 downloader.py --download-lj-only
           sed -i '/^#/d' datasets/*.txt
           sed -i -E 's/[[:space:]]+/ /g' datasets/*.txt
           mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el

@@ -101,6 +101,11 @@ if __name__ == "__main__":
                     "https://snap.stanford.edu/data/bigdata/communities/com-orkut.ungraph.txt.gz",
                     "https://snap.stanford.edu/data/bigdata/communities/com-friendster.ungraph.txt.gz",
                     "https://snap.stanford.edu/data/twitter-2010.txt.gz"]
+
+    for argv in sys.argv:
+        if argv == "--download-lj-only":
+            DATASETS_URL = ["https://snap.stanford.edu/data/bigdata/communities/com-lj.ungraph.txt.gz"]
+
     if os.path.isdir("datasets") is False:
         print("Downloading datasets...")
         if os.path.isdir("datasets") is False:

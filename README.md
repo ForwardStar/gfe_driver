@@ -245,9 +245,14 @@ In our experiments, we used the following input graphs and data sets:
 
 A complete image of all datasets used in the experiments can be downloaded here: [dota-league, graph500-SF, and uniform-SF](https://zenodo.org/record/3966439), [livejournal, orkut, twitter, and friendster](https://snap.stanford.edu/data/index.html).
 
-Or you can simply download all datasets by (requires some time to download and extract the datasets):
+Or you can simply download all datasets by (requires hours to download and extract the datasets):
 ```sh
 python3 downloader.py
+```
+
+Alternatively, if you only want to perform a minimal reproduction with `livejournal` dataset, run:
+```sh
+python3 downloader.py --download-lj-only
 ```
 
 For `livejournal`, `orkut`, `twitter` and `com-friendster`, you need to remove the comment lines and reformat them before running:
