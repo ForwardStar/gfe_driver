@@ -49,14 +49,14 @@ jobs:
           cd build
           ../configure --enable-optimize --disable-debug --with-radixgraph=../
           make clean && make -j2
-          mv gfe_driver ../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gfe-radixgraph-build
           path: |
-            gfe_driver
+            build/gfe_driver
+            build/Makefile
             optimizer
             libRG.a
           if-no-files-found: error
@@ -150,14 +150,14 @@ jobs:
           cd build
           ../configure --enable-optimize --disable-debug --with-teseo=../teseo/build
           make clean && make -j2
-          mv gfe_driver ../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gfe-teseo-build
           path: |
-            gfe_driver
+            build/gfe_driver
+            build/Makefile
             teseo/build/libteseo.a
           if-no-files-found: error
 
@@ -250,14 +250,14 @@ jobs:
           cd build
           ../configure --enable-optimize --disable-debug --with-sortledton=../sortledton/build
           make clean && make -j2
-          mv gfe_driver ../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gfe-sortledton-build
           path: |
-            gfe_driver
+            build/gfe_driver
+            build/Makefile
             sortledton/build/libsortledton.a
           if-no-files-found: error
 
@@ -356,14 +356,14 @@ jobs:
           cd build
           ../configure --enable-optimize --disable-debug --with-bvgt=../
           make clean && make -j2
-          mv gfe_driver ../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gfe-spruce-build
           path: |
-            gfe_driver
+            build/gfe_driver
+            build/Makefile
             libBVGT.a
           if-no-files-found: error
 
@@ -456,14 +456,14 @@ jobs:
           ../configure --enable-optimize --disable-debug --with-gtx=../GTX-SIGMOD2025/build
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../GTX-SIGMOD2025/build
           make clean && make -j2
-          mv gfe_driver ../
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: gfe-gtx-build
           path: |
-            gfe_driver
+            build/gfe_driver
+            build/Makefile
             GTX-SIGMOD2025/build/libgtx.so
           if-no-files-found: error
 
