@@ -48,6 +48,7 @@ csv
 
 # Executables
 generate_property_files
+remove_duplicate_edges
 
 # Create Vertex Ops
 create_vertex_ops

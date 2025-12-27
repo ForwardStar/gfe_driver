@@ -260,6 +260,12 @@ mv datasets/com-lj.ungraph.txt datasets/com-lj.ungraph.el
 mv datasets/com-orkut.ungraph.txt datasets/com-orkut.ungraph.el
 ```
 
+Also, remove duplicate edges in `twitter` dataset by:
+```sh
+g++ remove_duplicate_edges.cpp -o remove_duplicate_edges -O3
+./remove_duplicate_edges datasets/twitter-2010.el
+```
+
 #### About dataset format:
 GFE driver supports two types of graph formats: 
 1. Plain edge list (ends with ".el"): The file contains pairs of vertex IDs, with each edge represented by a line of two space-separated integers indicating connections.
