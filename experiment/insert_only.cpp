@@ -328,6 +328,11 @@ chrono::microseconds InsertOnly::execute() {
     else {
         m_interface->on_thread_init(0);
         LOG("Edge stream size: " << m_stream->num_edges() << ", num edges stored in the graph: " << m_interface->num_edges() << ", match: " << (m_stream->num_edges() == m_interface->num_edges() ? "yes" : "no"));
+        if (m_stream->num_edges() != m_interface->num_edges()) {
+            // Output error and exit
+            std::cerr << "Error: number of edges inserted (" << m_stream->num_edges() << ") does not match number of edges stored in the graph (" << m_interface->num_edges() << ")" << std::endl;
+            exit(1);
+        }
         m_interface->on_thread_destroy(0);
     }
 
